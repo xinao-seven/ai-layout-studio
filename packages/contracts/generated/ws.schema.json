@@ -1,0 +1,88 @@
+{
+  "$id": "https://ai-layout.local/contracts/ws.schema.json",
+  "$ref": "#/definitions/WsEnvelope",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "WsChannel": {
+      "description": "Logical channel multiplexed over the single WebSocket.",
+      "enum": [
+        "turn",
+        "state",
+        "host"
+      ],
+      "title": "WsChannel",
+      "type": "string"
+    },
+    "WsEnvelope": {
+      "additionalProperties": false,
+      "description": "Envelope wrapping every WebSocket message (PRD §6.7).",
+      "properties": {
+        "ch": {
+          "$ref": "#/definitions/WsChannel"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "description": "Server sequence number, monotonically increasing per channel.",
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "description": "Server unix timestamp in milliseconds.",
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "description": "Event type, e.g. turn.started.",
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ch",
+        "type",
+        "seq",
+        "ts"
+      ],
+      "title": "WsEnvelope",
+      "type": "object"
+    }
+  },
+  "description": "M0 envelope contract. The full turn/state/host event union is frozen at the end of M1.",
+  "title": "WsEnvelope"
+}

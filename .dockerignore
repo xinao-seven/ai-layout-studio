@@ -1,0 +1,32 @@
+# Build context is the repository root for both images.
+
+# Python
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/*.pyc
+
+# Node
+**/node_modules
+**/dist
+**/coverage
+**/.pnpm-store
+
+# Runtime / local state
+data/
+.env
+.env.*
+!.env.example
+.git/
+.github/
+*.log
+
+# Docs and assets are not needed inside the images yet.
+docs/
+eval/
+fixtures/
+assets/models/
+assets/thumbnails/
+e2e/

@@ -1,0 +1,11 @@
+{
+  "name": "@ai-layout/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated OpenAPI/JSON Schema artifacts and shared spatial rules.",
+  "type": "module",
+  "exports": {
+    "./rules.json": "./rules.json",
+    "./generated/*": "./generated/*"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Response body for ``GET /api/health`` (PRD §6.7).",
+        "properties": {
+          "model": {
+            "default": "",
+            "description": "Configured LLM model name; empty when not set.",
+            "title": "Model",
+            "type": "string"
+          },
+          "ok": {
+            "default": true,
+            "description": "Service is accepting requests.",
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "version": {
+            "description": "Application version.",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "AI Interior Layout Workbench",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "description": "Liveness probe used by the dev loop, Docker healthcheck and CI.",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Service health",
+        "tags": [
+          "system"
+        ]
+      }
+    }
+  }
+}

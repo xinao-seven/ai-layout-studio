@@ -1,0 +1,28 @@
+{
+  "name": "ai-interior-layout-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"pnpm dev:server\" \"pnpm dev:web\"",
+    "dev:server": "uv run --directory apps/server uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 --workers 1",
+    "dev:web": "pnpm --filter @ai-layout/web dev",
+    "build": "pnpm --filter @ai-layout/web build",
+    "test": "pnpm --filter @ai-layout/web test && uv run --directory apps/server pytest -q",
+    "typecheck": "pnpm --filter @ai-layout/web typecheck && uv run --directory apps/server mypy app",
+    "lint": "pnpm --filter @ai-layout/web lint && uv run --directory apps/server ruff check .",
+    "format": "pnpm --filter @ai-layout/web format && uv run --directory apps/server ruff format .",
+    "contracts:export": "uv run --directory apps/server python ../../scripts/export_contracts.py",
+    "contracts:gen": "pnpm contracts:export && orval --config orval.config.ts && json2ts -i packages/contracts/generated/ws.schema.json -o apps/web/src/contracts/generated/ws.d.ts",
+    "contracts:check": "pnpm contracts:gen && git diff --exit-code -- packages/contracts/generated apps/web/src/contracts/generated",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "json-schema-to-typescript": "^16.0.0",
+    "orval": "^8.48.0"
+  }
+}

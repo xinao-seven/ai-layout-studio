@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.glb binary
+
+# Generated artifacts are compared byte-for-byte by `pnpm contracts:check`.
+packages/contracts/generated/*.json text eol=lf
+apps/web/src/contracts/generated/* text eol=lf
