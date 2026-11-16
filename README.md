@@ -3,15 +3,20 @@
 对话式 AI 室内布局工作台：上传/绘制户型，用自然语言和直接操作完成家具布置。
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
-> 当前状态：**M4 求解器 + VLM + 评测完成**（2026-11-16）。在 M3 的 7 个 Agent 工具之上
+> 当前状态：**M5 加餐完成，核心 + 加餐全量交付**（2026-11-16）。M4 在 M3 的 7 个 Agent 工具之上
 > 新增 `auto_layout` / `verify_layout` / `add_room`（对话式画房间，服务端吸附校验，
 > 提案以青色虚线幽灵预览）：确定性 beam search 求解整室布局（凸多边形、门/窗/
 > 过道/衣柜净空、成组间距、5s 预算、进程池），`verify_layout` 返回结构化问题；带 ID 标注
 > 的正交俯视截图经 WS `capture.request/result` 回传，VLM 只回语义 issue，服务端做 ID 校验、
-> 几何/主路径复核并局部重排（最多 2 轮）。before/after 截图落 `data/screenshots/`（7 天清理，
-> ≤1MB / 长边 1536）。共享用例表 30 例一键跑：`pnpm eval` → `eval/reports/`。
-> M2 的 60 件 CC0 资产、拖放/吸附/旋转、服务端碰撞复核、手绘房间、门窗开口、详情卡 +
-> PointContext 保持兼容。界面视觉参照 aedifex / Pascal Editor（MIT），代码为独立实现。
+> 几何/主路径复核并局部重排（最多 2 轮）。共享用例表 30 例一键跑：`pnpm eval` → `eval/reports/`。
+>
+> M5 加餐：方案 JSON 导出/导入（ID 重映射往返）+ 当前视图 PNG 导出；第一人称漫游
+> （WASD + 门洞/家具碰撞，子步长防隧穿）；日照环境层（NOAA 太阳位置，时间轴阴影，
+> 经纬度经 `scene.update` 随场景持久化、可撤销）；户型图照片 VLM 解析（≤5MB JPEG/PNG，
+> 未保存草案 + 弹窗修正后入库）；极简 MCP server（stdio JSON-RPC，5 个工具与 chat
+> 共用 Pydantic 契约，对等性由测试锁定）。M2 的 60 件 CC0 资产、拖放/吸附/旋转、
+> 服务端碰撞复核、手绘房间、门窗开口、详情卡 + PointContext 保持兼容。
+> 界面视觉参照 aedifex / Pascal Editor（MIT），代码为独立实现。
 >
 > 项目为独立自研实现；aedifex 等开源项目仅作**架构思想参考**，不复制源码。
 
@@ -156,7 +161,24 @@ docker compose up --build
 | M2 | 目录、拖放、手绘、门窗、服务端复核、评测骨架、求解器 spike | ✅ 2026-11-16 |
 | M3 | Agent 循环、7 工具、proposal 链、G1 | ✅ 2026-11-16 |
 | M4 | 求解器、VLM、30 例评测、G2/G3 | ✅ 2026-11-16 |
-| M5 | 导出、第一人称、MCP、日照（可选） | 可选 |
+| M5 | 导出/导入、第一人称、MCP、户型图 VLM、日照 | ✅ 2026-11-16 |
+
+## M5 加餐使用说明
+
+- **导出/导入**：编辑器右上「导出 JSON / 导出 PNG」；首页「导入方案」上传导出文件，
+  服务端重映射 ID 后新建场景（schemaVersion 校验，非法文档返回 `import_invalid`）。
+- **第一人称漫游**：画布右上「漫游」→ 点击画面锁定指针，WASD/方向键移动、Shift 加速、
+  ESC 退出锁定；门洞可通行、家具与墙有碰撞；漫游中编辑交互全部禁用。
+- **日照环境层**：画布右上 ☀ 按钮 → 启用日照、拖时间轴（太阳时，12:00 = 太阳正午）、
+  填经纬度（`scene.update` 提交，可 undo，随场景保存）。
+- **MCP server**：`pnpm mcp`（等价 `uv run --directory apps/server python -m app.mcp`），
+  stdio JSON-RPC 2.0。`tools/list` 暴露 `query_scene` / `search_catalog` / `add_item` /
+  `move_item` / `remove_item`，schema 与 chat 同源；`tools/call` 参数加保留键
+  `sceneId` 指定场景，写工具走同一套 L1–L3 校验并直接落库（无确认 UI）。
+  Claude Desktop 等客户端示例配置见 [ADR-0010](docs/adr/0010-m5-additions.md)。
+- **户型图照片**：首页「户型图照片」上传 ≤5MB JPEG/PNG → VLM 解析为未保存草案
+  （无效房间降级为 warning）→ 弹窗内修正名称/类型 → 创建场景（服务端再次校验
+  + ID 重映射）。需配置 `VLM_BASE_URL / VLM_API_KEY / VLM_MODEL`。
 
 ## 文档
 
@@ -168,6 +190,7 @@ docker compose up --build
 - [ADR-0005 前端视觉语言](docs/adr/0005-frontend-visual-language.md)
 - [ADR-0008 求解器 spike](docs/adr/0008-solver-spike.md)
 - [ADR-0009 生产求解器与 VLM 闭环](docs/adr/0009-solver-vlm-m4.md)
+- [ADR-0010 M5 加餐的范围与折衷](docs/adr/0010-m5-additions.md)
 - [PROTOCOL（含 capture.request/result）](docs/PROTOCOL.md)
 - [CONVENTIONS](docs/CONVENTIONS.md) · [DEPENDENCIES](docs/DEPENDENCIES.md)
 

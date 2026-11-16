@@ -62,6 +62,7 @@ optional `turnId`/`proposalId` and `clientMutationId`. Ops:
 | `opening.add` | `opening` | `opening.remove` |
 | `opening.remove` | `openingId`, `before` | `opening.add` |
 | `opening.update` | `openingId`, `before`/`after` | swap |
+| `scene.update` | typed partial `before`/`after` (`north`, `environment`) | swap |
 
 Update payloads are typed partial models (`ItemUpdateFields` etc.) with
 `extra="forbid"`; identity fields such as `id` are not mutable. The server
@@ -307,6 +308,27 @@ In addition to the M1/M2 codes, M3 emits `invalid_input` (L0/tool schema),
 `tool_timeout`, `unrealistic` (L3, `details.ruleId`), `blocks_window`,
 `walkway_too_narrow`, `item_too_large` and `scene_changed`. Every refusal
 carries a non-empty `suggest`.
+
+## M5 additions
+
+- `POST /api/scenes/import_photo` parses a floor-plan photo (JPEG/PNG, ≤5MB)
+  into an **unsaved** draft `SceneDocument` + `warnings[]` (FR-19). The VLM is
+  prompted for meter-scaled CCW room polygons; the server snaps to the 0.1 m
+  grid, drops rooms that would fail scene validation and reports them as
+  warnings. The client previews the draft (editable names/types) and creates
+  the scene through `POST /api/scenes/import`. Errors: `vlm_unavailable`,
+  `photo_too_large`, `photo_invalid`, `photo_unsupported`, `parse_failed`.
+- `scene.update` patch op mutates scene-level fields only (`north`,
+  `environment.latitude/longitude`), with undo/redo inverses like every other
+  op (FR-22). The client commits it through the normal commit endpoint.
+- MCP server (`python -m app.mcp`, JSON-RPC 2.0 over stdio) exposes
+  `query_scene`, `search_catalog`, `add_item`, `move_item`, `remove_item`
+  (FR-21). `tools/list` schemas come from the same `ToolSpec` registry as the
+  chat agent; `tools/call` arguments additionally accept a reserved `sceneId`
+  routing key that is stripped before L0 validation. Write tools reuse the
+  L1–L3 placement rules and commit **directly** (`actor=agent`) instead of
+  creating a proposal — MCP has no confirmation UI; the payload carries
+  `needsConfirmation: false` and `appliedDirectly: true`.
 
 ## Known limitations
 
