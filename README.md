@@ -3,7 +3,7 @@
 对话式 AI 室内布局工作台：上传/绘制户型，用自然语言和直接操作完成家具布置。
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
-> 当前状态：**M3 Agent 层完成**（2026-11-16；真模型冒烟待配置凭据后执行）。7 个 Agent 工具（查询/检索/新增/移动/
+> 当前状态：**M3 Agent 层完成**（2026-11-16；已用 `deepseek-flash` 跑通真实 G1）。7 个 Agent 工具（查询/检索/新增/移动/
 > 删除/更新/ask_user）、TurnManager（单场景 1 running + 1 queued）、OpenAI 兼容流式
 > LLMAdapter、ContextBuilder/场景快照、五层校验（L0–L3）、pending overlay + 幽灵提案、
 > 依赖链确认/拒绝/过期、WS turn 事件/取消/断线重连、G1 脚本化用例与 OpenAI 兼容假服务

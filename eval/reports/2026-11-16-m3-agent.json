@@ -11,10 +11,11 @@
     "web": "Vite 7 + React 19 + R3F 9"
   },
   "llm": {
-    "mode": "scripted + fake-openai-sse",
-    "model": "scripted",
-    "liveModel": "not_run",
-    "liveModelReason": "No LLM_API_KEY/LLM_MODEL configured in this environment.",
+    "mode": "scripted + fake-openai-sse + live",
+    "model": "deepseek-flash",
+    "liveModel": "passed",
+    "liveBaseUrl": "https://api.deepseek.com",
+    "liveModelReason": "Real provider G1 smoke passed on 2026-11-16.",
     "fakeService": "app.testing.fake_llm (OpenAI-compatible /v1/chat/completions SSE)"
   },
   "g1": {
@@ -138,9 +139,28 @@
     }
   },
   "limitations": [
-    "Live provider smoke was not run because no credentials are configured.",
-    "L3 rules are strict for agent writes only; manual edits still surface L2 refusals.",
+    "Manual edits still only surface L2 refusals; L3 rules are strict for agent writes.",
     "Solver/VLM refusal codes are registered but exercised in M4.",
-    "Turn history/messages are persisted in turns.messages_json; live in-memory turns are still retained until process exit."
-  ]
+    "Turn history/messages are persisted in turns.messages_json; live in-memory turns are retained until process exit."
+  ],
+  "liveG1": {
+    "provider": "DeepSeek",
+    "baseUrl": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "status": "passed",
+    "iterations": 5,
+    "tokensIn": 39033,
+    "tokensOut": 628,
+    "refusals": [],
+    "wallClockMs": 6077,
+    "proposalsCreated": 2,
+    "proposalsConfirmed": 2,
+    "dependencyChain": "proposal[1].dependsOn = [proposal[0].id]",
+    "versionsAfterConfirm": 3,
+    "itemsAfterConfirm": [
+      "sofa",
+      "coffee_table"
+    ],
+    "note": "Confirmed via WebSocket proposal.confirm in dependency order; final items are agent-sourced."
+  }
 }
