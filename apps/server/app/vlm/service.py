@@ -121,6 +121,11 @@ class VLMService:
         self._settings = settings
 
     @property
+    def client(self) -> VLMClient:
+        """Underlying adapter, shared by other VLM consumers (floor-plan parse)."""
+        return self._client
+
+    @property
     def enabled(self) -> bool:
         return True
 

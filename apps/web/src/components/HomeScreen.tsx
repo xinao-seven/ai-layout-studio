@@ -2,6 +2,7 @@ import {
   ArrowRight,
   Box,
   Home,
+  ImageIcon,
   Layers3,
   Loader2,
   Plus,
@@ -10,7 +11,9 @@ import {
   Upload,
 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { importPhoto, type PhotoImportResult } from '../api/client'
 import { useSceneStore } from '../store/sceneStore'
+import { PhotoDraftModal } from './PhotoDraftModal'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Separator } from './ui/separator'
@@ -35,7 +38,10 @@ export function HomeScreen() {
   const error = useSceneStore((state) => state.error)
   const setError = useSceneStore((state) => state.setError)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const [photoLoading, setPhotoLoading] = useState(false)
+  const [photoDraft, setPhotoDraft] = useState<PhotoImportResult | null>(null)
 
   const handleImportFile = (file: File | undefined) => {
     if (!file) return
@@ -43,6 +49,28 @@ export function HomeScreen() {
     void importSceneFile(file)
       .catch(() => undefined)
       .finally(() => setImporting(false))
+  }
+
+  const handlePhotoFile = (file: File | undefined) => {
+    if (!file) return
+    setPhotoLoading(true)
+    setError(null)
+    importPhoto(file)
+      .then((result) => setPhotoDraft(result))
+      .catch((error: unknown) => {
+        setError({
+          code:
+            error instanceof Error && 'code' in error
+              ? String((error as { code: string }).code)
+              : 'photo_failed',
+          message: error instanceof Error ? error.message : '照片解析失败。',
+          suggest:
+            error instanceof Error && 'suggest' in error
+              ? ((error as { suggest?: string }).suggest ?? null)
+              : null,
+        })
+      })
+      .finally(() => setPhotoLoading(false))
   }
 
   return (
@@ -70,6 +98,29 @@ export function HomeScreen() {
               ref={fileInputRef}
               type="file"
             />
+            <input
+              accept="image/jpeg,image/png"
+              className="hidden"
+              onChange={(event) => {
+                handlePhotoFile(event.target.files?.[0])
+                event.target.value = ''
+              }}
+              ref={photoInputRef}
+              type="file"
+            />
+            <Button
+              disabled={photoLoading}
+              onClick={() => photoInputRef.current?.click()}
+              size="sm"
+              variant="outline"
+            >
+              {photoLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <ImageIcon className="h-3.5 w-3.5" />
+              )}
+              户型图照片
+            </Button>
             <Button
               disabled={importing}
               onClick={() => fileInputRef.current?.click()}
@@ -244,6 +295,9 @@ export function HomeScreen() {
           </div>
         ) : null}
       </main>
+      {photoDraft ? (
+        <PhotoDraftModal draft={photoDraft} onClose={() => setPhotoDraft(null)} />
+      ) : null}
     </div>
   )
 }

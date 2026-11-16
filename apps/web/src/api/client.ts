@@ -164,6 +164,43 @@ export async function importScene(document: SceneDocument): Promise<SceneDocumen
   return call<SceneDocument>(() => importSceneApiScenesImportPost({ document }))
 }
 
+export interface PhotoImportResult {
+  document: SceneDocument
+  warnings: string[]
+}
+
+/** Multipart upload is not part of the generated client; call it directly. */
+export async function importPhoto(file: File): Promise<PhotoImportResult> {
+  const form = new FormData()
+  form.append('file', file)
+  let response: Response
+  try {
+    response = await fetch('/api/scenes/import_photo', { body: form, method: 'POST' })
+  } catch {
+    throw new ApiError(
+      'network_error',
+      'Network request failed.',
+      0,
+      'Check that the API server is running.',
+    )
+  }
+  const data: unknown = await response.json().catch(() => undefined)
+  if (response.status >= 200 && response.status < 300) {
+    return data as PhotoImportResult
+  }
+  const error = (data as ErrorEnvelope | undefined)?.error
+  if (error) {
+    throw new ApiError(
+      error.code,
+      error.message,
+      response.status,
+      error.suggest ?? undefined,
+      error.details ?? undefined,
+    )
+  }
+  throw new ApiError('http_error', `Request failed with HTTP ${response.status}.`, response.status)
+}
+
 export async function listTurns(sceneId: string): Promise<Turn[]> {
   const response = await call<{ turns: Turn[] }>(() => listTurnsApiScenesSceneIdTurnsGet(sceneId))
   return response.turns

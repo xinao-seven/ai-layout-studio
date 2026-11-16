@@ -647,6 +647,163 @@ zod.number()])).min(importSceneApiScenesImportPostResponseRoomsItemPolygonMin),
 
 
 /**
+ * Parse a floor-plan photo into an unsaved draft scene (PRD FR-19).
+ * @summary Import Photo Scene
+ */
+export const ImportPhotoSceneApiScenesImportPhotoPostBody = zod.object({
+  "file": zod.instanceof(Blob)
+})
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallHeightDefault = 2.8;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallHeightExclusiveMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallMaterialDefault = `default`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallThicknessDefault = 0.12;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallThicknessExclusiveMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLatitudeOneMin = -90;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLatitudeOneMax = 90;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLongitudeOneMin = -180;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLongitudeOneMax = 180;
+
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneBackOneMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneFrontOneMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneSidesOneMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemSourceDefault = `manual`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemTransformScaleDefault = 1;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemTransformScaleExclusiveMin = 0;
+
+
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneHingeDefault = `start`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneOpensToDefault = `in`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneSwingDefault = `single`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemEdgeIndexMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemHeightExclusiveMin = 0;
+
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemOffsetMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemOffsetFromDefault = `start`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemSillHeightOneMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemWidthExclusiveMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemFloorMaterialDefault = `default`;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemPolygonMin = 3;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemTypeDefault = `other`;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemWallHeightOneExclusiveMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemWallThicknessOneExclusiveMin = 0;
+
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentSchemaVersionDefault = 1;
+export const importPhotoSceneApiScenesImportPhotoPostResponseDocumentUnitsDefault = `metric`;
+
+
+export const ImportPhotoSceneApiScenesImportPhotoPostResponse = zod.object({
+  "document": zod.object({
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "defaults": zod.object({
+  "wallHeight": zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallHeightExclusiveMin).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallHeightDefault),
+  "wallMaterial": zod.string().default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallMaterialDefault),
+  "wallThickness": zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallThicknessExclusiveMin).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentDefaultsWallThicknessDefault)
+}).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLatitudeOneMin).max(importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLongitudeOneMin).max(importPhotoSceneApiScenesImportPhotoPostResponseDocumentEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "items": zod.array(zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "kindId": zod.string().min(1),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.enum(['manual', 'agent']).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemSourceDefault),
+  "transform": zod.object({
+  "position": zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),
+  "rotationY": zod.number(),
+  "scale": zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemTransformScaleExclusiveMin).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentItemsItemTransformScaleDefault)
+}).describe('Item placement. Rotation is radians around +Y; front axis is +Z.'),
+  "variantId": zod.string().min(1)
+})),
+  "name": zod.string().min(1),
+  "north": zod.tuple([zod.number(),
+zod.number()]).default([0, -1]),
+  "openings": zod.array(zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.int().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemEdgeIndexMin),
+  "height": zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemHeightExclusiveMin),
+  "id": zod.string().min(1),
+  "offset": zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemOffsetMin),
+  "offsetFrom": zod.literal("start").default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemOffsetFromDefault).meta({ title: 'Offsetfrom' }),
+  "roomId": zod.string().min(1),
+  "sillHeight": zod.union([zod.number().min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['door', 'window']),
+  "width": zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentOpeningsItemWidthExclusiveMin)
+}).describe('Door or window anchored to a room polygon edge.')),
+  "rooms": zod.array(zod.object({
+  "floorMaterial": zod.string().default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemFloorMaterialDefault),
+  "id": zod.string().min(1),
+  "name": zod.string().min(1),
+  "polygon": zod.array(zod.tuple([zod.number(),
+zod.number()])).min(importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemPolygonMin),
+  "type": zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemTypeDefault),
+  "wallHeight": zod.union([zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(importPhotoSceneApiScenesImportPhotoPostResponseDocumentRoomsItemWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Room whose polygon is the wall centerline (CCW).')),
+  "schemaVersion": zod.literal(1).default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentSchemaVersionDefault).meta({ title: 'Schemaversion' }),
+  "units": zod.literal("metric").default(importPhotoSceneApiScenesImportPhotoPostResponseDocumentUnitsDefault).meta({ title: 'Units' }),
+  "updatedAt": zod.iso.datetime({"offset":true}),
+  "version": zod.int().min(1)
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.string()).optional()
+}).describe('Draft scene parsed from a floor-plan photo (PRD FR-19).\n\nThe document is *not* saved: the client previews it, lets the user fix\nnames/types, then POSTs it to ``/api/scenes/import`` to create the scene.')
+
+
+/**
  * @summary Get Scene
  */
 export const GetSceneApiScenesSceneIdGetParams = zod.object({

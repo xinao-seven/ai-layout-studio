@@ -90,6 +90,17 @@ class ImportRequest(CamelModel):
     document: SceneDocument
 
 
+class PhotoImportResponse(CamelModel):
+    """Draft scene parsed from a floor-plan photo (PRD FR-19).
+
+    The document is *not* saved: the client previews it, lets the user fix
+    names/types, then POSTs it to ``/api/scenes/import`` to create the scene.
+    """
+
+    document: SceneDocument
+    warnings: list[str] = Field(default_factory=list)
+
+
 class CatalogResponse(CamelModel):
     entries: list[CatalogEntry]
 

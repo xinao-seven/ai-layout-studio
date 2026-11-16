@@ -44,6 +44,11 @@ export interface Anchor {
   wallLabel?: string | null;
 }
 
+export interface BodyImportPhotoSceneApiScenesImportPhotoPost {
+  /** Floor-plan photo, JPEG/PNG, ≤5MB. */
+  file: Blob | File;
+}
+
 export type CatalogCategory = typeof CatalogCategory[keyof typeof CatalogCategory];
 
 
@@ -552,6 +557,17 @@ export const MessageRole = {
   tool: 'tool',
 } as const;
 
+/**
+ * Draft scene parsed from a floor-plan photo (PRD FR-19).
+ *
+ * The document is *not* saved: the client previews it, lets the user fix
+ * names/types, then POSTs it to ``/api/scenes/import`` to create the scene.
+ */
+export interface PhotoImportResponse {
+  document: SceneDocument;
+  warnings?: string[];
+}
+
 export type ProposalStatus = typeof ProposalStatus[keyof typeof ProposalStatus];
 
 
@@ -1043,6 +1059,59 @@ export const importSceneApiScenesImportPost = async (importRequest: ImportReques
 
   const data: importSceneApiScenesImportPostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as importSceneApiScenesImportPostResponse
+}
+
+
+
+export type importPhotoSceneApiScenesImportPhotoPostResponse200 = {
+  data: PhotoImportResponse
+  status: 200
+}
+
+export type importPhotoSceneApiScenesImportPhotoPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type importPhotoSceneApiScenesImportPhotoPostResponseSuccess = (importPhotoSceneApiScenesImportPhotoPostResponse200) & {
+  headers: Headers;
+};
+export type importPhotoSceneApiScenesImportPhotoPostResponseError = (importPhotoSceneApiScenesImportPhotoPostResponse422) & {
+  headers: Headers;
+};
+
+export type importPhotoSceneApiScenesImportPhotoPostResponse = (importPhotoSceneApiScenesImportPhotoPostResponseSuccess | importPhotoSceneApiScenesImportPhotoPostResponseError)
+
+export const getImportPhotoSceneApiScenesImportPhotoPostUrl = () => {
+
+
+
+
+  return `/api/scenes/import_photo`
+}
+
+/**
+ * Parse a floor-plan photo into an unsaved draft scene (PRD FR-19).
+ * @summary Import Photo Scene
+ */
+export const importPhotoSceneApiScenesImportPhotoPost = async (bodyImportPhotoSceneApiScenesImportPhotoPost: BodyImportPhotoSceneApiScenesImportPhotoPost, options?: RequestInit): Promise<importPhotoSceneApiScenesImportPhotoPostResponse> => {
+    const formData = new FormData();
+formData.append(`file`, bodyImportPhotoSceneApiScenesImportPhotoPost.file);
+
+  const res = await fetch(getImportPhotoSceneApiScenesImportPhotoPostUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: importPhotoSceneApiScenesImportPhotoPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as importPhotoSceneApiScenesImportPhotoPostResponse
 }
 
 

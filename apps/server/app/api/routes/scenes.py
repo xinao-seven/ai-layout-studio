@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+import io
 import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response, status
+import structlog
+from fastapi import APIRouter, Depends, File, Response, UploadFile, status
+from PIL import Image, UnidentifiedImageError
 
 from app.api.deps import (
+    get_app_settings,
     get_catalog,
     get_fixtures,
     get_gateway,
     get_registry,
     get_repository,
+    get_vlm,
 )
 from app.catalog.service import CatalogService
 from app.contracts.api import (
@@ -20,6 +25,7 @@ from app.contracts.api import (
     CommitRequest,
     CreateSceneRequest,
     ImportRequest,
+    PhotoImportResponse,
     SceneListResponse,
     SceneResult,
     SceneSummary,
@@ -30,6 +36,7 @@ from app.contracts.ids import IdPrefix, new_id
 from app.contracts.patch import ItemAddOp, ItemRemoveOp, ItemUpdateOp, PatchOp
 from app.contracts.rules import get_rules
 from app.contracts.scene import Item, ItemConstraint, Room, SceneDocument, Transform, Vec2
+from app.core.config import Settings
 from app.db.repository import SceneRepository
 from app.geometry.errors import GeometryError
 from app.geometry.obb import OBB, obb_from_transform, obb_overlap
@@ -45,6 +52,10 @@ from app.scene.factory import empty_scene, export_document, import_document
 from app.scene.fixtures import FixtureService
 from app.scene.registry import SceneRegistry
 from app.sync.gateway import SyncGateway
+from app.vlm.floorplan import parse_floorplan
+from app.vlm.service import VLMService
+
+logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/scenes", tags=["scenes"])
 
@@ -429,3 +440,60 @@ async def import_scene(
 ) -> SceneDocument:
     document = import_document(request.document, catalog=catalog.by_kind)
     return await registry.create_scene(document)
+
+
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
+ALLOWED_PHOTO_FORMATS = {"JPEG", "PNG"}
+
+
+@router.post("/import_photo", response_model=PhotoImportResponse)
+async def import_photo_scene(
+    file: Annotated[UploadFile, File(description="Floor-plan photo, JPEG/PNG, ≤5MB.")],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    vlm: Annotated[VLMService | None, Depends(get_vlm)],
+) -> PhotoImportResponse:
+    """Parse a floor-plan photo into an unsaved draft scene (PRD FR-19)."""
+    payload = await file.read()
+    if len(payload) > MAX_PHOTO_BYTES:
+        raise SceneError(
+            "photo_too_large",
+            f"照片超过 {MAX_PHOTO_BYTES // (1024 * 1024)} MB 限制。",
+            "压缩或裁剪照片后重试。",
+        )
+    if not payload:
+        raise SceneError(
+            "photo_invalid",
+            "照片内容为空。",
+            "重新选择一张户型图照片。",
+        )
+    try:
+        image = Image.open(io.BytesIO(payload))
+        image_format = (image.format or "").upper()
+    except (OSError, UnidentifiedImageError) as error:
+        raise SceneError(
+            "photo_invalid",
+            "文件不是有效的图片。",
+            "上传 JPEG 或 PNG 格式的户型图照片。",
+        ) from error
+    if image_format not in ALLOWED_PHOTO_FORMATS:
+        raise SceneError(
+            "photo_unsupported",
+            f"仅支持 JPEG/PNG 格式，收到 {image_format or '未知'}。",
+            "将照片另存为 JPEG/PNG 后重试。",
+        )
+    if vlm is None:
+        raise SceneError(
+            "vlm_unavailable",
+            "VLM 未配置，无法解析户型图照片。",
+            "在 .env 中配置 VLM_BASE_URL / VLM_API_KEY / VLM_MODEL 后重启。",
+        )
+
+    name = (file.filename or "户型图草案").rsplit(".", 1)[0][:40] or "户型图草案"
+    document, warnings = await parse_floorplan(
+        vlm.client,
+        payload,
+        name=name,
+        timeout=settings.vlm_timeout_seconds,
+    )
+    logger.info("floorplan.parsed", rooms=len(document.rooms), name=name)
+    return PhotoImportResponse(document=document, warnings=warnings)

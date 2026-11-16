@@ -132,6 +132,21 @@
         "title": "AnchorType",
         "type": "string"
       },
+      "Body_import_photo_scene_api_scenes_import_photo_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Floor-plan photo, JPEG/PNG, ≤5MB.",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_photo_scene_api_scenes_import_photo_post",
+        "type": "object"
+      },
       "CatalogCategory": {
         "enum": [
           "sofa",
@@ -1459,6 +1474,27 @@
         ],
         "title": "OpensTo",
         "type": "string"
+      },
+      "PhotoImportResponse": {
+        "additionalProperties": false,
+        "description": "Draft scene parsed from a floor-plan photo (PRD FR-19).\n\nThe document is *not* saved: the client previews it, lets the user fix\nnames/types, then POSTs it to ``/api/scenes/import`` to create the scene.",
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/SceneDocument"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "document"
+        ],
+        "title": "PhotoImportResponse",
+        "type": "object"
       },
       "Proposal": {
         "additionalProperties": false,
@@ -2936,6 +2972,48 @@
           }
         },
         "summary": "Import Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/import_photo": {
+      "post": {
+        "description": "Parse a floor-plan photo into an unsaved draft scene (PRD FR-19).",
+        "operationId": "import_photo_scene_api_scenes_import_photo_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_photo_scene_api_scenes_import_photo_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhotoImportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Photo Scene",
         "tags": [
           "scenes"
         ]

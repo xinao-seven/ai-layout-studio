@@ -15,11 +15,18 @@ from app.sync.gateway import SyncGateway
 
 if TYPE_CHECKING:
     from app.agent.manager import TurnManager
+    from app.vlm.service import VLMService
 
 
 def get_app_settings(request: Request) -> Settings:
     """Return the Settings instance bound to the current application."""
     return cast(Settings, request.app.state.settings)
+
+
+def get_vlm(request: Request) -> VLMService | None:
+    """Return the VLM service, or None when it is not configured."""
+    service = getattr(request.app.state, "vlm", None)
+    return cast("VLMService | None", service)
 
 
 def get_repository(request: Request) -> SceneRepository:
