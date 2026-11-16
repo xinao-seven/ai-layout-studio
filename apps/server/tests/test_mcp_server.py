@@ -43,21 +43,49 @@ async def make_server(mcp: McpContext) -> McpServer:
 
 
 def test_tools_list_matches_chat_contract() -> None:
-    from app.agent.registry import TOOL_BY_NAME
+    from app.agent.registry import TOOL_BY_NAME, TOOL_NAMES, openai_tools
 
     tools = mcp_tool_definitions()
     assert [tool["name"] for tool in tools] == list(MCP_TOOL_NAMES)
+    assert set(MCP_TOOL_NAMES) <= set(TOOL_NAMES)
+    chat_openai_payload = {
+        entry["function"]["name"]: entry["function"] for entry in openai_tools()
+    }
     for tool in tools:
         spec = TOOL_BY_NAME[tool["name"]]
         # 契约对等：名称/描述/schema 必须与 chat 工具完全一致。
         assert tool["description"] == spec.description
         assert tool["inputSchema"] == parameter_schema_of(spec.name)
+        # 与 OpenAI tools payload 独立比对一次（同一来源、不同装配路径）。
+        chat_function = chat_openai_payload[tool["name"]]
+        assert chat_function["description"] == tool["description"]
+        assert chat_function["parameters"] == tool["inputSchema"]
 
 
 def parameter_schema_of(name: str) -> dict[str, Any]:
     from app.agent.registry import parameter_schema
 
     return parameter_schema(name)
+
+
+async def test_malformed_params_do_not_crash(test_settings: Settings) -> None:
+    context = McpContext(settings=test_settings)
+    await context.startup()
+    try:
+        server = McpServer(context)
+        response = await server.dispatch(
+            {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": [1, 2]}
+        )
+        assert response is not None
+        assert response["error"]["code"] == -32602
+
+        response = await server.dispatch(
+            {"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": "nonsense"}
+        )
+        assert response is not None
+        assert response["error"]["code"] == -32602
+    finally:
+        await context.aclose()
 
 
 async def test_initialize_and_ping(test_settings: Settings) -> None:
@@ -226,3 +254,68 @@ async def test_query_scene_matches_chat_payload_shape(
 
 async def _fail_ask_user(*args: Any) -> dict[str, list[str]]:
     raise AssertionError("ask_user should not be called")
+
+
+async def test_tools_call_move_and_remove_item(
+    test_settings: Settings, seeded_scene: str
+) -> None:
+    context = McpContext(settings=test_settings)
+    await context.startup()
+    try:
+        document = await context.registry.get_document(seeded_scene)
+        room_id = document.rooms[0].id
+        catalog = CatalogService()
+        kind_id = sorted(catalog.by_kind.keys())[0]
+
+        # execute_tool returns the payload directly (not the MCP envelope).
+        payload = await context.execute_tool(
+            "add_item",
+            {
+                "sceneId": seeded_scene,
+                "kindId": kind_id,
+                "roomId": room_id,
+                "relation": {"type": "center"},
+            },
+        )
+        assert payload["ok"] is True, payload
+        item_id = payload["preview"]["itemId"]
+        document = await context.registry.get_document(seeded_scene)
+        added_item = next(
+            candidate for candidate in document.items if candidate.id == item_id
+        )
+        before_x = added_item.transform.position[0]
+        before_z = added_item.transform.position[2]
+
+        moved = await context.execute_tool(
+            "move_item",
+            {"sceneId": seeded_scene, "itemId": item_id, "offset": {"dx": 0.5, "dz": -0.3}},
+        )
+        assert moved["ok"] is True, moved
+        assert moved["appliedDirectly"] is True
+
+        document = await context.registry.get_document(seeded_scene)
+        item = next(candidate for candidate in document.items if candidate.id == item_id)
+        assert item.transform.position[0] == pytest.approx(before_x + 0.5)
+        assert item.transform.position[2] == pytest.approx(before_z - 0.3)
+
+        removed = await context.execute_tool(
+            "remove_item", {"sceneId": seeded_scene, "itemId": item_id}
+        )
+        assert removed["ok"] is True, removed
+        document = await context.registry.get_document(seeded_scene)
+        assert all(candidate.id != item_id for candidate in document.items)
+    finally:
+        await context.aclose()
+
+
+async def test_tools_call_unknown_item_refuses(test_settings: Settings, seeded_scene: str) -> None:
+    context = McpContext(settings=test_settings)
+    await context.startup()
+    try:
+        payload = await context.execute_tool(
+            "remove_item", {"sceneId": seeded_scene, "itemId": "it_missing"}
+        )
+        assert payload["ok"] is False
+        assert payload["refusals"][0]["code"] == "not_found"
+    finally:
+        await context.aclose()

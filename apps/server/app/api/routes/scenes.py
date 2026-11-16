@@ -453,6 +453,14 @@ async def import_photo_scene(
     vlm: Annotated[VLMService | None, Depends(get_vlm)],
 ) -> PhotoImportResponse:
     """Parse a floor-plan photo into an unsaved draft scene (PRD FR-19)."""
+    # Reject oversized uploads before buffering the whole body in memory.
+    declared_size = getattr(file, "size", None)
+    if declared_size is not None and declared_size > MAX_PHOTO_BYTES:
+        raise SceneError(
+            "photo_too_large",
+            f"照片超过 {MAX_PHOTO_BYTES // (1024 * 1024)} MB 限制。",
+            "压缩或裁剪照片后重试。",
+        )
     payload = await file.read()
     if len(payload) > MAX_PHOTO_BYTES:
         raise SceneError(

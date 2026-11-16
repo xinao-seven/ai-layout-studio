@@ -42,7 +42,7 @@ function applyOpeningUpdate(opening: Opening, after: JsonObject): Opening {
  * optimistically, then adopts the server snapshot whenever versions disagree.
  */
 export function applyPatchToDocument(document: SceneDocument, ops: PatchOp[]): SceneDocument {
-  const next = structuredClone(document)
+  let next = structuredClone(document)
   for (const op of ops) {
     switch (op.op) {
       case 'item.add':
@@ -90,11 +90,13 @@ export function applyPatchToDocument(document: SceneDocument, ops: PatchOp[]): S
       }
       case 'scene.update': {
         if (!op.after) throw new Error('scene.update has no after')
-        const merged = deepMerge(
-          structuredClone(document) as unknown as JsonObject,
-          op.after as JsonObject,
-        )
-        return merged as unknown as SceneDocument
+        // Merge into the accumulated `next` (not the original document) and
+        // keep processing: a patch may mix scene.update with item/room ops.
+        next = deepMerge(
+          next as unknown as JsonObject,
+          structuredClone(op.after) as JsonObject,
+        ) as unknown as SceneDocument
+        break
       }
     }
   }

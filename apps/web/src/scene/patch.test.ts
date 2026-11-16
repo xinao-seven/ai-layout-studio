@@ -112,6 +112,23 @@ describe('scene.update', () => {
     expect(source.environment).toBeUndefined()
   })
 
+  it('keeps ops applied before and after a scene.update in the same patch', () => {
+    const updated = applyPatchToDocument(document(), [
+      { op: 'item.add', item: item() } as PatchOp,
+      { op: 'scene.update', after: { north: [1, 0] } } as PatchOp,
+      { op: 'scene.update', after: { environment: { latitude: 1, longitude: 2 } } } as PatchOp,
+    ])
+    expect(updated.items).toHaveLength(1)
+    expect(updated.north).toEqual([1, 0])
+    expect(updated.environment).toEqual({ latitude: 1, longitude: 2 })
+  })
+
+  it('does not mutate the source document', () => {
+    const source = document()
+    applyPatchToDocument(source, [{ op: 'scene.update', after: { north: [1, 0] } } as PatchOp])
+    expect(source.north).toEqual([0, -1])
+  })
+
   it('rotates north', () => {
     const updated = applyPatchToDocument(document(), [
       { op: 'scene.update', after: { north: [1, 0] } } as PatchOp,

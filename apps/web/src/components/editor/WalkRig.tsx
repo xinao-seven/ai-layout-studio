@@ -34,7 +34,7 @@ export function WalkRig({ scene, catalog }: { scene: SceneDocument; catalog: Cat
   const camera = useThree((state) => state.camera)
   const gl = useThree((state) => state.gl)
   const colliders = useMemo(() => buildWalkColliders(scene, catalog), [scene, catalog])
-  const spawn = useMemo(() => walkSpawn(scene), [scene])
+  const spawn = useMemo(() => walkSpawn(scene, colliders), [scene, colliders])
   const walk = useRef<WalkState>({
     position: spawn.position,
     yaw: spawn.yaw,
@@ -84,6 +84,9 @@ export function WalkRig({ scene, catalog }: { scene: SceneDocument; catalog: Cat
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
+      // Only steer while the pointer is locked: typing in a sidebar input must
+      // not move the walker even though walk mode is active.
+      if (document.pointerLockElement !== element) return
       state.keys.add(event.code)
     }
     const onKeyUp = (event: KeyboardEvent) => {

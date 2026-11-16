@@ -1,5 +1,15 @@
 import type { CatalogEntry, SceneDocument } from '../contracts/generated/client/rest'
-import { edgeInfo, type Obb, obbAxes, obbFromBox, pointAlongEdge, type Vec2 } from './geometry'
+import {
+  edgeInfo,
+  type Obb,
+  obbAxes,
+  obbFromBox,
+  pointAlongEdge,
+  pointInPolygon,
+  polygonBounds,
+  polygonCentroid,
+  type Vec2,
+} from './geometry'
 import { allowsOverlap, itemFootprint } from './placement'
 
 /** First-person walker constants (PRD FR-20). */
@@ -181,24 +191,26 @@ export function resolveWalkMove(colliders: WalkColliders, from: Vec2, delta: Vec
   return from
 }
 
-/** Spawn at the centroid of the largest room; falls back to the origin. */
-export function walkSpawn(scene: SceneDocument): { position: Vec2; yaw: number } {
-  let best: { center: Vec2; area: number } | null = null
+/** Spawn in the largest room facing its first edge, on a free floor spot. */
+export function walkSpawn(
+  scene: SceneDocument,
+  colliders: WalkColliders,
+): { position: Vec2; yaw: number } {
+  // Pick the largest room by area, then sample a grid inside it sorted by
+  // distance from its centroid: the naive vertex average can land inside a
+  // bed/sofa (typical auto_layout output) or, for L-shapes, inside a wall.
+  let best: { polygon: Vec2[]; area: number } | null = null
   for (const room of scene.rooms) {
     const polygon = room.polygon as Vec2[]
     const area = polygon.reduce((total, point, index) => {
       const next = polygon[(index + 1) % polygon.length] as Vec2
       return total + (point[0] * next[1] - next[0] * point[1])
     }, 0)
-    const centroid: Vec2 = [
-      polygon.reduce((total, point) => total + point[0], 0) / polygon.length,
-      polygon.reduce((total, point) => total + point[1], 0) / polygon.length,
-    ]
     const absArea = Math.abs(area / 2)
-    if (!best || absArea > best.area) best = { center: centroid, area: absArea }
+    if (!best || absArea > best.area) best = { polygon, area: absArea }
   }
-  const position = best?.center ?? [0, 0]
-  // Face the room's first edge so the view starts looking "into" the space.
+
+  const position = pickFreeSpawn(best?.polygon ?? null, colliders)
   const firstRoom = scene.rooms[0]
   const edge = firstRoom ? edgeInfo(firstRoom.polygon as Vec2[], 0) : null
   const target = edge
@@ -206,4 +218,31 @@ export function walkSpawn(scene: SceneDocument): { position: Vec2; yaw: number }
     : ([position[0], position[1] - 1] as Vec2)
   const yaw = Math.atan2(-(target[0] - position[0]), -(target[1] - position[1]))
   return { position, yaw }
+}
+
+function pickFreeSpawn(polygon: Vec2[] | null, colliders: WalkColliders): Vec2 {
+  if (!polygon || polygon.length < 3) return [0, 0]
+  const centroid = polygonCentroid(polygon)
+  const bounds = polygonBounds(polygon)
+  const step = 0.3
+  const candidates: Vec2[] = []
+  for (let x = bounds[0] + step; x < bounds[2]; x += step) {
+    for (let z = bounds[1] + step; z < bounds[3]; z += step) {
+      const point: Vec2 = [Number(x.toFixed(3)), Number(z.toFixed(3))]
+      if (!pointInPolygon(point, polygon)) continue
+      candidates.push(point)
+    }
+  }
+  candidates.sort(
+    (first, second) =>
+      (first[0] - centroid[0]) ** 2 +
+      (first[1] - centroid[1]) ** 2 -
+      ((second[0] - centroid[0]) ** 2 + (second[1] - centroid[1]) ** 2),
+  )
+  for (const candidate of candidates) {
+    if (!walkPositionBlocked(colliders, candidate)) return candidate
+  }
+  // Floor fully covered: fall back to the door-free corner closest to the door
+  // is overkill — the origin at least keeps the walker deterministic.
+  return [0, 0]
 }

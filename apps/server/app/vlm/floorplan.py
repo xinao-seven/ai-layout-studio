@@ -8,6 +8,7 @@ builds an unsaved draft document the user can correct before importing.
 from __future__ import annotations
 
 import json
+import math
 import re
 from datetime import UTC, datetime
 from typing import Any
@@ -138,10 +139,14 @@ def _coerce_polygon(raw: Any, index: int) -> list[tuple[float, float]]:
                 "重试一次；连续失败请更换更清晰的照片。",
             )
         x, z = vertex
-        if not isinstance(x, (int, float)) or not isinstance(z, (int, float)):
+        if (
+            not isinstance(x, (int, float))
+            or not isinstance(z, (int, float))
+            or not (math.isfinite(float(x)) and math.isfinite(float(z)))
+        ):
             raise SceneError(
                 "parse_failed",
-                f"第 {index + 1} 个房间的顶点坐标不是数字。",
+                f"第 {index + 1} 个房间的顶点坐标不是有限数字。",
                 "重试一次；连续失败请更换更清晰的照片。",
             )
         points.append((_snap(float(x)), _snap(float(z))))
@@ -159,9 +164,12 @@ def draft_from_vlm(payload: dict[str, Any], *, name: str) -> tuple[SceneDocument
             "VLM 没有识别出任何房间。",
             "重试一次，或改用手绘房间。",
         )
+    if len(raw_rooms) > MAX_ROOMS:
+        warnings.append(f"房间数超过 {MAX_ROOMS}，已截断；其余房间可在编辑器里手绘。")
+    selected_rooms = raw_rooms[:MAX_ROOMS]
 
     rooms: list[Room] = []
-    for index, raw_room in enumerate(raw_rooms[:MAX_ROOMS]):
+    for index, raw_room in enumerate(selected_rooms):
         if not isinstance(raw_room, dict):
             warnings.append(f"第 {index + 1} 个房间格式异常，已跳过。")
             continue
@@ -195,7 +203,7 @@ def draft_from_vlm(payload: dict[str, Any], *, name: str) -> tuple[SceneDocument
             "所有识别出的房间都无效。",
             "重试一次，或改用手绘房间。",
         )
-    if len(rooms) < len(raw_rooms[:MAX_ROOMS]):
+    if len(rooms) < len(selected_rooms):
         warnings.append(f"保留了 {len(rooms)} 个房间；其余可在编辑器里手绘。")
 
     now = datetime.now(UTC)

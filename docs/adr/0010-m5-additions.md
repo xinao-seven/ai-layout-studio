@@ -49,6 +49,11 @@ L1–L3 规则，但**直接 commit**（`actor=agent`）而不是创建 proposal
 （initialize / ping / tools/list / tools/call），不引入 mcp SDK 依赖；
 `tools/call` 参数额外接受保留键 `sceneId` 做路由（L0 校验前剥离）。
 
+已知语义差异：写工具的参考系是 overlay（含 chat 未确认提案的幽灵家具），
+commit 落在 confirmed 文档上并在 commit 侧重新全量校验——若 MCP 的放置与
+随后确认的 chat 提案冲突，确认会以校验失败拒绝并保持 pending 至 TTL 过期，
+不会产生脏数据。
+
 MCP 客户端（如 Claude Desktop）示例配置：
 
 ```json

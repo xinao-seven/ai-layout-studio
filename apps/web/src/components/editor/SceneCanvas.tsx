@@ -219,6 +219,7 @@ function RoomFloor({ room }: { room: Room }) {
     <mesh
       onClick={(event) => {
         if (useSceneStore.getState().tool !== 'select') return
+        if (useSceneStore.getState().viewMode === 'walk') return
         const itemHit = event.intersections.some((intersection) => {
           let object: THREE.Object3D | null = intersection.object
           while (object) {
@@ -267,6 +268,7 @@ function Walls({ scene, topView }: { scene: SceneDocument; topView: boolean }) {
             key={wall.key}
             onClick={(event) => {
               if (useSceneStore.getState().tool !== 'select') return
+              if (useSceneStore.getState().viewMode === 'walk') return
               let chosen = wall.edges[0]
               let best = Number.NEGATIVE_INFINITY
               for (const edge of wall.edges) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SceneDocument } from '../contracts/generated/client/rest'
-import { eastOfNorth, formatSunTime, solarPosition, sunSceneDirection } from './sun'
+import { eastOfNorth, formatSunTime, solarPosition, sunDate, sunSceneDirection } from './sun'
 
 function utcDate(month: number, day: number, hourUtc: number, minute = 0): Date {
   return new Date(Date.UTC(2026, month - 1, day, hourUtc, minute))
@@ -71,5 +71,30 @@ describe('eastOfNorth / formatSunTime', () => {
     expect(formatSunTime(9.5)).toBe('09:30')
     expect(formatSunTime(24)).toBe('00:00')
     expect(formatSunTime(27)).toBe('00:00')
+  })
+})
+
+describe('sunDate', () => {
+  it('converts local solar time via longitude without freezing east mornings', () => {
+    // Beijing 116.4E: slider 05:00 vs 06:00 must produce different instants
+    // (the old lower clamp froze 0..7.76h to the same UTC midnight).
+    const five = sunDate(5, 116.4)
+    const six = sunDate(6, 116.4)
+    expect(six.getTime() - five.getTime()).toBe(3_600_000)
+  })
+
+  it('rolls across midnight for west longitudes / late hours', () => {
+    const late = sunDate(23, -120)
+    const next = sunDate(24, -120)
+    expect(next.getTime() - late.getTime()).toBe(3_600_000)
+  })
+
+  it('keeps solar noon at slider 12 for any longitude', () => {
+    // True solar time = UTC*60 + 4*lon; for slider 12 the UTC instant minus
+    // lon/15h must land at 12h solar regardless of the date.
+    const noon = sunDate(12, 116.4)
+    const minutesUtc = noon.getUTCHours() * 60 + noon.getUTCMinutes() + noon.getUTCSeconds() / 60
+    const solarMinutes = minutesUtc + 4 * 116.4
+    expect(solarMinutes / 60).toBeCloseTo(12, 2)
   })
 })

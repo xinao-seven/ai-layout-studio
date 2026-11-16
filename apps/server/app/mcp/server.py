@@ -284,7 +284,10 @@ class McpServer:
         if method == "tools/list":
             return _result_response(message_id, {"tools": mcp_tool_definitions()})
         if method == "tools/call":
-            return await self._handle_tools_call(message_id, message.get("params") or {})
+            params = message.get("params")
+            if not isinstance(params, dict):
+                return _error_response(message_id, -32602, "Invalid params for tools/call.")
+            return await self._handle_tools_call(message_id, params)
         # Notifications have no id and expect no response at all.
         if message_id is None:
             return None
@@ -311,6 +314,17 @@ class McpServer:
                 "isError": payload.get("ok") is not True,
             },
         )
+
+    async def dispatch(self, message: dict[str, Any]) -> dict[str, Any] | None:
+        """handle_message with a last-resort guard: malformed input must never
+        kill the server process — it becomes a JSON-RPC internal error."""
+        try:
+            return await self.handle_message(message)
+        except Exception as error:  # noqa: BLE001
+            message_id = message.get("id")
+            if message_id is None:
+                return None
+            return _error_response(message_id, -32603, f"Internal error: {error}")
 
 
 def _result_response(message_id: Any, result: dict[str, Any]) -> dict[str, Any]:
@@ -345,7 +359,7 @@ async def serve(context: McpContext) -> None:
         if not isinstance(message, dict):
             _write_line(_error_response(None, -32600, "Invalid Request."))
             continue
-        response = await server.handle_message(message)
+        response = await server.dispatch(message)
         if response is not None:
             _write_line(response)
 

@@ -24,6 +24,21 @@ export function polygonArea(points: Vec2[]): number {
   return Math.abs(signedArea(points))
 }
 
+/** Axis-aligned bounding box as [minX, minZ, maxX, maxZ]. */
+export function polygonBounds(points: Vec2[]): [number, number, number, number] {
+  let minX = Number.POSITIVE_INFINITY
+  let minZ = Number.POSITIVE_INFINITY
+  let maxX = Number.NEGATIVE_INFINITY
+  let maxZ = Number.NEGATIVE_INFINITY
+  for (const [x, z] of points) {
+    minX = Math.min(minX, x)
+    minZ = Math.min(minZ, z)
+    maxX = Math.max(maxX, x)
+    maxZ = Math.max(maxZ, z)
+  }
+  return [minX, minZ, maxX, maxZ]
+}
+
 export function isCcw(points: Vec2[]): boolean {
   return signedArea(points) > 0
 }

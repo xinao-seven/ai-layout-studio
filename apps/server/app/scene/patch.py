@@ -516,6 +516,9 @@ def apply_ops(
                 )
             )
         elif isinstance(op, SceneUpdateOp):
+            # Snapshot the *current* working state (not the patch's base) so
+            # consecutive scene.update ops chain before/after correctly.
+            before_fields = _scene_update_fields(working)
             updated_document = _merge_model(
                 working,
                 op.after.model_dump(mode="python", by_alias=True, exclude_unset=True),
@@ -524,7 +527,7 @@ def apply_ops(
             resolved.append(
                 SceneUpdateOp(
                     op="scene.update",
-                    before=_scene_update_fields(document),
+                    before=before_fields,
                     after=_scene_update_fields(updated_document),
                 )
             )

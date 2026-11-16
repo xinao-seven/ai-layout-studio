@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import datetime
 from typing import Annotated, Literal
 
@@ -156,6 +157,8 @@ class SceneDocument(CamelModel):
     @classmethod
     def _normalise_north(cls, value: Vec2) -> Vec2:
         x, z = value
+        if not (math.isfinite(x) and math.isfinite(z)):
+            raise ValueError("north must be finite numbers")
         length = (x * x + z * z) ** 0.5
         if length <= 0:
             raise ValueError("north must be a non-zero vector")

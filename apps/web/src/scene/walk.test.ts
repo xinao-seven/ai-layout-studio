@@ -165,10 +165,31 @@ describe('circleHitsObb / walkSpawn', () => {
     expect(circleHitsObb([0.76, 0], obb, WALKER_RADIUS)).toBe(false)
   })
 
-  it('spawns inside the first room looking along its first edge', () => {
-    const spawn = walkSpawn(sceneFixture())
+  it('spawns on a free spot in the largest room looking along its first edge', () => {
+    const colliders = buildWalkColliders(sceneFixture(), [])
+    const spawn = walkSpawn(sceneFixture(), colliders)
     expect(spawn.position[0]).toBeGreaterThan(0)
     expect(spawn.position[0]).toBeLessThan(4)
+    expect(walkPositionBlocked(colliders, spawn.position)).toBe(false)
     expect(Number.isFinite(spawn.yaw)).toBe(true)
+  })
+
+  it('avoids a spawn blocked by furniture (e.g. auto_layout bed in the middle)', () => {
+    const scene = sceneFixture()
+    // Drop a big item right on the largest room's centre.
+    scene.items = [
+      {
+        id: 'it_bed',
+        kindId: 'bed',
+        variantId: 'default',
+        transform: { position: [2, 0, 2], rotationY: 0, scale: 1 },
+        source: 'agent',
+      },
+    ] as SceneDocument['items']
+    const catalog = [catalogEntry('bed', 2.2, 2.2)]
+    const colliders = buildWalkColliders(scene, catalog)
+    const spawn = walkSpawn(scene, colliders)
+    expect(walkPositionBlocked(colliders, spawn.position)).toBe(false)
+    expect(resolveWalkMove(colliders, spawn.position, [0.2, 0.2])).not.toEqual(spawn.position)
   })
 })

@@ -116,12 +116,14 @@ export function formatSunTime(hours: number): string {
 /**
  * Slider hours are interpreted as *local mean solar time* at the scene
  * longitude, so 12:00 on the timeline is solar noon regardless of timezone:
- * the underlying UTC instant is shifted by -longitude/15. The calendar date
- * stays "today" so seasonal declination matches the user's real season.
+ * the underlying UTC instant is shifted by -longitude/15. The shift may be
+ * negative (east longitudes, early morning) or exceed 24 h (west longitudes,
+ * late evening); Date.UTC rolls it into the neighbouring day, which keeps the
+ * solar geometry continuous across the whole slider range.
  */
 export function sunDate(hoursLocalSolar: number, longitudeDeg: number): Date {
   const now = new Date()
-  const utcHours = Math.max(0, Math.min(47.999, hoursLocalSolar - longitudeDeg / 15))
+  const utcHours = hoursLocalSolar - longitudeDeg / 15
   const utcMs =
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) + utcHours * 3_600_000
   return new Date(utcMs)
