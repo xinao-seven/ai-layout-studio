@@ -270,6 +270,11 @@ class McpServer:
         message_id = message.get("id")
         if not isinstance(method, str):
             return _error_response(message_id, -32600, "Invalid Request: missing method.")
+        if message_id is None:
+            # JSON-RPC notification: never reply, and never execute request-only
+            # methods — a tools/call sent as a notification is a client bug and
+            # must not run side effects.
+            return None
         if method == "initialize":
             return _result_response(
                 message_id,
@@ -288,9 +293,6 @@ class McpServer:
             if not isinstance(params, dict):
                 return _error_response(message_id, -32602, "Invalid params for tools/call.")
             return await self._handle_tools_call(message_id, params)
-        # Notifications have no id and expect no response at all.
-        if message_id is None:
-            return None
         return _error_response(message_id, -32601, f"Method not found: {method}")
 
     async def _handle_tools_call(

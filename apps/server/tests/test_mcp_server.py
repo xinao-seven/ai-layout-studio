@@ -319,3 +319,28 @@ async def test_tools_call_unknown_item_refuses(test_settings: Settings, seeded_s
         assert payload["refusals"][0]["code"] == "not_found"
     finally:
         await context.aclose()
+
+
+async def test_notifications_are_silent_and_do_not_execute(
+    test_settings: Settings, seeded_scene: str
+) -> None:
+    context = McpContext(settings=test_settings)
+    await context.startup()
+    try:
+        server = McpServer(context)
+        # A request-only method sent as a notification must neither reply nor
+        # run side effects.
+        assert (
+            await server.dispatch(
+                {
+                    "jsonrpc": "2.0",
+                    "method": "tools/call",
+                    "params": {"name": "query_scene", "arguments": {"sceneId": seeded_scene}},
+                }
+            )
+            is None
+        )
+        document = await context.registry.get_document(seeded_scene)
+        assert document.version == 1  # nothing executed
+    finally:
+        await context.aclose()

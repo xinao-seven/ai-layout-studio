@@ -242,7 +242,8 @@ function pickFreeSpawn(polygon: Vec2[] | null, colliders: WalkColliders): Vec2 {
   for (const candidate of candidates) {
     if (!walkPositionBlocked(colliders, candidate)) return candidate
   }
-  // Floor fully covered: fall back to the door-free corner closest to the door
-  // is overkill — the origin at least keeps the walker deterministic.
+  // Fully blocked floor: returning the origin is deterministic; the walker can
+  // still rotate in place, and resolveWalkMove keeps it stuck rather than
+  // pushing it through walls.
   return [0, 0]
 }
