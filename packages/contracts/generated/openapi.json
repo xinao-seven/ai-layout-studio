@@ -6,13 +6,11 @@
         "description": "Response body for ``GET /api/health`` (PRD §6.7).",
         "properties": {
           "model": {
-            "default": "",
             "description": "Configured LLM model name; empty when not set.",
             "title": "Model",
             "type": "string"
           },
           "ok": {
-            "default": true,
             "description": "Service is accepting requests.",
             "title": "Ok",
             "type": "boolean"
@@ -24,7 +22,9 @@
           }
         },
         "required": [
-          "version"
+          "ok",
+          "version",
+          "model"
         ],
         "title": "HealthResponse",
         "type": "object"

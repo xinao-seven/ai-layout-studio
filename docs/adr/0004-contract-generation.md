@@ -21,7 +21,8 @@ Pydantic v2 models in `apps/server/app/contracts/` are the only schema source.
 - **orval** generates REST zod schemas into `apps/web/src/contracts/generated/`.
 - **json-schema-to-typescript** generates WS TypeScript interfaces.
 - Generated artifacts are committed. `pnpm contracts:check` regenerates and runs
-  `git diff --exit-code`; the CI `contracts` job fails on drift.
+  `scripts/check_contracts.mjs`, which fails when `git status --porcelain`
+  reports modified **or untracked** artifacts; the CI `contracts` job runs it.
 - Shared spatial constants live in `packages/contracts/rules.json` and are
   consumed by both languages.
 

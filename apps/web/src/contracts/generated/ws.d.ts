@@ -23,6 +23,9 @@ export type Turnid = string | null;
  * Event type, e.g. turn.started.
  */
 export type Type = string;
+/**
+ * Protocol version.
+ */
 export type V = 1;
 
 /**
@@ -30,14 +33,17 @@ export type V = 1;
  */
 export interface WsEnvelope {
   ch: WsChannel;
-  payload?: Payload;
+  payload: Payload;
   requestId?: Requestid;
   seq: Seq;
   ts: Ts;
   turnId?: Turnid;
   type: Type;
-  v?: V;
+  v: V;
 }
+/**
+ * Event payload.
+ */
 export interface Payload {
   [k: string]: unknown;
 }

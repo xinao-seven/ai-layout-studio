@@ -102,8 +102,9 @@ docker compose up --build
 ```
 
 - 端口仅绑定 `127.0.0.1`；容器内服务绑定 `0.0.0.0`。
+- 两个镜像均以非 root 用户运行（server UID 10001；web 使用 nginx-unprivileged）。
 - SQLite 数据在命名卷 `app-data` 中持久化。
-- 服务端启动时自动执行 Alembic 迁移，固定 `--workers 1`。
+- 服务端启动时自动执行 Alembic 迁移，固定单 worker（多 worker 会启动失败）。
 
 ## 安全说明
 

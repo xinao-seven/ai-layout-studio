@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 import os
 from logging.config import fileConfig
-from pathlib import Path
 
 from alembic import context
 from sqlalchemy import event, pool
@@ -19,7 +18,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.config import get_settings
 from app.db import models  # noqa: F401  (registers tables on Base.metadata)
 from app.db.base import Base
-from app.db.session import apply_sqlite_pragmas
+from app.db.session import apply_sqlite_pragmas, ensure_sqlite_parent_dir
 
 config = context.config
 
@@ -30,15 +29,6 @@ if config.config_file_name is not None:
 def _database_url() -> str:
     override = os.environ.get("ALEMBIC_DATABASE_URL")
     return override if override else get_settings().database_url
-
-
-def _ensure_sqlite_parent(url: str) -> None:
-    if not url.startswith("sqlite"):
-        return
-    _, _, raw_path = url.partition("///")
-    if not raw_path or raw_path == ":memory:":
-        return
-    Path(raw_path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
 
 
 def run_migrations_offline() -> None:
@@ -75,7 +65,7 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    _ensure_sqlite_parent(_database_url())
+    ensure_sqlite_parent_dir(_database_url())
     asyncio.run(run_async_migrations())
 
 

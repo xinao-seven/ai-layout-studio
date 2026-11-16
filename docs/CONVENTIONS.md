@@ -52,7 +52,8 @@ Pydantic (apps/server/app/contracts)
 
 - Never hand-write a second REST/WS schema on the frontend.
 - Shared spatial constants live in `packages/contracts/rules.json`.
-- `pnpm contracts:check` regenerates and fails on `git diff`; CI runs it.
+- `pnpm contracts:check` regenerates and fails when `git status --porcelain`
+  reports modified or untracked artifacts; CI runs it.
 
 ## Testing
 

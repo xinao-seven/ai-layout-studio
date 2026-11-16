@@ -10,11 +10,8 @@ import * as zod from 'zod';
  * Liveness probe used by the dev loop, Docker healthcheck and CI.
  * @summary Service health
  */
-export const healthApiHealthGetResponseModelDefault = ``;
-export const healthApiHealthGetResponseOkDefault = true;
-
 export const HealthApiHealthGetResponse = zod.object({
-  "model": zod.string().default(healthApiHealthGetResponseModelDefault).describe('Configured LLM model name; empty when not set.'),
-  "ok": zod.boolean().default(healthApiHealthGetResponseOkDefault).describe('Service is accepting requests.'),
+  "model": zod.string().describe('Configured LLM model name; empty when not set.'),
+  "ok": zod.boolean().describe('Service is accepting requests.'),
   "version": zod.string().describe('Application version.')
 }).describe('Response body for ``GET /api/health`` (PRD §6.7).')

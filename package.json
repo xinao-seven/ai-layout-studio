@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "concurrently -n server,web -c cyan,magenta \"pnpm dev:server\" \"pnpm dev:web\"",
-    "dev:server": "uv run --directory apps/server uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 --workers 1",
+    "dev:server": "uv run --directory apps/server python -m app --reload",
     "dev:web": "pnpm --filter @ai-layout/web dev",
     "build": "pnpm --filter @ai-layout/web build",
     "test": "pnpm --filter @ai-layout/web test && uv run --directory apps/server pytest -q",

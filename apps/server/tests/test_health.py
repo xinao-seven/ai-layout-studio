@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.core.config import Settings
@@ -27,6 +28,8 @@ def test_health_is_exposed_in_openapi(test_settings: Settings) -> None:
     assert schema["openapi"].startswith("3.1")
     assert "/api/health" in schema["paths"]
     assert schema["info"]["title"] == test_settings.app_name
+    health_schema = schema["components"]["schemas"]["HealthResponse"]
+    assert set(health_schema["required"]) == {"ok", "version", "model"}
 
 
 def test_root_advertises_docs_path(test_settings: Settings) -> None:
@@ -35,3 +38,12 @@ def test_root_advertises_docs_path(test_settings: Settings) -> None:
 
     assert response.status_code == 200
     assert response.json()["docs"] == "/api/docs"
+
+
+def test_multi_worker_boot_is_rejected(
+    test_settings: Settings, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("WEB_CONCURRENCY", "2")
+
+    with pytest.raises(RuntimeError, match="single worker"):
+        create_app(test_settings)

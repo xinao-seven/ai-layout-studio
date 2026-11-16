@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -10,6 +11,7 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+WORKER_ENV_VARS = ("WEB_CONCURRENCY", "UVICORN_WORKERS")
 
 
 class Settings(BaseSettings):
@@ -56,3 +58,22 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return the process-wide settings singleton."""
     return Settings()
+
+
+def ensure_single_worker() -> None:
+    """Refuse to boot with multiple workers.
+
+    SQLite uses a single writer and the turn manager relies on per-scene
+    in-process asyncio locks (PRD D12, §5.5), so more than one worker would
+    silently break correctness. Development scripts and Docker pin one worker;
+    this guard turns accidental multi-worker launches into a hard failure.
+    """
+    for env_name in WORKER_ENV_VARS:
+        raw_value = os.environ.get(env_name)
+        if raw_value is None or not raw_value.isdigit():
+            continue
+        if int(raw_value) > 1:
+            raise RuntimeError(
+                f"{env_name}={raw_value} is not supported: the server must run with "
+                "a single worker (SQLite single-writer + in-process asyncio locks)."
+            )

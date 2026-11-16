@@ -34,7 +34,7 @@ services:
       server:
         condition: service_healthy
     ports:
-      - "127.0.0.1:5173:80"
+      - "127.0.0.1:5173:8080"
 
 volumes:
   app-data:

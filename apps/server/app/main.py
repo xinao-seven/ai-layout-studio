@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import api_router
-from app.core.config import Settings, get_settings
+from app.core.config import Settings, ensure_single_worker, get_settings
 from app.core.logging import configure_logging
 
 logger = structlog.get_logger(__name__)
@@ -22,6 +22,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     Passing ``settings`` explicitly keeps tests deterministic without touching
     the cached process-wide settings.
     """
+    ensure_single_worker()
     app_settings = settings or get_settings()
     configure_logging(
         app_settings.log_level,

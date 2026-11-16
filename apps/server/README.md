@@ -5,7 +5,7 @@ FastAPI service for the AI interior layout workbench.
 Quick start (from repository root):
 
 ```bash
-uv run --directory apps/server uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 --workers 1
+uv run --directory apps/server python -m app --reload
 curl http://127.0.0.1:8000/api/health
 ```
 

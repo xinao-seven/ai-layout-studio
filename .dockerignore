@@ -7,6 +7,7 @@
 **/.mypy_cache
 **/.ruff_cache
 **/*.pyc
+apps/server/tests/
 
 # Node
 **/node_modules
@@ -14,19 +15,20 @@
 **/coverage
 **/.pnpm-store
 
-# Runtime / local state
+# Runtime / local state — nested paths matter: `apps/server/.env` and
+# `apps/server/data/` must never be baked into an image.
+**/.env
+**/.env.*
 data/
-.env
-.env.*
-!.env.example
-.git/
-.github/
+apps/server/data/
 *.log
 
-# Docs and assets are not needed inside the images yet.
+# Tooling / VCS metadata
+.git/
+.github/
 docs/
 eval/
 fixtures/
+e2e/
 assets/models/
 assets/thumbnails/
-e2e/
