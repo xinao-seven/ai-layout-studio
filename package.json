@@ -17,7 +17,7 @@
     "format": "pnpm --filter @ai-layout/web format && uv run --directory apps/server ruff format .",
     "contracts:export": "uv run --directory apps/server python ../../scripts/export_contracts.py",
     "contracts:gen": "pnpm contracts:export && orval --config orval.config.ts && json2ts -i packages/contracts/generated/ws.schema.json -o apps/web/src/contracts/generated/ws.d.ts",
-    "contracts:check": "pnpm contracts:gen && git diff --exit-code -- packages/contracts/generated apps/web/src/contracts/generated",
+    "contracts:check": "pnpm contracts:gen && node scripts/check_contracts.mjs",
     "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {

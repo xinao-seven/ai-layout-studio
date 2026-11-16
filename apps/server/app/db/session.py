@@ -15,21 +15,27 @@ from sqlalchemy.ext.asyncio import (
 from app.core.config import get_settings
 
 
+def apply_sqlite_pragmas(dbapi_connection: Any, _connection_record: Any = None) -> None:
+    """Enable WAL, foreign keys and a busy timeout on a raw SQLite connection.
+
+    Shared by the runtime engine and the Alembic migration engine so a freshly
+    migrated database is already in WAL mode (PRD §5.5).
+    """
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA busy_timeout=5000")
+    finally:
+        cursor.close()
+
+
 def create_engine(database_url: str | None = None) -> AsyncEngine:
-    """Create an async engine and enable WAL/foreign keys/busy timeout."""
+    """Create an async engine with SQLite safety pragmas attached."""
     engine = create_async_engine(database_url or get_settings().database_url)
 
     if engine.dialect.name == "sqlite":
-
-        @event.listens_for(engine.sync_engine, "connect")
-        def _set_sqlite_pragmas(dbapi_connection: Any, _connection_record: Any) -> None:
-            cursor = dbapi_connection.cursor()
-            try:
-                cursor.execute("PRAGMA journal_mode=WAL")
-                cursor.execute("PRAGMA foreign_keys=ON")
-                cursor.execute("PRAGMA busy_timeout=5000")
-            finally:
-                cursor.close()
+        event.listen(engine.sync_engine, "connect", apply_sqlite_pragmas)
 
     return engine
 

@@ -9,8 +9,9 @@ import structlog
 
 def configure_logging(level: str = "INFO", *, json_logs: bool = False) -> None:
     """Configure stdlib logging and structlog once at application startup."""
+    numeric_level = logging.getLevelNamesMapping().get(level.upper(), logging.INFO)
     logging.basicConfig(
-        level=level.upper(),
+        level=numeric_level,
         format="%(message)s",
         force=True,
     )
@@ -28,7 +29,7 @@ def configure_logging(level: str = "INFO", *, json_logs: bool = False) -> None:
 
     structlog.configure(
         processors=[*shared_processors, renderer],
-        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+        wrapper_class=structlog.make_filtering_bound_logger(numeric_level),
         logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )

@@ -15,7 +15,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /uvx /bin/
 WORKDIR /app
 
 # Dependency layer: only invalidated when the lockfile changes.
-COPY apps/server/pyproject.toml apps/server/uv.lock ./
+COPY apps/server/pyproject.toml apps/server/uv.lock apps/server/README.md ./
 RUN uv sync --frozen --no-dev
 
 COPY apps/server/ ./

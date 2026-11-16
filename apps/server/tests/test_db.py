@@ -32,18 +32,20 @@ async def test_create_all_creates_six_tables_and_enables_pragmas(tmp_path: Path)
             journal_mode = (await connection.execute(text("PRAGMA journal_mode"))).scalar()
             foreign_keys = (await connection.execute(text("PRAGMA foreign_keys"))).scalar()
             busy_timeout = (await connection.execute(text("PRAGMA busy_timeout"))).scalar()
-            names = (
-                await connection.execute(
-                    text("SELECT name FROM sqlite_master WHERE type = 'table'")
-                )
-            ).scalars()
+            names = set(
+                (
+                    await connection.execute(
+                        text("SELECT name FROM sqlite_master WHERE type = 'table'")
+                    )
+                ).scalars()
+            )
     finally:
         await engine.dispose()
 
     assert journal_mode is not None and str(journal_mode).lower() == "wal"
     assert foreign_keys == 1
     assert busy_timeout == 5000
-    assert set(names) >= EXPECTED_TABLES
+    assert names >= EXPECTED_TABLES
 
 
 async def test_session_factory_yields_usable_session(tmp_path: Path) -> None:
@@ -70,8 +72,10 @@ def test_alembic_migration_round_trip(tmp_path: Path, monkeypatch: pytest.Monkey
             row[0]
             for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
         }
+        journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
     assert tables >= EXPECTED_TABLES
     assert "alembic_version" in tables
+    assert str(journal_mode).lower() == "wal"
 
     command.downgrade(config, "base")
     with sqlite3.connect(database_path) as connection:

@@ -12,13 +12,14 @@ from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
-from sqlalchemy import pool
+from sqlalchemy import event, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import get_settings
 from app.db import models  # noqa: F401  (registers tables on Base.metadata)
 from app.db.base import Base
+from app.db.session import apply_sqlite_pragmas
 
 config = context.config
 
@@ -66,6 +67,8 @@ async def run_async_migrations() -> None:
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+    if connectable.dialect.name == "sqlite":
+        event.listen(connectable.sync_engine, "connect", apply_sqlite_pragmas)
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()

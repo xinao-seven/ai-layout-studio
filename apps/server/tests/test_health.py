@@ -29,7 +29,7 @@ def test_health_is_exposed_in_openapi(test_settings: Settings) -> None:
     assert schema["info"]["title"] == test_settings.app_name
 
 
-def test_root_redirects_to_docs(test_settings: Settings) -> None:
+def test_root_advertises_docs_path(test_settings: Settings) -> None:
     with TestClient(create_app(test_settings)) as client:
         response = client.get("/")
 
