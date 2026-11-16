@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
 
 from app.contracts.enums import Actor
 from app.contracts.patch import (
@@ -16,6 +17,7 @@ from app.contracts.patch import (
     RoomAddOp,
     RoomRemoveOp,
     RoomUpdateOp,
+    SceneUpdateOp,
 )
 from app.contracts.proposal import Proposal
 from app.contracts.scene import (
@@ -529,3 +531,47 @@ def test_undo_keeps_history_when_apply_fails(monkeypatch: pytest.MonkeyPatch) ->
 
     assert service.can_undo
     assert service.version == 2
+
+
+def test_scene_update_sets_environment_and_is_reversible() -> None:
+    service = SceneService(make_document())
+
+    outcome = service.commit(
+        [
+            SceneUpdateOp(
+                op="scene.update",
+                after={"environment": {"latitude": 31.23, "longitude": 121.47}},
+            )
+        ],
+        base_version=1,
+    )
+
+    assert outcome.document.environment is not None
+    assert outcome.document.environment.latitude == pytest.approx(31.23)
+    assert outcome.patch.ops[0].op == "scene.update"
+
+    undone = service.undo(expected_version=2)
+    assert undone.document.environment is None
+
+
+def test_scene_update_normalises_north() -> None:
+    service = SceneService(make_document())
+
+    outcome = service.commit(
+        [SceneUpdateOp(op="scene.update", after={"north": [0.0, -5.0]})],
+        base_version=1,
+    )
+
+    assert outcome.document.north == pytest.approx((0.0, -1.0))
+
+
+def test_scene_update_rejects_out_of_range_latitude() -> None:
+    service = SceneService(make_document())
+
+    with pytest.raises(ValidationError):
+        SceneUpdateOp(
+            op="scene.update",
+            after={"environment": {"latitude": 95.0}},
+        )
+
+    assert service.version == 1

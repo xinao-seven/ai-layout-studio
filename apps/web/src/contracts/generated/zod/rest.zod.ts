@@ -211,6 +211,12 @@ export const createSceneApiScenesPostResponseDefaultsWallMaterialDefault = `defa
 export const createSceneApiScenesPostResponseDefaultsWallThicknessDefault = 0.12;
 export const createSceneApiScenesPostResponseDefaultsWallThicknessExclusiveMin = 0;
 
+export const createSceneApiScenesPostResponseEnvironmentOneLatitudeOneMin = -90;
+export const createSceneApiScenesPostResponseEnvironmentOneLatitudeOneMax = 90;
+
+export const createSceneApiScenesPostResponseEnvironmentOneLongitudeOneMin = -180;
+export const createSceneApiScenesPostResponseEnvironmentOneLongitudeOneMax = 180;
+
 
 export const createSceneApiScenesPostResponseItemsItemConstraintOneClearanceOneBackOneMin = 0;
 
@@ -263,6 +269,10 @@ export const CreateSceneApiScenesPostResponse = zod.object({
   "wallMaterial": zod.string().default(createSceneApiScenesPostResponseDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(createSceneApiScenesPostResponseDefaultsWallThicknessExclusiveMin).default(createSceneApiScenesPostResponseDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(createSceneApiScenesPostResponseEnvironmentOneLatitudeOneMin).max(createSceneApiScenesPostResponseEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(createSceneApiScenesPostResponseEnvironmentOneLongitudeOneMin).max(createSceneApiScenesPostResponseEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -350,6 +360,12 @@ export const importSceneApiScenesImportPostBodyDocumentDefaultsWallMaterialDefau
 export const importSceneApiScenesImportPostBodyDocumentDefaultsWallThicknessDefault = 0.12;
 export const importSceneApiScenesImportPostBodyDocumentDefaultsWallThicknessExclusiveMin = 0;
 
+export const importSceneApiScenesImportPostBodyDocumentEnvironmentOneLatitudeOneMin = -90;
+export const importSceneApiScenesImportPostBodyDocumentEnvironmentOneLatitudeOneMax = 90;
+
+export const importSceneApiScenesImportPostBodyDocumentEnvironmentOneLongitudeOneMin = -180;
+export const importSceneApiScenesImportPostBodyDocumentEnvironmentOneLongitudeOneMax = 180;
+
 
 export const importSceneApiScenesImportPostBodyDocumentItemsItemConstraintOneClearanceOneBackOneMin = 0;
 
@@ -403,6 +419,10 @@ export const ImportSceneApiScenesImportPostBody = zod.object({
   "wallMaterial": zod.string().default(importSceneApiScenesImportPostBodyDocumentDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(importSceneApiScenesImportPostBodyDocumentDefaultsWallThicknessExclusiveMin).default(importSceneApiScenesImportPostBodyDocumentDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(importSceneApiScenesImportPostBodyDocumentEnvironmentOneLatitudeOneMin).max(importSceneApiScenesImportPostBodyDocumentEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(importSceneApiScenesImportPostBodyDocumentEnvironmentOneLongitudeOneMin).max(importSceneApiScenesImportPostBodyDocumentEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -487,6 +507,12 @@ export const importSceneApiScenesImportPostResponseDefaultsWallMaterialDefault =
 export const importSceneApiScenesImportPostResponseDefaultsWallThicknessDefault = 0.12;
 export const importSceneApiScenesImportPostResponseDefaultsWallThicknessExclusiveMin = 0;
 
+export const importSceneApiScenesImportPostResponseEnvironmentOneLatitudeOneMin = -90;
+export const importSceneApiScenesImportPostResponseEnvironmentOneLatitudeOneMax = 90;
+
+export const importSceneApiScenesImportPostResponseEnvironmentOneLongitudeOneMin = -180;
+export const importSceneApiScenesImportPostResponseEnvironmentOneLongitudeOneMax = 180;
+
 
 export const importSceneApiScenesImportPostResponseItemsItemConstraintOneClearanceOneBackOneMin = 0;
 
@@ -539,6 +565,10 @@ export const ImportSceneApiScenesImportPostResponse = zod.object({
   "wallMaterial": zod.string().default(importSceneApiScenesImportPostResponseDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(importSceneApiScenesImportPostResponseDefaultsWallThicknessExclusiveMin).default(importSceneApiScenesImportPostResponseDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(importSceneApiScenesImportPostResponseEnvironmentOneLatitudeOneMin).max(importSceneApiScenesImportPostResponseEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(importSceneApiScenesImportPostResponseEnvironmentOneLongitudeOneMin).max(importSceneApiScenesImportPostResponseEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -630,6 +660,12 @@ export const getSceneApiScenesSceneIdGetResponseDefaultsWallMaterialDefault = `d
 export const getSceneApiScenesSceneIdGetResponseDefaultsWallThicknessDefault = 0.12;
 export const getSceneApiScenesSceneIdGetResponseDefaultsWallThicknessExclusiveMin = 0;
 
+export const getSceneApiScenesSceneIdGetResponseEnvironmentOneLatitudeOneMin = -90;
+export const getSceneApiScenesSceneIdGetResponseEnvironmentOneLatitudeOneMax = 90;
+
+export const getSceneApiScenesSceneIdGetResponseEnvironmentOneLongitudeOneMin = -180;
+export const getSceneApiScenesSceneIdGetResponseEnvironmentOneLongitudeOneMax = 180;
+
 
 export const getSceneApiScenesSceneIdGetResponseItemsItemConstraintOneClearanceOneBackOneMin = 0;
 
@@ -682,6 +718,10 @@ export const GetSceneApiScenesSceneIdGetResponse = zod.object({
   "wallMaterial": zod.string().default(getSceneApiScenesSceneIdGetResponseDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(getSceneApiScenesSceneIdGetResponseDefaultsWallThicknessExclusiveMin).default(getSceneApiScenesSceneIdGetResponseDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(getSceneApiScenesSceneIdGetResponseEnvironmentOneLatitudeOneMin).max(getSceneApiScenesSceneIdGetResponseEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(getSceneApiScenesSceneIdGetResponseEnvironmentOneLongitudeOneMin).max(getSceneApiScenesSceneIdGetResponseEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -916,6 +956,18 @@ export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneSillHe
 
 export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
 
 
 
@@ -1204,6 +1256,24 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOne
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostBodyOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })]))
 })
 
@@ -1358,6 +1428,18 @@ export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBefore
 export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -1366,6 +1448,12 @@ export const commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallHeigh
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallMaterialDefault = `default`;
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -1701,6 +1789,24 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSix
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -1714,6 +1820,10 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSix
   "wallMaterial": zod.string().default(commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallThicknessExclusiveMin).default(commitSceneApiScenesSceneIdCommitPostResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLatitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLongitudeOneMin).max(commitSceneApiScenesSceneIdCommitPostResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -1977,6 +2087,18 @@ export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBefore
 export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -1985,6 +2107,12 @@ export const addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallHeigh
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallMaterialDefault = `default`;
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -2320,6 +2448,24 @@ zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSix
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -2333,6 +2479,10 @@ zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSix
   "wallMaterial": zod.string().default(addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallThicknessExclusiveMin).default(addSceneItemApiScenesSceneIdItemsPostResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLatitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLongitudeOneMin).max(addSceneItemApiScenesSceneIdItemsPostResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -2575,6 +2725,18 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsIte
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -2583,6 +2745,12 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaul
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallMaterialDefault = `default`;
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -2918,6 +3086,24 @@ zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatc
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -2931,6 +3117,10 @@ zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatc
   "wallMaterial": zod.string().default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallThicknessExclusiveMin).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLatitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLongitudeOneMin).max(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -3180,6 +3370,18 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItem
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -3188,6 +3390,12 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefault
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallMaterialDefault = `default`;
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -3523,6 +3731,24 @@ zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatch
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -3536,6 +3762,10 @@ zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatch
   "wallMaterial": zod.string().default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallThicknessExclusiveMin).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLatitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLongitudeOneMin).max(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -3781,6 +4011,18 @@ export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsIt
 
 export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemStatusDefault = `pending`;
@@ -4074,6 +4316,24 @@ zod.number()])).min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsIt
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "reason": zod.union([zod.string(),zod.null()]).optional(),
   "resolvedAt": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
@@ -4249,6 +4509,18 @@ export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneS
 export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -4257,6 +4529,12 @@ export const redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallHeightExc
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallMaterialDefault = `default`;
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -4592,6 +4870,24 @@ zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBefo
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -4605,6 +4901,10 @@ zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBefo
   "wallMaterial": zod.string().default(redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallThicknessExclusiveMin).default(redoSceneApiScenesSceneIdRedoPostResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLatitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLongitudeOneMin).max(redoSceneApiScenesSceneIdRedoPostResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({
@@ -4987,6 +5287,18 @@ export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneS
 export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin = -90;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax = 90;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin = -180;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax = 180;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin = -90;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax = 90;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin = -180;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax = 180;
+
 
 
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallHeightDefault = 2.8;
@@ -4995,6 +5307,12 @@ export const undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallHeightExc
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallMaterialDefault = `default`;
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallThicknessDefault = 0.12;
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallThicknessExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLatitudeOneMin = -90;
+export const undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLatitudeOneMax = 90;
+
+export const undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLongitudeOneMin = -180;
+export const undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLongitudeOneMax = 180;
 
 
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneItemsItemConstraintOneClearanceOneBackOneMin = 0;
@@ -5330,6 +5648,24 @@ zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBefo
 }).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroAfterEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),
+  "before": zod.union([zod.object({
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemOnezeroBeforeOneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
+  "north": zod.union([zod.tuple([zod.number(),
+zod.number()]),zod.null()]).optional()
+}).describe('Mutable scene-level fields; ``id``/``version`` are intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("scene.update").meta({ title: 'Op' })
 })])),
   "proposalId": zod.union([zod.string(),zod.null()]).optional(),
   "sceneId": zod.string().min(1),
@@ -5343,6 +5679,10 @@ zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBefo
   "wallMaterial": zod.string().default(undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallMaterialDefault),
   "wallThickness": zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallThicknessExclusiveMin).default(undoSceneApiScenesSceneIdUndoPostResponseSceneDefaultsWallThicknessDefault)
 }).describe('Default structural values for a scene.'),
+  "environment": zod.union([zod.object({
+  "latitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLatitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLatitudeOneMax),zod.null()]).optional(),
+  "longitude": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLongitudeOneMin).max(undoSceneApiScenesSceneIdUndoPostResponseSceneEnvironmentOneLongitudeOneMax),zod.null()]).optional()
+}).describe('Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.'),zod.null()]).optional(),
   "id": zod.string().min(1),
   "items": zod.array(zod.object({
   "constraint": zod.union([zod.object({

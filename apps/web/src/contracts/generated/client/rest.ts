@@ -409,11 +409,37 @@ export interface OpeningUpdateOp {
   openingId: string;
 }
 
+/**
+ * Geographic anchor for the daylight layer (PRD FR-22).
+ *
+ * Latitude/longitude feed the solar-position model; the sun direction is
+ * expressed relative to ``SceneDocument.north`` so rotating the compass
+ * rotates the shadows with it. ``None`` keeps the scene on studio lighting.
+ */
+export interface EnvironmentSettings {
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+/**
+ * Mutable scene-level fields; ``id``/``version`` are intentionally absent.
+ */
+export interface SceneUpdateFields {
+  environment?: EnvironmentSettings | null;
+  north?: [number, number] | null;
+}
+
+export interface SceneUpdateOp {
+  after: SceneUpdateFields;
+  before?: SceneUpdateFields | null;
+  op: 'scene.update';
+}
+
 export interface CommitRequest {
   /** @minimum 1 */
   baseVersion: number;
   clientMutationId?: string | null;
-  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp)[];
+  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp | SceneUpdateOp)[];
 }
 
 export interface CreateSceneRequest {
@@ -493,6 +519,7 @@ export interface SceneDefaults {
 export interface SceneDocument {
   createdAt: string;
   defaults: SceneDefaults;
+  environment?: EnvironmentSettings | null;
   /** @minLength 1 */
   id: string;
   items: Item[];
@@ -542,7 +569,7 @@ export interface Proposal {
   dependsOn?: string[];
   /** @minLength 1 */
   id: string;
-  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp)[];
+  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp | SceneUpdateOp)[];
   reason?: string | null;
   resolvedAt?: string | null;
   /** @minLength 1 */
@@ -580,7 +607,7 @@ export interface ScenePatch {
   clientMutationId?: string | null;
   /** @minimum 1 */
   fromVersion: number;
-  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp)[];
+  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp | SceneUpdateOp)[];
   proposalId?: string | null;
   /** @minLength 1 */
   sceneId: string;

@@ -478,7 +478,8 @@
                 "opening.update": "#/definitions/OpeningUpdateOp",
                 "room.add": "#/definitions/RoomAddOp",
                 "room.remove": "#/definitions/RoomRemoveOp",
-                "room.update": "#/definitions/RoomUpdateOp"
+                "room.update": "#/definitions/RoomUpdateOp",
+                "scene.update": "#/definitions/SceneUpdateOp"
               },
               "propertyName": "op"
             },
@@ -509,6 +510,9 @@
               },
               {
                 "$ref": "#/definitions/OpeningUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/SceneUpdateOp"
               }
             ]
           },
@@ -564,6 +568,42 @@
       "additionalProperties": false,
       "properties": {},
       "title": "EmptyPayload",
+      "type": "object"
+    },
+    "EnvironmentSettings": {
+      "additionalProperties": false,
+      "description": "Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.",
+      "properties": {
+        "latitude": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latitude"
+        },
+        "longitude": {
+          "anyOf": [
+            {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Longitude"
+        }
+      },
+      "title": "EnvironmentSettings",
       "type": "object"
     },
     "ErrorBody": {
@@ -1519,7 +1559,8 @@
                 "opening.update": "#/definitions/OpeningUpdateOp",
                 "room.add": "#/definitions/RoomAddOp",
                 "room.remove": "#/definitions/RoomRemoveOp",
-                "room.update": "#/definitions/RoomUpdateOp"
+                "room.update": "#/definitions/RoomUpdateOp",
+                "scene.update": "#/definitions/SceneUpdateOp"
               },
               "propertyName": "op"
             },
@@ -1550,6 +1591,9 @@
               },
               {
                 "$ref": "#/definitions/OpeningUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/SceneUpdateOp"
               }
             ]
           },
@@ -2289,6 +2333,17 @@
         "defaults": {
           "$ref": "#/definitions/SceneDefaults"
         },
+        "environment": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnvironmentSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -2413,7 +2468,8 @@
                 "opening.update": "#/definitions/OpeningUpdateOp",
                 "room.add": "#/definitions/RoomAddOp",
                 "room.remove": "#/definitions/RoomRemoveOp",
-                "room.update": "#/definitions/RoomUpdateOp"
+                "room.update": "#/definitions/RoomUpdateOp",
+                "scene.update": "#/definitions/SceneUpdateOp"
               },
               "propertyName": "op"
             },
@@ -2444,6 +2500,9 @@
               },
               {
                 "$ref": "#/definitions/OpeningUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/SceneUpdateOp"
               }
             ]
           },
@@ -2531,6 +2590,78 @@
         "scene"
       ],
       "title": "SceneSnapshotPayload",
+      "type": "object"
+    },
+    "SceneUpdateFields": {
+      "additionalProperties": false,
+      "description": "Mutable scene-level fields; ``id``/``version`` are intentionally absent.",
+      "properties": {
+        "environment": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnvironmentSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "north": {
+          "anyOf": [
+            {
+              "additionalItems": false,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "North"
+        }
+      },
+      "title": "SceneUpdateFields",
+      "type": "object"
+    },
+    "SceneUpdateOp": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/definitions/SceneUpdateFields"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SceneUpdateFields"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "op": {
+          "const": "scene.update",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "after"
+      ],
+      "title": "SceneUpdateOp",
       "type": "object"
     },
     "ServerErrorPayload": {

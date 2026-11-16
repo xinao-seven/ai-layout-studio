@@ -454,7 +454,8 @@
                   "opening.update": "#/components/schemas/OpeningUpdateOp",
                   "room.add": "#/components/schemas/RoomAddOp",
                   "room.remove": "#/components/schemas/RoomRemoveOp",
-                  "room.update": "#/components/schemas/RoomUpdateOp"
+                  "room.update": "#/components/schemas/RoomUpdateOp",
+                  "scene.update": "#/components/schemas/SceneUpdateOp"
                 },
                 "propertyName": "op"
               },
@@ -485,6 +486,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/OpeningUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/SceneUpdateOp"
                 }
               ]
             },
@@ -606,6 +610,40 @@
         ],
         "title": "DoorSwing",
         "type": "string"
+      },
+      "EnvironmentSettings": {
+        "additionalProperties": false,
+        "description": "Geographic anchor for the daylight layer (PRD FR-22).\n\nLatitude/longitude feed the solar-position model; the sun direction is\nexpressed relative to ``SceneDocument.north`` so rotating the compass\nrotates the shadows with it. ``None`` keeps the scene on studio lighting.",
+        "properties": {
+          "latitude": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          }
+        },
+        "title": "EnvironmentSettings",
+        "type": "object"
       },
       "FacingDirection": {
         "enum": [
@@ -1459,7 +1497,8 @@
                   "opening.update": "#/components/schemas/OpeningUpdateOp",
                   "room.add": "#/components/schemas/RoomAddOp",
                   "room.remove": "#/components/schemas/RoomRemoveOp",
-                  "room.update": "#/components/schemas/RoomUpdateOp"
+                  "room.update": "#/components/schemas/RoomUpdateOp",
+                  "scene.update": "#/components/schemas/SceneUpdateOp"
                 },
                 "propertyName": "op"
               },
@@ -1490,6 +1529,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/OpeningUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/SceneUpdateOp"
                 }
               ]
             },
@@ -1899,6 +1941,16 @@
           "defaults": {
             "$ref": "#/components/schemas/SceneDefaults"
           },
+          "environment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnvironmentSettings"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "minLength": 1,
             "title": "Id",
@@ -2038,7 +2090,8 @@
                   "opening.update": "#/components/schemas/OpeningUpdateOp",
                   "room.add": "#/components/schemas/RoomAddOp",
                   "room.remove": "#/components/schemas/RoomRemoveOp",
-                  "room.update": "#/components/schemas/RoomUpdateOp"
+                  "room.update": "#/components/schemas/RoomUpdateOp",
+                  "scene.update": "#/components/schemas/SceneUpdateOp"
                 },
                 "propertyName": "op"
               },
@@ -2069,6 +2122,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/OpeningUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/SceneUpdateOp"
                 }
               ]
             },
@@ -2182,6 +2238,74 @@
           "updatedAt"
         ],
         "title": "SceneSummary",
+        "type": "object"
+      },
+      "SceneUpdateFields": {
+        "additionalProperties": false,
+        "description": "Mutable scene-level fields; ``id``/``version`` are intentionally absent.",
+        "properties": {
+          "environment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnvironmentSettings"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "north": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "North"
+          }
+        },
+        "title": "SceneUpdateFields",
+        "type": "object"
+      },
+      "SceneUpdateOp": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "$ref": "#/components/schemas/SceneUpdateFields"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SceneUpdateFields"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "op": {
+            "const": "scene.update",
+            "title": "Op",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "after"
+        ],
+        "title": "SceneUpdateOp",
         "type": "object"
       },
       "SceneWarning": {

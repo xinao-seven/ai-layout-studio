@@ -13,7 +13,16 @@ from pydantic import Field
 
 from app.contracts.base import CamelModel
 from app.contracts.enums import Actor, ItemSource, OpeningType, RoomType
-from app.contracts.scene import DoorSpec, Item, ItemConstraint, Opening, Room, Vec2, Vec3
+from app.contracts.scene import (
+    DoorSpec,
+    EnvironmentSettings,
+    Item,
+    ItemConstraint,
+    Opening,
+    Room,
+    Vec2,
+    Vec3,
+)
 
 
 class TransformUpdate(CamelModel):
@@ -114,6 +123,19 @@ class OpeningUpdateOp(CamelModel):
     after: OpeningUpdateFields
 
 
+class SceneUpdateFields(CamelModel):
+    """Mutable scene-level fields; ``id``/``version`` are intentionally absent."""
+
+    north: Vec2 | None = None
+    environment: EnvironmentSettings | None = None
+
+
+class SceneUpdateOp(CamelModel):
+    op: Literal["scene.update"]
+    before: SceneUpdateFields | None = None
+    after: SceneUpdateFields
+
+
 PatchOp: TypeAlias = Annotated[  # noqa: UP040 - Pydantic handles TypeAlias reliably
     ItemAddOp
     | ItemRemoveOp
@@ -123,7 +145,8 @@ PatchOp: TypeAlias = Annotated[  # noqa: UP040 - Pydantic handles TypeAlias reli
     | RoomUpdateOp
     | OpeningAddOp
     | OpeningRemoveOp
-    | OpeningUpdateOp,
+    | OpeningUpdateOp
+    | SceneUpdateOp,
     Field(discriminator="op"),
 ]
 

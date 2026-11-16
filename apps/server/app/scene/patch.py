@@ -21,6 +21,8 @@ from app.contracts.patch import (
     RoomRemoveOp,
     RoomUpdateFields,
     RoomUpdateOp,
+    SceneUpdateFields,
+    SceneUpdateOp,
     TransformUpdate,
 )
 from app.contracts.rules import Rules, get_rules
@@ -188,6 +190,13 @@ def _opening_update_fields(opening: Opening) -> OpeningUpdateFields:
         sill_height=opening.sill_height,
         door=opening.door,
         style=opening.style,
+    )
+
+
+def _scene_update_fields(document: SceneDocument) -> SceneUpdateFields:
+    return SceneUpdateFields(
+        north=document.north,
+        environment=document.environment,
     )
 
 
@@ -506,6 +515,19 @@ def apply_ops(
                     after=_opening_update_fields(updated_opening),
                 )
             )
+        elif isinstance(op, SceneUpdateOp):
+            updated_document = _merge_model(
+                working,
+                op.after.model_dump(mode="python", by_alias=True, exclude_unset=True),
+            )
+            working = updated_document
+            resolved.append(
+                SceneUpdateOp(
+                    op="scene.update",
+                    before=_scene_update_fields(document),
+                    after=_scene_update_fields(updated_document),
+                )
+            )
 
     if validate:
         validate_document(working, rules=rules, catalog=catalog)
@@ -609,6 +631,20 @@ def invert_resolved_ops(ops: list[PatchOp]) -> list[PatchOp]:
                 OpeningUpdateOp(
                     op="opening.update",
                     opening_id=op.opening_id,
+                    before=op.after,
+                    after=op.before,
+                )
+            )
+        elif isinstance(op, SceneUpdateOp):
+            if op.before is None:
+                raise SceneError(
+                    "invalid_input",
+                    "Cannot invert scene.update: before snapshot missing.",
+                    "Regenerate the patch on the server.",
+                )
+            inverse.append(
+                SceneUpdateOp(
+                    op="scene.update",
                     before=op.after,
                     after=op.before,
                 )

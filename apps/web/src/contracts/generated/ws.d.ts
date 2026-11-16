@@ -137,6 +137,10 @@ export type Style1 = string | null;
 export type Width2 = number | null;
 export type Op8 = "opening.update";
 export type Openingid3 = string;
+export type Latitude = number | null;
+export type Longitude = number | null;
+export type North = [number, number] | null;
+export type Op9 = "scene.update";
 export type Ops = (
   | ItemAddOp
   | ItemRemoveOp
@@ -147,6 +151,7 @@ export type Ops = (
   | OpeningAddOp
   | OpeningRemoveOp
   | OpeningUpdateOp
+  | SceneUpdateOp
 )[];
 export type Requestid2 = string | null;
 export type Seq2 = number;
@@ -199,6 +204,7 @@ export type Ops1 = (
   | OpeningAddOp
   | OpeningRemoveOp
   | OpeningUpdateOp
+  | SceneUpdateOp
 )[];
 export type Reason1 = string | null;
 export type Resolvedat = string | null;
@@ -233,6 +239,7 @@ export type Ops2 = (
   | OpeningAddOp
   | OpeningRemoveOp
   | OpeningUpdateOp
+  | SceneUpdateOp
 )[];
 export type Proposalid2 = string | null;
 export type Sceneid1 = string;
@@ -249,7 +256,7 @@ export type Name2 = string;
  * @minItems 2
  * @maxItems 2
  */
-export type North = [number, number];
+export type North1 = [number, number];
 export type Openings = Opening[];
 export type Rooms = Room[];
 export type Schemaversion = 1;
@@ -623,6 +630,29 @@ export interface OpeningUpdateFields {
   type?: OpeningType | null;
   width?: Width2;
 }
+export interface SceneUpdateOp {
+  after: SceneUpdateFields;
+  before?: SceneUpdateFields | null;
+  op: Op9;
+}
+/**
+ * Mutable scene-level fields; ``id``/``version`` are intentionally absent.
+ */
+export interface SceneUpdateFields {
+  environment?: EnvironmentSettings | null;
+  north?: North;
+}
+/**
+ * Geographic anchor for the daylight layer (PRD FR-22).
+ *
+ * Latitude/longitude feed the solar-position model; the sun direction is
+ * expressed relative to ``SceneDocument.north`` so rotating the compass
+ * rotates the shadows with it. ``None`` keeps the scene on studio lighting.
+ */
+export interface EnvironmentSettings {
+  latitude?: Latitude;
+  longitude?: Longitude;
+}
 export interface EmptyPayload {}
 /**
  * Base for every client -> server WebSocket message.
@@ -743,10 +773,11 @@ export interface SceneSnapshotPayload {
 export interface SceneDocument {
   createdAt: Createdat1;
   defaults: SceneDefaults;
+  environment?: EnvironmentSettings | null;
   id: Id5;
   items: Items;
   name: Name2;
-  north?: North;
+  north?: North1;
   openings: Openings;
   rooms: Rooms;
   schemaVersion?: Schemaversion;

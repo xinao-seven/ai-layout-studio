@@ -33,6 +33,18 @@ class SceneDefaults(CamelModel):
     wall_material: str = "default"
 
 
+class EnvironmentSettings(CamelModel):
+    """Geographic anchor for the daylight layer (PRD FR-22).
+
+    Latitude/longitude feed the solar-position model; the sun direction is
+    expressed relative to ``SceneDocument.north`` so rotating the compass
+    rotates the shadows with it. ``None`` keeps the scene on studio lighting.
+    """
+
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+
 class Room(CamelModel):
     """Room whose polygon is the wall centerline (CCW)."""
 
@@ -132,6 +144,7 @@ class SceneDocument(CamelModel):
     version: int = Field(ge=1)
     units: Literal["metric"] = "metric"
     north: Vec2 = (0.0, -1.0)
+    environment: EnvironmentSettings | None = None
     defaults: SceneDefaults
     rooms: list[Room]
     openings: list[Opening]
