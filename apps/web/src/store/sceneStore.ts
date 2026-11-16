@@ -187,6 +187,9 @@ interface SceneState {
   cameraState: CameraState | null
   restoreCamera: boolean
   walkLocked: boolean
+  sunEnabled: boolean
+  sunTimeHours: number
+  sunPanelOpen: boolean
 
   bootstrap: () => Promise<void>
   refreshScenes: () => Promise<void>
@@ -256,6 +259,10 @@ interface SceneState {
   saveCameraState: (state: CameraState) => void
   consumeCameraRestore: () => void
   setWalkLocked: (locked: boolean) => void
+  setSunEnabled: (enabled: boolean) => void
+  setSunTime: (hours: number) => void
+  toggleSunPanel: () => void
+  updateEnvironment: (latitude: number, longitude: number) => Promise<void>
   confirmProposal: (proposalId: string) => void
   rejectProposal: (proposalId: string) => void
   answerUser: (answers: string[]) => void
@@ -504,6 +511,9 @@ export const useSceneStore = create<SceneState>()(
       cameraState: null,
       restoreCamera: false,
       walkLocked: false,
+      sunEnabled: false,
+      sunTimeHours: 12,
+      sunPanelOpen: false,
 
       bootstrap: async () => {
         set({ loading: true, error: null })
@@ -1550,6 +1560,32 @@ export const useSceneStore = create<SceneState>()(
       saveCameraState: (cameraState) => set({ cameraState }),
       consumeCameraRestore: () => set({ restoreCamera: false }),
       setWalkLocked: (walkLocked) => set({ walkLocked }),
+
+      setSunEnabled: (sunEnabled) => set({ sunEnabled }),
+      setSunTime: (sunTimeHours) => set({ sunTimeHours: Math.max(0, Math.min(24, sunTimeHours)) }),
+      toggleSunPanel: () => set((state) => ({ sunPanelOpen: !state.sunPanelOpen })),
+
+      updateEnvironment: async (latitude, longitude) => {
+        const scene = get().scene
+        if (!scene) return
+        const previous = scene.environment
+        if (
+          previous &&
+          Math.abs((previous.latitude ?? 0) - latitude) <= 1e-9 &&
+          Math.abs((previous.longitude ?? 0) - longitude) <= 1e-9
+        ) {
+          return
+        }
+        await get().commitOps(
+          [
+            {
+              op: 'scene.update',
+              after: { environment: { latitude, longitude } },
+            },
+          ],
+          'Failed to update the environment.',
+        )
+      },
 
       handleWsEnvelope: (envelope) => {
         if (envelope.ch === 'host') {

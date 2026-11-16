@@ -7,6 +7,7 @@ import { SceneCanvas } from './SceneCanvas'
 import { SceneIconRail } from './SceneIconRail'
 import { Sidebar } from './Sidebar'
 import { StatusBar } from './StatusBar'
+import { SunPanel } from './SunPanel'
 import { TopBar } from './TopBar'
 import { WarningToast } from './WarningToast'
 
@@ -27,6 +28,7 @@ function WalkHint() {
 export function EditorShell({ perfMode }: { perfMode: boolean }) {
   const scene = useSceneStore((state) => state.scene)
   const viewMode = useSceneStore((state) => state.viewMode)
+  const sunPanelOpen = useSceneStore((state) => state.sunPanelOpen)
   const selectedItemId = useSceneStore((state) => state.selectedItemId)
   const cameraResetToken = useSceneStore((state) => state.cameraResetToken)
   const catalog = useSceneStore((state) => state.catalog)
@@ -55,6 +57,7 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
               />
               <FloatingToolbar perfMode={perfMode} />
               {viewMode === 'walk' ? <WalkHint /> : null}
+              {sunPanelOpen && viewMode !== 'walk' ? <SunPanel /> : null}
               <PlacementHint />
               <Compass north={scene.north as [number, number]} />
               <StatusBar perfMode={perfMode} />

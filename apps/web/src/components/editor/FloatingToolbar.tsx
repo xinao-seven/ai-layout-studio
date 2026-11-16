@@ -1,4 +1,4 @@
-import { Box, Footprints, MousePointer2, Pencil, RotateCcw, Square } from 'lucide-react'
+import { Box, Footprints, MousePointer2, Pencil, RotateCcw, Square, Sun } from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
 import { Button } from '../ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
@@ -9,6 +9,8 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
   const resetCamera = useSceneStore((state) => state.resetCamera)
   const tool = useSceneStore((state) => state.tool)
   const setTool = useSceneStore((state) => state.setTool)
+  const sunPanelOpen = useSceneStore((state) => state.sunPanelOpen)
+  const toggleSunPanel = useSceneStore((state) => state.toggleSunPanel)
 
   return (
     <div className="pointer-events-none absolute top-3 right-3 z-20 flex items-center gap-2">
@@ -80,6 +82,25 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
           漫游
         </button>
       </div>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            aria-label="日照设置"
+            className={`pointer-events-auto h-8 w-8 rounded-xl border shadow-2xl backdrop-blur-md ${
+              sunPanelOpen
+                ? 'border-amber-300/40 bg-amber-400/15 text-amber-200'
+                : 'border-border bg-background/90'
+            }`}
+            onClick={toggleSunPanel}
+            size="icon"
+            variant="ghost"
+          >
+            <Sun className="h-3.5 w-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">日照环境层（时间轴阴影）</TooltipContent>
+      </Tooltip>
 
       <Tooltip>
         <TooltipTrigger asChild>

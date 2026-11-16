@@ -7,6 +7,7 @@ import type { CatalogEntry, Item, Room, SceneDocument } from '../../contracts/ge
 import { getCatalogDragKind, setCatalogDragKind } from '../../scene/catalogDrag'
 import { distance, edgeInfo, type Vec2 } from '../../scene/geometry'
 import { pendingOverlay } from '../../scene/proposals'
+import { sunDate, sunSceneDirection } from '../../scene/sun'
 import { buildWalls } from '../../scene/walls'
 import {
   type CameraState,
@@ -1008,26 +1009,71 @@ function SceneContents({
   const ghost = useSceneStore((state) => state.ghost)
   const proposals = useSceneStore((state) => state.proposals)
   const overlay = useMemo(() => pendingOverlay(scene, proposals), [scene, proposals])
+  const sunEnabled = useSceneStore((state) => state.sunEnabled)
+  const sunTimeHours = useSceneStore((state) => state.sunTimeHours)
+  const sunState = useMemo(() => {
+    const environment = scene.environment
+    if (!sunEnabled || !environment) return null
+    const { latitude, longitude } = environment
+    if (latitude == null || longitude == null) return null
+    return sunSceneDirection(scene, latitude, longitude, sunDate(sunTimeHours, longitude))
+  }, [scene, sunEnabled, sunTimeHours])
+  const sunActive = sunState !== null
+  const sunIntensity = sunState
+    ? sunState.elevationDeg <= 0
+      ? 0.12
+      : Math.min(2.6, Math.max(0.35, Math.sin(sunState.elevationDeg * (Math.PI / 180)) * 2.6))
+    : 0
+  const sunColor = sunState ? (sunState.elevationDeg < 15 ? '#ffcf9e' : '#fff3e2') : '#ffffff'
+  const sunAmbientIntensity = sunState ? (sunState.elevationDeg <= 0 ? 0.22 : 0.55) : 0.72
 
   return (
     <>
       <color attach="background" args={['#151515']} />
-      <ambientLight intensity={0.72} />
-      <directionalLight
-        castShadow={!topView}
-        intensity={2.1}
-        position={[bounds.center[0] + 8, 12, bounds.center[1] + 6]}
-        shadow-camera-bottom={-16}
-        shadow-camera-left={-16}
-        shadow-camera-right={16}
-        shadow-camera-top={16}
-        shadow-mapSize-height={2048}
-        shadow-mapSize-width={2048}
-      />
-      <directionalLight
-        intensity={0.55}
-        position={[bounds.center[0] - 6, 8, bounds.center[1] - 8]}
-      />
+      <ambientLight intensity={sunActive ? sunAmbientIntensity : 0.72} />
+      {sunState ? (
+        <>
+          <directionalLight
+            castShadow={!topView}
+            color={sunColor}
+            intensity={sunIntensity}
+            position={[
+              bounds.center[0] + sunState.direction[0] * 28,
+              Math.max(sunState.direction[1] * 28, 4),
+              bounds.center[1] + sunState.direction[2] * 28,
+            ]}
+            shadow-camera-bottom={-16}
+            shadow-camera-left={-16}
+            shadow-camera-right={16}
+            shadow-camera-top={16}
+            shadow-mapSize-height={2048}
+            shadow-mapSize-width={2048}
+          />
+          <directionalLight
+            color="#b8c4e8"
+            intensity={0.35}
+            position={[bounds.center[0] - 6, 8, bounds.center[1] - 8]}
+          />
+        </>
+      ) : (
+        <>
+          <directionalLight
+            castShadow={!topView}
+            intensity={2.1}
+            position={[bounds.center[0] + 8, 12, bounds.center[1] + 6]}
+            shadow-camera-bottom={-16}
+            shadow-camera-left={-16}
+            shadow-camera-right={16}
+            shadow-camera-top={16}
+            shadow-mapSize-height={2048}
+            shadow-mapSize-width={2048}
+          />
+          <directionalLight
+            intensity={0.55}
+            position={[bounds.center[0] - 6, 8, bounds.center[1] - 8]}
+          />
+        </>
+      )}
       <CameraFit
         bounds={bounds}
         fitToken={`${scene.id}:${cameraResetToken}`}
