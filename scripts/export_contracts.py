@@ -33,10 +33,11 @@ from app.main import create_app  # noqa: E402
 
 
 def write_json(path: Path, payload: Any) -> None:
-    """Write canonical JSON (sorted keys, UTF-8, trailing newline)."""
+    """Write canonical JSON (sorted keys, UTF-8, LF line endings)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
-    path.write_text(f"{text}\n", encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(f"{text}\n")
     print(f"wrote {path.relative_to(REPO_ROOT).as_posix()}")
 
 
