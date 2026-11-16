@@ -1,4 +1,4 @@
-import type { Item, Proposal, SceneDocument } from '../contracts/generated/client/rest'
+import type { Item, Proposal, Room, SceneDocument } from '../contracts/generated/client/rest'
 import { applyPatchToDocument } from './patch'
 
 export function pendingProposalList(proposals: Record<string, Proposal>): Proposal[] {
@@ -12,6 +12,7 @@ export interface PendingOverlay {
   updatedItems: Item[]
   removedItemIds: Set<string>
   updatedItemIds: Set<string>
+  addedRooms: Room[]
 }
 
 /**
@@ -23,6 +24,7 @@ export function pendingOverlay(
   proposals: Record<string, Proposal>,
 ): PendingOverlay {
   const confirmedIds = new Set(scene.items.map((item) => item.id))
+  const confirmedRoomIds = new Set(scene.rooms.map((room) => room.id))
   let overlay = scene
   for (const proposal of pendingProposalList(proposals)) {
     try {
@@ -39,10 +41,12 @@ export function pendingOverlay(
     const before = scene.items.find((candidate) => candidate.id === item.id)
     return JSON.stringify(before) !== JSON.stringify(item)
   })
+  const addedRooms = overlay.rooms.filter((room) => !confirmedRoomIds.has(room.id))
   return {
     addedItems,
     updatedItems,
     removedItemIds,
     updatedItemIds: new Set(updatedItems.map((item) => item.id)),
+    addedRooms,
   }
 }

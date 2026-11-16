@@ -1,4 +1,4 @@
-"""Agent tool execution (7 tools, L0-L3) and tool-result shapes."""
+"""Agent tool execution (tools L0-L3) and tool-result shapes."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from typing import Any
 
 from app.agent.contracts import (
     AddItemInput,
+    AddRoomInput,
     AskUserInput,
     AutoLayoutInput,
     MoveItemInput,
@@ -21,6 +22,7 @@ from app.agent.contracts import (
 from app.agent.placement import place_add, place_move, place_remove, place_update
 from app.agent.refusals import dedupe_refusals, make_refusal
 from app.agent.registry import validate_arguments
+from app.agent.room_ops import plan_add_room
 from app.capture.service import CaptureService
 from app.contracts.catalog import CatalogEntry
 from app.contracts.enums import ItemSource
@@ -29,7 +31,7 @@ from app.contracts.proposal import Proposal, Refusal
 from app.contracts.rules import Rules
 from app.contracts.scene import Item, SceneDocument
 from app.geometry.errors import GeometryError
-from app.geometry.polygon import point_in_polygon
+from app.geometry.polygon import point_in_polygon, polygon_area
 from app.scene.errors import SceneError
 from app.scene.registry import OverlayView, ProposalBuild, SceneRegistry
 from app.solver.engine import SolveOptions, SolveSpec
@@ -111,6 +113,14 @@ class ToolExecutor:
                         rules=self._rules,
                         strict=True,
                     )
+                ),
+            )
+        if isinstance(model, AddRoomInput):
+            return await self._write(
+                name,
+                model,
+                lambda document, _pending: _from_placement(
+                    plan_add_room(document, model, rules=self._rules)
                 ),
             )
         if isinstance(model, MoveItemInput):
@@ -596,6 +606,14 @@ class ToolExecutor:
                 }
             elif op.op == "item.remove":
                 preview = {"itemId": op.item_id}
+            elif op.op == "room.add":
+                preview = {
+                    "roomId": op.room.id,
+                    "name": op.room.name,
+                    "type": op.room.type.value,
+                    "areaM2": round(polygon_area(op.room.polygon), 2),
+                    "vertexCount": len(op.room.polygon),
+                }
         return ToolExecution(
             name=name,
             payload={

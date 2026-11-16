@@ -6,8 +6,10 @@ patch ops, versioning or resume. M2 adds `SceneWarning` to REST/ack payloads,
 `POST /api/catalog/reload`, and static `/assets/*` delivery. M3 adds turn REST
 endpoints, turn-channel events, `turn.subscribe`/`turn.cancel`/`ask_user.answer`
 host messages and `proposal.updated`. M4 adds `auto_layout`/`verify_layout`,
-`capture.request`/`capture.result` and an optional legend in the request. No
-existing field changes meaning.
+`capture.request`/`capture.result` and an optional legend in the request.
+Post-M4 adds the `add_room` write tool (the only tool accepting raw polygon
+coordinates; the server grid-snaps, normalizes winding and validates before
+proposing). No existing field changes meaning.
 
 The wire contract is generated from Pydantic models
 (`apps/server/app/contracts/`): see `packages/contracts/generated/ws.schema.json`
@@ -250,7 +252,8 @@ with WAL, foreign keys and a 5 s busy timeout.
   `turn.done`, `turn.failed`, `turn.cancelled`, plus `turn.status` for
   reconnect/subscribe. Assistant text streams as deltas; tool calls are
   accumulated and de-duplicated by `toolCallId`.
-- **Write tools** (`add_item`, `move_item`, `remove_item`, `update_item`)
+- **Write tools** (`add_room`, `add_item`, `move_item`, `remove_item`,
+  `update_item`, `auto_layout`)
   validate through L0–L3 and create a pending `Proposal`; the tool result
   returns `{ ok, proposalId, dependsOn, ops, preview, needsConfirmation }`.
   Read tools (`query_scene`, `search_catalog`) are not gated and include pending

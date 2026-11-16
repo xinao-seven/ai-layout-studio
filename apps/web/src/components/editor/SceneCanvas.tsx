@@ -24,6 +24,7 @@ const WINDOW_COLOR = '#8ec5e8'
 const SELECTION_COLOR = '#7aa2ff'
 const VALID_COLOR = '#57d18b'
 const INVALID_COLOR = '#ef6464'
+const PENDING_ROOM_COLOR = '#67e8f9'
 const FLOOR_COLORS: Record<string, string> = {
   living: '#544636',
   bedroom: '#4c4034',
@@ -647,6 +648,59 @@ function DraftOverlay() {
   )
 }
 
+function PendingRoomGhost({ room }: { room: Room }) {
+  const shape = useMemo(() => {
+    const value = new THREE.Shape()
+    const points = room.polygon as Vec2[]
+    points.forEach(([x, z], index) => {
+      if (index === 0) value.moveTo(x, -z)
+      else value.lineTo(x, -z)
+    })
+    value.closePath()
+    return value
+  }, [room.polygon])
+  const outline = useMemo(() => {
+    const points = room.polygon as Vec2[]
+    const first = points[0]
+    const closed = first ? [...points, first] : []
+    return closed.map(([x, z]): [number, number, number] => [x, 0.04, z])
+  }, [room.polygon])
+  const label = useMemo(() => {
+    const points = room.polygon as Vec2[]
+    const sum = points.reduce<Vec2>(
+      (accumulator, [x, z]) => [accumulator[0] + x, accumulator[1] + z],
+      [0, 0],
+    )
+    return [sum[0] / points.length, sum[1] / points.length] as Vec2
+  }, [room.polygon])
+  return (
+    <group>
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <shapeGeometry args={[shape]} />
+        <meshBasicMaterial
+          color={PENDING_ROOM_COLOR}
+          depthWrite={false}
+          opacity={0.14}
+          transparent
+        />
+      </mesh>
+      <Line
+        color={PENDING_ROOM_COLOR}
+        dashed
+        dashSize={0.14}
+        gapSize={0.09}
+        lineWidth={2}
+        points={outline}
+      />
+      <Html center position={[label[0], 0.16, label[1]]} style={{ pointerEvents: 'none' }}>
+        <div className="rounded border border-cyan-300/40 bg-cyan-950/80 px-1.5 py-0.5 text-[10px] leading-tight text-cyan-100 select-none tabular-nums">
+          {room.name}
+        </div>
+      </Html>
+    </group>
+  )
+}
+
 function DrawingPlane() {
   const addDraftPoint = useSceneStore((state) => state.addDraftPoint)
   const setDraftCursor = useSceneStore((state) => state.setDraftCursor)
@@ -988,6 +1042,12 @@ function SceneContents({
         ? null
         : [...overlay.addedItems, ...overlay.updatedItems].map((item) => (
             <PendingItemGhost catalog={catalog} item={item} key={`pending-${item.id}`} />
+          ))}
+
+      {captureRequest
+        ? null
+        : overlay.addedRooms.map((room) => (
+            <PendingRoomGhost key={`pending-room-${room.id}`} room={room} />
           ))}
 
       {!captureRequest && ghost ? <GhostItem catalog={catalog} ghost={ghost} /> : null}

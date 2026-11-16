@@ -121,7 +121,7 @@ def build_tools_schema() -> dict[str, Any]:
         "description": (
             "Tool names, descriptions and Pydantic-derived parameter schemas. "
             "The registry is the single source; the default value pins the "
-            "nine M3/M4 tools for contract drift checks."
+            "full M3/M4 tool set for contract drift checks."
         ),
         "$ref": "#/definitions/ToolBundle",
         "definitions": {"ToolBundle": schema, **definitions},

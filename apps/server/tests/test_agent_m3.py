@@ -543,7 +543,7 @@ def test_ws_turn_events_and_ask_user_resume(test_settings: Settings) -> None:
         assert turn["status"] == "done"
 
 
-def test_tool_schema_has_nine_provider_compatible_tools() -> None:
+def test_tool_schema_has_provider_compatible_tools() -> None:
     from app.agent.registry import TOOL_NAMES, tool_bundle
 
     bundle = tool_bundle()
@@ -552,6 +552,7 @@ def test_tool_schema_has_nine_provider_compatible_tools() -> None:
         "query_scene",
         "search_catalog",
         "add_item",
+        "add_room",
         "move_item",
         "remove_item",
         "update_item",

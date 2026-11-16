@@ -1,7 +1,8 @@
 """Tool contract envelope.
 
-The nine agent tools land in M3; this model fixes the shape of the exported
-``tools.schema.json`` so the contract pipeline and CI drift check exist now.
+The agent tools land in M3 and later milestones; this model fixes the shape of
+the exported ``tools.schema.json`` so the contract pipeline and CI drift check
+exist now.
 """
 
 from __future__ import annotations

@@ -1,6 +1,7 @@
 import { Check, CircleAlert, Loader2, Send, Sparkles, Square, Wrench, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Proposal } from '../../contracts/generated/client/rest'
+import { polygonArea, type Vec2 } from '../../scene/geometry'
 import { pendingProposalList } from '../../scene/proposals'
 import { useSceneStore } from '../../store/sceneStore'
 import { Badge } from '../ui/badge'
@@ -10,6 +11,7 @@ function proposalTitle(proposal: Proposal): string {
   const op = proposal.ops[0]
   if (!op) return '空提案'
   if (op.op === 'item.add') return `添加 ${op.item.kindId}`
+  if (op.op === 'room.add') return `添加房间 ${op.room.name}`
   if (op.op === 'item.remove') return `移除 ${op.itemId}`
   if (op.op === 'item.update') return `更新 ${op.itemId}`
   return op.op
@@ -22,6 +24,10 @@ function proposalDetail(proposal: Proposal): string {
     return `${op.item.variantId} · (${x.toFixed(2)}, ${z.toFixed(2)}) · ${Math.round(
       (op.item.transform.rotationY * 180) / Math.PI,
     )}°`
+  }
+  if (op?.op === 'room.add') {
+    const area = polygonArea(op.room.polygon as Vec2[])
+    return `${op.room.type} · ${op.room.polygon.length} 个顶点 · ${area.toFixed(1)}㎡`
   }
   return proposal.ops.map((candidate) => candidate.op).join(' · ')
 }

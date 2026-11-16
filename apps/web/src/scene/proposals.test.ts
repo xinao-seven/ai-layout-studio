@@ -3,6 +3,7 @@ import type { Proposal, SceneDocument } from '../contracts/generated/client/rest
 import { pendingOverlay } from './proposals'
 
 const scene = {
+  rooms: [],
   items: [
     {
       id: 'it_keep',
@@ -74,5 +75,67 @@ describe('pendingOverlay', () => {
     confirmed.status = 'confirmed'
     const overlay = pendingOverlay(scene, { [confirmed.id]: confirmed })
     expect(overlay.addedItems).toEqual([])
+  })
+})
+
+describe('pendingOverlay rooms', () => {
+  it('surfaces agent-proposed rooms as addedRooms', () => {
+    const roomScene = {
+      rooms: [
+        {
+          id: 'room_keep',
+          name: '客厅',
+          type: 'living',
+          polygon: [
+            [0, 0],
+            [4, 0],
+            [4, 3],
+            [0, 3],
+          ],
+        },
+      ],
+      items: [],
+    } as unknown as SceneDocument
+    const overlay = pendingOverlay(roomScene, {
+      prop_room: proposal('prop_room', [
+        {
+          op: 'room.add',
+          room: {
+            id: 'room_new',
+            name: '卧室',
+            type: 'bedroom',
+            polygon: [
+              [5, 0],
+              [9, 0],
+              [9, 4],
+              [5, 4],
+            ],
+          },
+        },
+      ]),
+    })
+    expect(overlay.addedRooms.map((room) => room.id)).toEqual(['room_new'])
+    expect(overlay.addedItems).toEqual([])
+  })
+
+  it('keeps confirmed rooms out of addedRooms', () => {
+    const roomScene = {
+      rooms: [
+        {
+          id: 'room_keep',
+          name: '客厅',
+          type: 'living',
+          polygon: [
+            [0, 0],
+            [4, 0],
+            [4, 3],
+            [0, 3],
+          ],
+        },
+      ],
+      items: [],
+    } as unknown as SceneDocument
+    const overlay = pendingOverlay(roomScene, {})
+    expect(overlay.addedRooms).toEqual([])
   })
 })

@@ -457,6 +457,76 @@
         }
       },
       {
+        "description": "Propose creating one new room from a wall-centerline polygon. This is the only tool that accepts raw coordinates: [x,z] vertex pairs in meters, 3-32 points, simple outline. The server snaps vertices to the 0.1 m grid, normalizes winding and validates shape/minimum area; failures return refusals so you can self-correct. Call query_scene first and keep the new outline clear of existing rooms. One call proposes one room, shown as a dashed ghost until the user confirms it.",
+        "name": "add_room",
+        "parameters": {
+          "additionalProperties": false,
+          "description": "Propose a new room from a wall-centerline polygon.\n\nThe only tool allowed to output raw coordinates: the server snaps every\nvertex to the grid, normalizes winding and validates shape and minimum\narea before the proposal is created.",
+          "properties": {
+            "name": {
+              "anyOf": [
+                {
+                  "maxLength": 40,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Display name; defaults to 房间 N when omitted.",
+              "title": "Name"
+            },
+            "polygon": {
+              "description": "Wall-centerline vertices in meters as [x,z] world-coordinate pairs (|x|,|z| <= 500), 3-32 points, simple (non-self-intersecting) outline; winding is normalized server-side.",
+              "items": {
+                "additionalItems": false,
+                "items": [
+                  {
+                    "description": "Vertex coordinate in meters relative to the world origin.",
+                    "maximum": 500.0,
+                    "minimum": -500.0,
+                    "type": "number"
+                  },
+                  {
+                    "description": "Vertex coordinate in meters relative to the world origin.",
+                    "maximum": 500.0,
+                    "minimum": -500.0,
+                    "type": "number"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "maxItems": 32,
+              "minItems": 3,
+              "title": "Polygon",
+              "type": "array"
+            },
+            "type": {
+              "default": "other",
+              "description": "living|bedroom|kitchen|bathroom|study|balcony|other.",
+              "enum": [
+                "living",
+                "bedroom",
+                "kitchen",
+                "bathroom",
+                "study",
+                "balcony",
+                "other"
+              ],
+              "title": "RoomType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "polygon"
+          ],
+          "type": "object"
+        }
+      },
+      {
         "description": "Propose moving an existing item either to a new semantic relation or by a metric offset {dx,dz}. Pending items may be moved. The proposal needs user confirmation.",
         "name": "move_item",
         "parameters": {
@@ -1227,6 +1297,6 @@
       "type": "object"
     }
   },
-  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the nine M3/M4 tools for contract drift checks.",
+  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the full M3/M4 tool set for contract drift checks.",
   "title": "Agent tool contracts"
 }

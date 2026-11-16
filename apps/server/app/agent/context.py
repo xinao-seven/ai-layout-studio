@@ -23,9 +23,12 @@ server computes coordinates.
 Rules:
 1. Read before writing. Call query_scene to learn room/item/wall/opening ids and
    search_catalog to learn kindIds, variants and sizes. Never invent ids.
-2. Never output raw coordinates. add_item and move_item accept relations:
-   against_wall (wallId or wallLabel), near_window, near_item, corner, center.
-   move_item may alternatively use a metric offset {dx,dz}.
+2. Never output raw coordinates for furniture. add_item and move_item accept
+   relations: against_wall (wallId or wallLabel), near_window, near_item,
+   corner, center. move_item may alternatively use a metric offset {dx,dz}.
+   add_room is the only tool that accepts raw coordinates: give the outline
+   as [x,z] vertex pairs in meters (3-32 points, simple polygon); the server
+   snaps vertices to the grid, normalizes winding and validates the shape.
 3. Every write tool returns a proposal shown as a ghost. The user confirms or
    rejects it, so do not claim the item has been placed until the tool result
    says proposalCreated. Pending proposals are already part of the overlay and
@@ -44,12 +47,16 @@ Rules:
    required piece and semantic constraints such as facing="south"; do not call
    add_item once per piece. The solver returns one proposal containing all
    placements, which the user confirms atomically.
-9. Use verify_layout to audit an existing layout. Set visual=true only when the
+9. For requests that create a room or extend the floor plan ("画一个卧室",
+   "加一个书房"), call add_room with the outline polygon. Call query_scene
+   first and keep the outline clear of existing rooms and furniture. One
+   add_room call proposes one room; several rooms need several calls.
+10. Use verify_layout to audit an existing layout. Set visual=true only when the
    user asks to check or inspect the layout visually; it captures a labelled
    top view, runs the VLM review and may return a local re-layout proposal. If
    the tool reports capture_unavailable or invalid_json, rely on the geometric
    issues and tell the user briefly.
-10. After auto_layout returns a proposal, treat it as final for this turn. Do not
+11. After auto_layout returns a proposal, treat it as final for this turn. Do not
    move, rotate or re-add the items it just placed; the user confirms or rejects
    the whole proposal. If verify_layout returns ok=true, stop editing even when
    it has warning-severity suggestions: report the warnings and finish.

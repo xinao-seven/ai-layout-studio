@@ -9,6 +9,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.agent.contracts import (
     AddItemInput,
+    AddRoomInput,
     AskUserInput,
     AutoLayoutInput,
     MoveItemInput,
@@ -61,6 +62,20 @@ TOOL_SPECS: tuple[ToolSpec, ...] = (
             "If validation fails, the tool returns every refusal so you can self-correct."
         ),
         input_model=AddItemInput,
+        kind="write",
+    ),
+    ToolSpec(
+        name="add_room",
+        description=(
+            "Propose creating one new room from a wall-centerline polygon. This is the "
+            "only tool that accepts raw coordinates: [x,z] vertex pairs in meters, 3-32 "
+            "points, simple outline. The server snaps vertices to the 0.1 m grid, "
+            "normalizes winding and validates shape/minimum area; failures return "
+            "refusals so you can self-correct. Call query_scene first and keep the new "
+            "outline clear of existing rooms. One call proposes one room, shown as a "
+            "dashed ghost until the user confirms it."
+        ),
+        input_model=AddRoomInput,
         kind="write",
     ),
     ToolSpec(

@@ -1,4 +1,4 @@
-"""Pydantic input contracts for the seven M3 agent tools.
+"""Pydantic input contracts for the agent tools.
 
 The same models generate the OpenAI tool schemas (via ``model_json_schema``)
 and perform L0 validation, so there is no hand-written second schema (PRD
@@ -12,7 +12,7 @@ from typing import Annotated, Literal
 from pydantic import Field, model_validator
 
 from app.contracts.base import CamelModel
-from app.contracts.enums import CatalogCategory, FacingDirection
+from app.contracts.enums import CatalogCategory, FacingDirection, RoomType
 from app.contracts.scene import Clearance, ItemConstraint
 
 
@@ -204,5 +204,44 @@ class VerifyLayoutInput(CamelModel):
         description=(
             "Run the VLM screenshot review closed loop when geometry passes. "
             "Set true when the user asks to visually check the layout."
+        ),
+    )
+
+
+RoomCoordinate = Annotated[
+    float,
+    Field(
+        allow_inf_nan=False,
+        ge=-500.0,
+        le=500.0,
+        description="Vertex coordinate in meters relative to the world origin.",
+    ),
+]
+
+
+class AddRoomInput(CamelModel):
+    """Propose a new room from a wall-centerline polygon.
+
+    The only tool allowed to output raw coordinates: the server snaps every
+    vertex to the grid, normalizes winding and validates shape and minimum
+    area before the proposal is created.
+    """
+
+    name: str | None = Field(
+        default=None,
+        max_length=40,
+        description="Display name; defaults to 房间 N when omitted.",
+    )
+    type: RoomType = Field(
+        default=RoomType.OTHER,
+        description="living|bedroom|kitchen|bathroom|study|balcony|other.",
+    )
+    polygon: list[tuple[RoomCoordinate, RoomCoordinate]] = Field(
+        min_length=3,
+        max_length=32,
+        description=(
+            "Wall-centerline vertices in meters as [x,z] world-coordinate pairs "
+            "(|x|,|z| <= 500), 3-32 points, simple (non-self-intersecting) "
+            "outline; winding is normalized server-side."
         ),
     )

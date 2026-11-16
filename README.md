@@ -4,7 +4,8 @@
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
 > 当前状态：**M4 求解器 + VLM + 评测完成**（2026-11-16）。在 M3 的 7 个 Agent 工具之上
-> 新增 `auto_layout` / `verify_layout`：确定性 beam search 求解整室布局（凸多边形、门/窗/
+> 新增 `auto_layout` / `verify_layout` / `add_room`（对话式画房间，服务端吸附校验，
+> 提案以青色虚线幽灵预览）：确定性 beam search 求解整室布局（凸多边形、门/窗/
 > 过道/衣柜净空、成组间距、5s 预算、进程池），`verify_layout` 返回结构化问题；带 ID 标注
 > 的正交俯视截图经 WS `capture.request/result` 回传，VLM 只回语义 issue，服务端做 ID 校验、
 > 几何/主路径复核并局部重排（最多 2 轮）。before/after 截图落 `data/screenshots/`（7 天清理，
@@ -73,10 +74,12 @@ SMOKE_WEB=1 pnpm smoke   # 同时检查前端
   删除、undo/redo。
 - 家具面板支持分类/搜索/缩略图与 `POST /api/catalog/reload` 热加载；详情卡显示
   尺寸/位置/朝向/约束并生成 PointContext。
-- 房间面板可手绘闭合房间、拖动顶点、选择墙段放置门/窗并调整 offset/width/height/
+- 房间面板可手绘闭合房间（默认直角 + 0.1m 网格吸附，Shift 自由绘制，实时段长标注）、
+  拖动顶点（靠近横平竖直位置自动直角对齐）、选择墙段放置门/窗并调整 offset/width/height/
   sill/swing；改多边形后服务端重锚定开口并返回 warning toast。
 - AI 面板可发送自然语言：模型先 `query_scene`/`search_catalog`，写工具生成青色幽灵
-  提案；确认后按依赖顺序落库，可 undo；支持取消、ask_user 回答和断线重连。
+  提案；"画一个 4×5 米的卧室"用 `add_room`（输出轮廓顶点，服务端 0.1m 吸附 + 直角/面积
+  校验，虚线幽灵预览）；确认后按依赖顺序落库，可 undo；支持取消、ask_user 回答和断线重连。
 - 整室布置用 `auto_layout`（床/衣柜/床头柜一次成提案）；"检查布局"用
   `verify_layout(visual=true)`：前端自动切正交俯视、给家具/门窗打 A1/D1/W1 标签并回传
   PNG，VLM 复核后生成局部重排提案。
