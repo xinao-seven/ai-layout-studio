@@ -1,4 +1,15 @@
-import { ArrowRight, Box, Home, Layers3, Loader2, Plus, RefreshCw, Sparkles } from 'lucide-react'
+import {
+  ArrowRight,
+  Box,
+  Home,
+  Layers3,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Upload,
+} from 'lucide-react'
+import { useRef, useState } from 'react'
 import { useSceneStore } from '../store/sceneStore'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -20,6 +31,19 @@ export function HomeScreen() {
   const createBlank = useSceneStore((state) => state.createBlank)
   const openScene = useSceneStore((state) => state.openScene)
   const bootstrap = useSceneStore((state) => state.bootstrap)
+  const importSceneFile = useSceneStore((state) => state.importSceneFile)
+  const error = useSceneStore((state) => state.error)
+  const setError = useSceneStore((state) => state.setError)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
+
+  const handleImportFile = (file: File | undefined) => {
+    if (!file) return
+    setImporting(true)
+    void importSceneFile(file)
+      .catch(() => undefined)
+      .finally(() => setImporting(false))
+  }
 
   return (
     <div className="subtle-scrollbar h-full overflow-y-auto bg-background">
@@ -36,6 +60,29 @@ export function HomeScreen() {
           </div>
           <div className="flex items-center gap-2">
             <Badge tone="accent">M3 · Agent 对话</Badge>
+            <input
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => {
+                handleImportFile(event.target.files?.[0])
+                event.target.value = ''
+              }}
+              ref={fileInputRef}
+              type="file"
+            />
+            <Button
+              disabled={importing}
+              onClick={() => fileInputRef.current?.click()}
+              size="sm"
+              variant="outline"
+            >
+              {importing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Upload className="h-3.5 w-3.5" />
+              )}
+              导入方案
+            </Button>
             <Button onClick={() => void createBlank()} size="sm" variant="outline">
               <Plus className="h-3.5 w-3.5" />
               空白场景
@@ -45,6 +92,23 @@ export function HomeScreen() {
       </header>
 
       <main className="relative mx-auto max-w-6xl px-6 pb-16">
+        {error ? (
+          <div className="mt-4 flex items-start justify-between gap-3 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            <span>
+              <span className="font-medium">{error.message}</span>
+              {error.suggest ? (
+                <span className="block text-xs text-red-200/80">{error.suggest}</span>
+              ) : null}
+            </span>
+            <button
+              className="shrink-0 text-xs text-red-200/70 hover:text-red-100"
+              onClick={() => setError(null)}
+              type="button"
+            >
+              关闭
+            </button>
+          </div>
+        ) : null}
         <section className="pt-14 pb-10">
           <Badge className="mb-5" tone="neutral">
             <Sparkles className="h-3 w-3" />

@@ -72,6 +72,11 @@ export interface CaptureRequestState {
   legend: CaptureLegend | null
 }
 
+export interface PngExportRequestState {
+  requestId: string
+  maxEdge: number
+}
+
 export interface CameraState {
   position: [number, number, number]
   target: [number, number, number]
@@ -178,6 +183,7 @@ interface SceneState {
   proposals: Record<string, Proposal>
   waitingUser: WaitingUserState | null
   captureRequest: CaptureRequestState | null
+  pngExportRequest: PngExportRequestState | null
   cameraState: CameraState | null
   restoreCamera: boolean
 
@@ -241,6 +247,11 @@ interface SceneState {
   cancelActiveTurn: () => Promise<void>
   completeCapture: (requestId: string, pngBase64: string, legend: Record<string, unknown>) => void
   cancelCapture: (requestId: string) => void
+  exportSceneJson: () => Promise<void>
+  exportScenePng: () => void
+  completePngExport: (requestId: string, dataUrl: string) => void
+  cancelPngExport: (requestId: string) => void
+  importSceneFile: (file: File) => Promise<void>
   saveCameraState: (state: CameraState) => void
   consumeCameraRestore: () => void
   confirmProposal: (proposalId: string) => void
@@ -286,6 +297,34 @@ function isCurrentResult(current: SceneDocument | null, result: { scene: SceneDo
   return Boolean(
     current && result.scene.id === current.id && result.scene.version >= current.version,
   )
+}
+
+function downloadBlob(filename: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function safeFilename(raw: string): string {
+  const cleaned = raw.replace(/[\\/:*?"<>|]+/g, '_').trim()
+  return cleaned.length > 0 ? cleaned.slice(0, 60) : 'scene'
+}
+
+function dataUrlToBlob(dataUrl: string): Blob | null {
+  const match = /^data:([^;,]+)?(;base64)?,(.*)$/.exec(dataUrl)
+  if (!match) return null
+  const mime = match[1] ?? 'application/octet-stream'
+  const payload = match[3] ?? ''
+  if (!match[2]) return new Blob([payload], { type: mime })
+  const binary = atob(payload)
+  const bytes = new Uint8Array(binary.length)
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+  return new Blob([bytes], { type: mime })
 }
 
 function toUiError(error: unknown, fallback: string): UiError {
@@ -459,6 +498,7 @@ export const useSceneStore = create<SceneState>()(
       proposals: {},
       waitingUser: null,
       captureRequest: null,
+      pngExportRequest: null,
       cameraState: null,
       restoreCamera: false,
 
@@ -552,6 +592,7 @@ export const useSceneStore = create<SceneState>()(
           proposals: {},
           waitingUser: null,
           captureRequest: null,
+          pngExportRequest: null,
           restoreCamera: false,
         })
         try {
@@ -640,6 +681,7 @@ export const useSceneStore = create<SceneState>()(
             proposals: {},
             waitingUser: null,
             captureRequest: null,
+            pngExportRequest: null,
             restoreCamera: false,
           }),
         )
@@ -1433,6 +1475,73 @@ export const useSceneStore = create<SceneState>()(
         const request = get().captureRequest
         if (!request || request.requestId !== requestId) return
         set({ captureRequest: null, restoreCamera: true })
+      },
+
+      exportSceneJson: async () => {
+        const scene = get().scene
+        if (!scene) return
+        try {
+          const document = await api.exportScene(scene.id)
+          const payload = JSON.stringify(document, null, 2)
+          downloadBlob(
+            `${safeFilename(scene.name)}.json`,
+            new Blob([payload], { type: 'application/json' }),
+          )
+        } catch (error) {
+          set({ error: toUiError(error, 'Failed to export the scene.') })
+        }
+      },
+
+      exportScenePng: () => {
+        if (!get().scene) return
+        set({ pngExportRequest: { requestId: newId('png'), maxEdge: 2048 } })
+      },
+
+      completePngExport: (requestId, dataUrl) => {
+        const request = get().pngExportRequest
+        if (!request || request.requestId !== requestId) return
+        set({ pngExportRequest: null })
+        const scene = get().scene
+        try {
+          const blob = dataUrlToBlob(dataUrl)
+          if (blob) {
+            downloadBlob(`${safeFilename(scene?.name ?? 'scene')}.png`, blob)
+          }
+        } catch {
+          set({
+            error: { code: 'png_export_failed', message: 'PNG 导出失败。', suggest: null },
+          })
+        }
+      },
+
+      cancelPngExport: (requestId) => {
+        const request = get().pngExportRequest
+        if (!request || request.requestId !== requestId) return
+        set({ pngExportRequest: null })
+      },
+
+      importSceneFile: async (file) => {
+        set({ loading: true, error: null })
+        try {
+          const text = await file.text()
+          const parsed = JSON.parse(text) as SceneDocument
+          const imported = await api.importScene(parsed)
+          await get().refreshScenes()
+          await get().openScene(imported.id)
+        } catch (error) {
+          set({ loading: false })
+          if (error instanceof SyntaxError) {
+            set({
+              error: {
+                code: 'import_invalid',
+                message: '文件不是有效的 JSON。',
+                suggest: '导出文件应来自「导出 JSON」按钮。',
+              },
+            })
+            return
+          }
+          set({ error: toUiError(error, 'Failed to import the scene.') })
+        }
       },
 
       saveCameraState: (cameraState) => set({ cameraState }),

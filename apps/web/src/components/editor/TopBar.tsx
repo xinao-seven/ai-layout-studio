@@ -1,4 +1,15 @@
-import { ArrowLeft, Circle, Loader2, Redo2, Sparkles, Undo2, Wifi, WifiOff } from 'lucide-react'
+import {
+  ArrowLeft,
+  Circle,
+  Download,
+  ImageDown,
+  Loader2,
+  Redo2,
+  Sparkles,
+  Undo2,
+  Wifi,
+  WifiOff,
+} from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -43,6 +54,8 @@ export function TopBar() {
   const closeScene = useSceneStore((state) => state.closeScene)
   const undo = useSceneStore((state) => state.undo)
   const redo = useSceneStore((state) => state.redo)
+  const exportSceneJson = useSceneStore((state) => state.exportSceneJson)
+  const exportScenePng = useSceneStore((state) => state.exportScenePng)
 
   const summary = scenes.find((candidate) => candidate.id === scene?.id)
   const area = summary?.areaM2 ?? 0
@@ -106,6 +119,37 @@ export function TopBar() {
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">重做</TooltipContent>
+      </Tooltip>
+
+      <div className="h-5 w-px bg-border/60" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            aria-label="导出方案 JSON"
+            disabled={!scene}
+            onClick={() => void exportSceneJson()}
+            size="icon"
+            variant="ghost"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">导出方案 JSON（含 schemaVersion，可再导入）</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            aria-label="导出场景 PNG"
+            disabled={!scene}
+            onClick={exportScenePng}
+            size="icon"
+            variant="ghost"
+          >
+            <ImageDown className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">导出当前视图 PNG</TooltipContent>
       </Tooltip>
 
       <div className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-background/50 px-2.5 py-1 text-[10px] text-muted-foreground sm:flex">

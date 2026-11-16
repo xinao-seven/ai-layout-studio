@@ -97,3 +97,31 @@ describe('applyPatchToDocument', () => {
     expect(updated.openings).toHaveLength(1)
   })
 })
+
+describe('scene.update', () => {
+  it('merges environment settings without touching children', () => {
+    const source = document()
+    const updated = applyPatchToDocument(source, [
+      {
+        op: 'scene.update',
+        after: { environment: { latitude: 31.23, longitude: 121.47 } },
+      } as PatchOp,
+    ])
+    expect(updated.environment).toEqual({ latitude: 31.23, longitude: 121.47 })
+    expect(updated.rooms).toEqual(source.rooms)
+    expect(source.environment).toBeUndefined()
+  })
+
+  it('rotates north', () => {
+    const updated = applyPatchToDocument(document(), [
+      { op: 'scene.update', after: { north: [1, 0] } } as PatchOp,
+    ])
+    expect(updated.north).toEqual([1, 0])
+  })
+
+  it('throws when scene.update has no after', () => {
+    expect(() =>
+      applyPatchToDocument(document(), [{ op: 'scene.update' } as unknown as PatchOp]),
+    ).toThrow()
+  })
+})

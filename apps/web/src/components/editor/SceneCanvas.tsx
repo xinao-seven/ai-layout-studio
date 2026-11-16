@@ -13,9 +13,10 @@ import {
   type CaptureRequestState,
   type CatalogGhostState,
   type ItemDragState,
+  type PngExportRequestState,
   useSceneStore,
 } from '../../store/sceneStore'
-import { CaptureGrab, CaptureLabels } from './CaptureOverlay'
+import { CaptureGrab, CaptureLabels, PngExportGrab } from './CaptureOverlay'
 
 const WALL_COLOR = '#d9d5cc'
 const WALL_SELECTED = '#8fa9e8'
@@ -967,11 +968,13 @@ function SceneContents({
   cameraResetToken,
   onFps,
   captureRequest,
+  pngExportRequest,
   cameraState,
   restoreCamera,
   onCameraRestored,
 }: Omit<SceneCanvasProps, 'onSelectItem'> & {
   captureRequest?: CaptureRequestState | null
+  pngExportRequest?: PngExportRequestState | null
   cameraState: CameraState | null
   restoreCamera: boolean
   onCameraRestored: () => void
@@ -1073,6 +1076,7 @@ function SceneContents({
       {captureRequest && !captureRequest.legend ? (
         <CaptureGrab maxEdge={1536} scene={scene} />
       ) : null}
+      {pngExportRequest ? <PngExportGrab maxEdge={pngExportRequest.maxEdge} /> : null}
 
       {captureRequest ? null : topView ? (
         <TopControls bounds={bounds} target={cameraState?.target} />
@@ -1095,6 +1099,7 @@ export function SceneCanvas({
 }: SceneCanvasProps) {
   const bounds = useMemo(() => sceneBounds(scene), [scene])
   const captureRequest = useSceneStore((state) => state.captureRequest)
+  const pngExportRequest = useSceneStore((state) => state.pngExportRequest)
   const cameraState = useSceneStore((state) => state.cameraState)
   const restoreCamera = useSceneStore((state) => state.restoreCamera)
   const consumeCameraRestore = useSceneStore((state) => state.consumeCameraRestore)
@@ -1121,8 +1126,8 @@ export function SceneCanvas({
               }
         }
         dpr={[1, 2]}
-        gl={{ antialias: true, preserveDrawingBuffer: Boolean(captureRequest) }}
-        key={`${scene.id}-${effectiveView}-${cameraResetToken}-${captureRequest?.requestId ?? ''}`}
+        gl={{ antialias: true, preserveDrawingBuffer: Boolean(captureRequest || pngExportRequest) }}
+        key={`${scene.id}-${effectiveView}-${cameraResetToken}-${captureRequest?.requestId ?? ''}-${pngExportRequest?.requestId ?? ''}`}
         onPointerMissed={() => onSelectItem(null)}
         orthographic={topView}
         shadows={!topView}
@@ -1131,6 +1136,7 @@ export function SceneCanvas({
           cameraResetToken={cameraResetToken}
           cameraState={cameraState}
           captureRequest={captureRequest}
+          pngExportRequest={pngExportRequest}
           catalog={catalog}
           onCameraRestored={consumeCameraRestore}
           onFps={onFps}

@@ -464,3 +464,47 @@ def test_import_unknown_kind_does_not_create_scene(client: TestClient) -> None:
     assert response.json()["error"]["code"] == "import_invalid"
     after = len(client.get("/api/scenes").json()["scenes"])
     assert after == before
+
+
+def test_import_remaps_ids_and_round_trips(client: TestClient) -> None:
+    original = create_studio(client)
+    exported = client.get(f"/api/scenes/{original['id']}/export").json()
+
+    imported = client.post("/api/scenes/import", json={"document": exported})
+    assert imported.status_code == 201, imported.text
+    document = imported.json()
+    assert document["id"] != original["id"]
+    assert document["version"] == 1
+
+    # Every child id is remapped; references follow their parents.
+    original_rooms = {room["name"]: room["id"] for room in exported["rooms"]}
+    for room in document["rooms"]:
+        assert room["id"] != original_rooms[room["name"]]
+        assert room["id"].startswith("room_")
+    original_openings = {opening["id"] for opening in exported["openings"]}
+    for opening in document["openings"]:
+        assert opening["id"] not in original_openings
+        assert any(candidate["id"] == opening["roomId"] for candidate in document["rooms"])
+    original_items = {item["id"] for item in exported["items"]}
+    for item in document["items"]:
+        assert item["id"] not in original_items
+
+    # Re-exporting the imported scene preserves geometry (id-independent).
+    reexported = client.get(f"/api/scenes/{document['id']}/export").json()
+    assert [room["polygon"] for room in reexported["rooms"]] == [
+        room["polygon"] for room in exported["rooms"]
+    ]
+    assert [item["kindId"] for item in reexported["items"]] == [
+        item["kindId"] for item in exported["items"]
+    ]
+    assert reexported["schemaVersion"] == exported["schemaVersion"]
+
+
+def test_import_rejects_invalid_document(client: TestClient) -> None:
+    base = create_studio(client)
+    exported = client.get(f"/api/scenes/{base['id']}/export").json()
+    exported["rooms"][0]["polygon"] = [[0, 0], [1, 1], [1, 0], [0, 1]]
+
+    response = client.post("/api/scenes/import", json={"document": exported})
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "import_invalid"

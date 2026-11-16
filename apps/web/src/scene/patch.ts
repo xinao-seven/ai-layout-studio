@@ -88,6 +88,14 @@ export function applyPatchToDocument(document: SceneDocument, ops: PatchOp[]): S
         )
         break
       }
+      case 'scene.update': {
+        if (!op.after) throw new Error('scene.update has no after')
+        const merged = deepMerge(
+          structuredClone(document) as unknown as JsonObject,
+          op.after as JsonObject,
+        )
+        return merged as unknown as SceneDocument
+      }
     }
   }
   return next

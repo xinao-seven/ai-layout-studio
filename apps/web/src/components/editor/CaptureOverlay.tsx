@@ -160,3 +160,37 @@ export function CaptureGrab({ scene, maxEdge }: { scene: SceneDocument; maxEdge:
   void scene
   return null
 }
+
+export function PngExportGrab({ maxEdge }: { maxEdge: number }) {
+  const request = useSceneStore((state) => state.pngExportRequest)
+  const cancelPngExport = useSceneStore((state) => state.cancelPngExport)
+  const gl = useThree((state) => state.gl)
+  const frames = useRef(0)
+  const sent = useRef(false)
+
+  useEffect(() => {
+    if (!request) return
+    const timer = window.setTimeout(() => cancelPngExport(request.requestId), 8000)
+    return () => window.clearTimeout(timer)
+  }, [cancelPngExport, request])
+
+  useFrame(() => {
+    if (!request || sent.current) return
+    frames.current += 1
+    if (frames.current < 6) return
+    sent.current = true
+    try {
+      const dataUrl = downscale(gl.domElement, maxEdge, Number.POSITIVE_INFINITY)
+      if (!dataUrl.includes(',')) {
+        cancelPngExport(request.requestId)
+        return
+      }
+      window.setTimeout(() => {
+        useSceneStore.getState().completePngExport(request.requestId, dataUrl)
+      }, 0)
+    } catch {
+      cancelPngExport(request.requestId)
+    }
+  })
+  return null
+}

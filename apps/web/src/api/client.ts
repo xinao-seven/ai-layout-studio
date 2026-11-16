@@ -23,6 +23,7 @@ import {
   deleteSceneItemApiScenesSceneIdItemsItemIdDelete,
   exportSceneApiScenesSceneIdExportGet,
   getSceneApiScenesSceneIdGet,
+  importSceneApiScenesImportPost,
   listCatalogApiCatalogGet,
   listFixturesApiFixturesGet,
   listProposalsApiScenesSceneIdProposalsGet,
@@ -157,6 +158,10 @@ export async function reloadCatalog(): Promise<CatalogEntry[]> {
 
 export async function exportScene(sceneId: string): Promise<SceneDocument> {
   return call<SceneDocument>(() => exportSceneApiScenesSceneIdExportGet(sceneId))
+}
+
+export async function importScene(document: SceneDocument): Promise<SceneDocument> {
+  return call<SceneDocument>(() => importSceneApiScenesImportPost({ document }))
 }
 
 export async function listTurns(sceneId: string): Promise<Turn[]> {
