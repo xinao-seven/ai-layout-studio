@@ -3,7 +3,8 @@ import type { Vec2 } from '../../scene/geometry'
 
 export function Compass({ north }: { north: Vec2 }) {
   const radians = Math.atan2(north[0], -north[1])
-  const degrees = (radians * 180) / Math.PI
+  // The lucide Navigation glyph points north-east by default.
+  const degrees = (radians * 180) / Math.PI - 45
 
   return (
     <div className="pointer-events-none absolute right-3 bottom-12 z-10 flex flex-col items-center gap-1">

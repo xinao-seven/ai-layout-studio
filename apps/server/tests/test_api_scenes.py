@@ -295,5 +295,158 @@ def test_invalid_partial_update_returns_invalid_input(client: TestClient) -> Non
             ],
         },
     )
-    assert invalid.status_code == 400
+    assert invalid.status_code == 422
     assert invalid.json()["error"]["code"] == "invalid_input"
+
+
+def test_import_rejects_dangling_opening_room(client: TestClient) -> None:
+    document = create_studio(client)
+    exported = client.get(f"/api/scenes/{document['id']}/export").json()
+    exported["openings"][0]["roomId"] = "room_missing"
+
+    response = client.post("/api/scenes/import", json={"document": exported})
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "import_invalid"
+
+
+def test_import_rejects_dangling_item_reference(client: TestClient) -> None:
+    document = create_studio(client)
+    exported = client.get(f"/api/scenes/{document['id']}/export").json()
+    item = next(candidate for candidate in exported["items"] if candidate.get("constraint"))
+    item["constraint"] = {"near": {"itemId": "it_missing", "distance": 0.5}}
+
+    response = client.post("/api/scenes/import", json={"document": exported})
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "import_invalid"
+
+
+def test_concave_room_placement_does_not_500(client: TestClient) -> None:
+    created = client.post("/api/scenes", json={"name": "Concave"})
+    scene_id = created.json()["id"]
+    bridged = [
+        [0, 0],
+        [2, 0],
+        [2, 0.75],
+        [2.5, 0.75],
+        [2.5, 0],
+        [4.5, 0],
+        [4.5, 2],
+        [2.5, 2],
+        [2.5, 1.25],
+        [2, 1.25],
+        [2, 2],
+        [0, 2],
+    ]
+    committed = client.post(
+        f"/api/scenes/{scene_id}/commit",
+        json={
+            "baseVersion": 1,
+            "ops": [
+                {
+                    "op": "room.add",
+                    "room": {
+                        "id": "room_bridge",
+                        "name": "Bridge",
+                        "type": "living",
+                        "polygon": bridged,
+                    },
+                }
+            ],
+        },
+    )
+    assert committed.status_code == 200, committed.text
+    response = client.post(
+        f"/api/scenes/{scene_id}/items",
+        json={"kindId": "plant", "roomId": "room_bridge"},
+    )
+    assert response.status_code != 500, response.text
+
+
+def test_narrow_room_placement_returns_room_too_small(client: TestClient) -> None:
+    created = client.post("/api/scenes", json={"name": "Narrow"})
+    scene_id = created.json()["id"]
+    committed = client.post(
+        f"/api/scenes/{scene_id}/commit",
+        json={
+            "baseVersion": 1,
+            "ops": [
+                {
+                    "op": "room.add",
+                    "room": {
+                        "id": "room_narrow",
+                        "name": "Narrow",
+                        "type": "other",
+                        "polygon": [[0, 0], [0.11, 0], [0.11, 10], [0, 10]],
+                    },
+                }
+            ],
+        },
+    )
+    assert committed.status_code == 200, committed.text
+    response = client.post(
+        f"/api/scenes/{scene_id}/items",
+        json={"kindId": "plant", "roomId": "room_narrow"},
+    )
+    assert response.status_code == 400, response.text
+    assert response.json()["error"]["code"] == "room_too_small"
+
+
+def test_add_item_position_must_be_inside_requested_room(client: TestClient) -> None:
+    document = create_studio(client)
+    scene_id = document["id"]
+    bathroom_id = document["rooms"][1]["id"]
+
+    response = client.post(
+        f"/api/scenes/{scene_id}/items",
+        json={"kindId": "plant", "roomId": bathroom_id, "position": [2.0, 2.0]},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "out_of_room"
+
+
+def test_move_item_updates_constraint_room(client: TestClient) -> None:
+    document = create_studio(client)
+    scene_id = document["id"]
+    bathroom_id = document["rooms"][1]["id"]
+    bedroom_item = next(
+        item
+        for item in document["items"]
+        if item["constraint"] and item["constraint"].get("roomId")
+    )
+
+    moved = client.patch(
+        f"/api/scenes/{scene_id}/items/{bedroom_item['id']}",
+        json={"position": [9.0, 0.0, 1.5]},
+    )
+
+    assert moved.status_code == 200, moved.text
+    updated = next(
+        item for item in moved.json()["scene"]["items"] if item["id"] == bedroom_item["id"]
+    )
+    assert updated["constraint"]["roomId"] == bathroom_id
+
+
+def test_item_update_cannot_change_identity(client: TestClient) -> None:
+    document = create_studio(client)
+    scene_id = document["id"]
+    item_id = document["items"][0]["id"]
+
+    response = client.post(
+        f"/api/scenes/{scene_id}/commit",
+        json={
+            "baseVersion": 1,
+            "ops": [
+                {
+                    "op": "item.update",
+                    "itemId": item_id,
+                    "after": {"id": "it_other"},
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_input"

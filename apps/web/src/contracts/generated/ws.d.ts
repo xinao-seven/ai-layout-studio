@@ -51,19 +51,22 @@ export type ItemSource = "manual" | "agent";
  * @minItems 3
  * @maxItems 3
  */
-export type Position = [unknown, unknown, unknown];
+export type Position = [number, number, number];
 export type Rotationy = number;
 export type Scale = number;
 export type Variantid = string;
 export type Op = "item.add";
 export type Itemid1 = string;
 export type Op1 = "item.remove";
-export type After = {
-  [k: string]: unknown;
+export type Kindid1 = string | null;
+export type Materialoverrides1 = {
+  [k: string]: string;
 } | null;
-export type Before = {
-  [k: string]: unknown;
-} | null;
+export type ItemSource1 = "manual" | "agent";
+export type Position1 = [number, number, number] | null;
+export type Rotationy1 = number | null;
+export type Scale1 = number | null;
+export type Variantid1 = string | null;
 export type Itemid2 = string;
 export type Op2 = "item.update";
 export type Op3 = "room.add";
@@ -73,7 +76,7 @@ export type Name = string;
 /**
  * @minItems 3
  */
-export type Polygon = [[unknown, unknown], [unknown, unknown], [unknown, unknown], ...[unknown, unknown][]];
+export type Polygon = [[number, number], [number, number], [number, number], ...[number, number][]];
 export type RoomType = "living" | "bedroom" | "kitchen" | "bathroom" | "study" | "balcony" | "other";
 export type Wallheight = number | null;
 export type Walllabels = {
@@ -82,12 +85,15 @@ export type Walllabels = {
 export type Wallthickness = number | null;
 export type Op4 = "room.remove";
 export type Roomid1 = string;
-export type After1 = {
-  [k: string]: unknown;
+export type Floormaterial1 = string | null;
+export type Name1 = string | null;
+export type Polygon1 = [[number, number], [number, number], [number, number], ...[number, number][]] | null;
+export type RoomType1 = "living" | "bedroom" | "kitchen" | "bathroom" | "study" | "balcony" | "other";
+export type Wallheight1 = number | null;
+export type Walllabels1 = {
+  [k: string]: string;
 } | null;
-export type Before1 = {
-  [k: string]: unknown;
-} | null;
+export type Wallthickness1 = number | null;
 export type Op5 = "room.update";
 export type Roomid2 = string;
 export type Op6 = "opening.add";
@@ -106,12 +112,14 @@ export type OpeningType = "door" | "window";
 export type Width = number;
 export type Op7 = "opening.remove";
 export type Openingid2 = string;
-export type After2 = {
-  [k: string]: unknown;
-} | null;
-export type Before2 = {
-  [k: string]: unknown;
-} | null;
+export type Edgeindex1 = number | null;
+export type Height1 = number | null;
+export type Offset1 = number | null;
+export type Offsetfrom1 = "start" | null;
+export type Roomid4 = string | null;
+export type Sillheight1 = number | null;
+export type Style1 = string | null;
+export type Width1 = number | null;
 export type Op8 = "opening.update";
 export type Openingid3 = string;
 export type Ops = (
@@ -216,17 +224,17 @@ export type Sceneid1 = string;
 export type Toversion = number;
 export type Turnid12 = string | null;
 export type Createdat1 = string;
-export type Wallheight1 = number;
+export type Wallheight2 = number;
 export type Wallmaterial = string;
-export type Wallthickness1 = number;
+export type Wallthickness2 = number;
 export type Id5 = string;
 export type Items = Item[];
-export type Name1 = string;
+export type Name2 = string;
 /**
  * @minItems 2
  * @maxItems 2
  */
-export type North = [unknown, unknown];
+export type North = [number, number];
 export type Openings = Opening[];
 export type Rooms = Room[];
 export type Schemaversion = 1;
@@ -425,10 +433,26 @@ export interface ItemRemoveOp {
   op: Op1;
 }
 export interface ItemUpdateOp {
-  after?: After;
-  before?: Before;
+  after: ItemUpdateFields;
+  before?: ItemUpdateFields | null;
   itemId: Itemid2;
   op: Op2;
+}
+/**
+ * Mutable item fields; ``id`` is intentionally absent.
+ */
+export interface ItemUpdateFields {
+  constraint?: ItemConstraint | null;
+  kindId?: Kindid1;
+  materialOverrides?: Materialoverrides1;
+  source?: ItemSource1 | null;
+  transform?: TransformUpdate | null;
+  variantId?: Variantid1;
+}
+export interface TransformUpdate {
+  position?: Position1;
+  rotationY?: Rotationy1;
+  scale?: Scale1;
 }
 export interface RoomAddOp {
   op: Op3;
@@ -453,10 +477,22 @@ export interface RoomRemoveOp {
   roomId: Roomid1;
 }
 export interface RoomUpdateOp {
-  after?: After1;
-  before?: Before1;
+  after: RoomUpdateFields;
+  before?: RoomUpdateFields | null;
   op: Op5;
   roomId: Roomid2;
+}
+/**
+ * Mutable room fields; ``id`` is intentionally absent.
+ */
+export interface RoomUpdateFields {
+  floorMaterial?: Floormaterial1;
+  name?: Name1;
+  polygon?: Polygon1;
+  type?: RoomType1 | null;
+  wallHeight?: Wallheight1;
+  wallLabels?: Walllabels1;
+  wallThickness?: Wallthickness1;
 }
 export interface OpeningAddOp {
   op: Op6;
@@ -492,10 +528,25 @@ export interface OpeningRemoveOp {
   openingId: Openingid2;
 }
 export interface OpeningUpdateOp {
-  after?: After2;
-  before?: Before2;
+  after: OpeningUpdateFields;
+  before?: OpeningUpdateFields | null;
   op: Op8;
   openingId: Openingid3;
+}
+/**
+ * Mutable opening fields; ``id`` is intentionally absent.
+ */
+export interface OpeningUpdateFields {
+  door?: DoorSpec | null;
+  edgeIndex?: Edgeindex1;
+  height?: Height1;
+  offset?: Offset1;
+  offsetFrom?: Offsetfrom1;
+  roomId?: Roomid4;
+  sillHeight?: Sillheight1;
+  style?: Style1;
+  type?: OpeningType | null;
+  width?: Width1;
 }
 export interface EmptyPayload {}
 /**
@@ -618,7 +669,7 @@ export interface SceneDocument {
   defaults: SceneDefaults;
   id: Id5;
   items: Items;
-  name: Name1;
+  name: Name2;
   north?: North;
   openings: Openings;
   rooms: Rooms;
@@ -631,9 +682,9 @@ export interface SceneDocument {
  * Default structural values for a scene.
  */
 export interface SceneDefaults {
-  wallHeight?: Wallheight1;
+  wallHeight?: Wallheight2;
   wallMaterial?: Wallmaterial;
-  wallThickness?: Wallthickness1;
+  wallThickness?: Wallthickness2;
 }
 export interface ServerErrorPayload {
   error: ErrorBody;

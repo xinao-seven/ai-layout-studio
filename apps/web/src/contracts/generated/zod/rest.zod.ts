@@ -728,6 +728,30 @@ export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemTwoBeforeOneTransfo
 
 
 
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -747,6 +771,20 @@ export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemFiveBeforeOneWallHe
 
 export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterPolygonOneMin = 3;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -779,6 +817,34 @@ export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemEightBeforeOneSillH
 
 export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterSillHeightOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -868,8 +934,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -900,8 +1038,26 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemFiveBeforeOn
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -944,8 +1100,38 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemFiveBeforeOn
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostBodyOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })]))
@@ -983,6 +1169,30 @@ export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemTwoBeforeO
 
 
 
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -1002,6 +1212,20 @@ export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemFiveBefore
 
 export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -1034,6 +1258,34 @@ export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemEightBefor
 
 export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -1177,8 +1429,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -1209,8 +1533,26 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemFiv
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -1253,8 +1595,38 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemFiv
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(commitSceneApiScenesSceneIdCommitPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),
@@ -1409,6 +1781,30 @@ export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemTwoBeforeO
 
 
 
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -1428,6 +1824,20 @@ export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemFiveBefore
 
 export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -1460,6 +1870,34 @@ export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemEightBefor
 
 export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -1603,8 +2041,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -1635,8 +2145,26 @@ zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemFiv
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -1679,8 +2207,38 @@ zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemFiv
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(addSceneItemApiScenesSceneIdItemsPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),
@@ -1814,6 +2372,30 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsIte
 
 
 
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -1833,6 +2415,20 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsIte
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -1865,6 +2461,34 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsIte
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -2008,8 +2632,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -2040,8 +2736,26 @@ zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatc
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -2084,8 +2798,38 @@ zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatc
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),
@@ -2226,6 +2970,30 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItem
 
 
 
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -2245,6 +3013,20 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItem
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -2277,6 +3059,34 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItem
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -2420,8 +3230,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -2452,8 +3334,26 @@ zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatch
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -2496,8 +3396,38 @@ zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatch
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),
@@ -2637,6 +3567,30 @@ export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemTwoBeforeOneTr
 
 
 
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -2656,6 +3610,20 @@ export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemFiveBeforeOneW
 
 export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -2688,6 +3656,34 @@ export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemEightBeforeOne
 
 export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -2831,8 +3827,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -2863,8 +3931,26 @@ zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemFiveBef
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -2907,8 +3993,38 @@ zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemFiveBef
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(redoSceneApiScenesSceneIdRedoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),
@@ -3048,6 +4164,30 @@ export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemTwoBeforeOneTr
 
 
 
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
 
 export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemFourRoomFloorMaterialDefault = `default`;
 
@@ -3067,6 +4207,20 @@ export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemFiveBeforeOneW
 
 export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
 
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterPolygonOneMin = 3;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
 
 
 export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSevenOpeningDoorOneHingeDefault = `start`;
@@ -3099,6 +4253,34 @@ export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemEightBeforeOne
 
 export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemEightBeforeOneWidthExclusiveMin = 0;
 
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterSillHeightOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
 
 
 
@@ -3242,8 +4424,80 @@ zod.number()]),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.remove").meta({ title: 'Op' })
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "itemId": zod.string().min(1),
   "op": zod.literal("item.update").meta({ title: 'Op' })
 }),zod.object({
@@ -3274,8 +4528,26 @@ zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemFiveBef
   "op": zod.literal("room.remove").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("room.update").meta({ title: 'Op' }),
   "roomId": zod.string().min(1)
 }),zod.object({
@@ -3318,8 +4590,38 @@ zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemFiveBef
   "op": zod.literal("opening.remove").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 }),zod.object({
-  "after": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
-  "before": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(undoSceneApiScenesSceneIdUndoPostResponsePatchOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
   "op": zod.literal("opening.update").meta({ title: 'Op' }),
   "openingId": zod.string().min(1)
 })])),

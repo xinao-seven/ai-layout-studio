@@ -43,6 +43,22 @@ def write_json(path: Path, payload: Any) -> None:
     print(f"wrote {path.relative_to(REPO_ROOT).as_posix()}")
 
 
+def _downgrade_tuples(node: Any) -> None:
+    """Convert Pydantic's 2020-12 ``prefixItems`` tuples to draft-07 arrays."""
+    if isinstance(node, dict):
+        prefix_items = node.pop("prefixItems", None)
+        if isinstance(prefix_items, list):
+            node["items"] = prefix_items
+            node["minItems"] = len(prefix_items)
+            node["maxItems"] = len(prefix_items)
+            node["additionalItems"] = False
+        for value in node.values():
+            _downgrade_tuples(value)
+    elif isinstance(node, list):
+        for value in node:
+            _downgrade_tuples(value)
+
+
 def _model_schema(model: type) -> tuple[dict[str, Any], dict[str, Any]]:
     schema = TypeAdapter(model).json_schema(
         mode="validation",
@@ -78,7 +94,7 @@ def build_ws_schema() -> dict[str, Any]:
         },
         "additionalProperties": False,
     }
-    return {
+    bundle = {
         "$schema": DRAFT_07,
         "$id": "https://ai-layout.local/contracts/ws.schema.json",
         "title": "WebSocket contracts",
@@ -89,12 +105,14 @@ def build_ws_schema() -> dict[str, Any]:
         "$ref": f"#/definitions/{wrapper_name}",
         "definitions": definitions,
     }
+    _downgrade_tuples(bundle)
+    return bundle
 
 
 def build_tools_schema() -> dict[str, Any]:
     """Tool contract bundle; the registry populates it in M3."""
     schema, definitions = _model_schema(ToolBundle)
-    return {
+    bundle = {
         "$schema": DRAFT_07,
         "$id": "https://ai-layout.local/contracts/tools.schema.json",
         "title": "Agent tool contracts",
@@ -105,6 +123,8 @@ def build_tools_schema() -> dict[str, Any]:
         "$ref": "#/definitions/ToolBundle",
         "definitions": {"ToolBundle": schema, **definitions},
     }
+    _downgrade_tuples(bundle)
+    return bundle
 
 
 def main() -> int:

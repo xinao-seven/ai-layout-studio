@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+from typing import Any
 
 from shapely.geometry import Point, Polygon
 
@@ -108,11 +109,21 @@ def inset_polygon(points: Sequence[Vec2], distance: float) -> list[Vec2]:
 
     Raises ``room_too_small`` when the inset area disappears.
     """
-    polygon = Polygon(points).buffer(-abs(distance), join_style="mitre")
+    polygon: Any = Polygon(points).buffer(-abs(distance), join_style="mitre")
     if polygon.is_empty or polygon.area <= EPSILON:
         raise GeometryError(
             "room_too_small",
             f"The room leaves no usable area after a {distance:.2f} m wall inset.",
+            "Enlarge the room or reduce wall thickness.",
+        )
+    if polygon.geom_type == "MultiPolygon":
+        # A valid concave room can split into several disconnected usable
+        # areas. Keep the largest component for placement (deterministic).
+        polygon = max(polygon.geoms, key=lambda part: part.area)
+    if polygon.geom_type != "Polygon" or polygon.is_empty:
+        raise GeometryError(
+            "room_too_small",
+            "The room has no usable polygon after the wall inset.",
             "Enlarge the room or reduce wall thickness.",
         )
     exterior = list(polygon.exterior.coords)[:-1]

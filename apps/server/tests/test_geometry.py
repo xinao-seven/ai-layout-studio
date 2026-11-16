@@ -160,3 +160,22 @@ def test_wall_normal_is_unit_length() -> None:
     for case in FIXTURES["wallCases"]:
         normal = case["normal"]
         assert math.hypot(normal[0], normal[1]) == pytest.approx(1.0)
+
+
+def test_inset_multipolygon_uses_largest_component() -> None:
+    bridged = [
+        (0, 0),
+        (2, 0),
+        (2, 0.75),
+        (2.5, 0.75),
+        (2.5, 0),
+        (4.5, 0),
+        (4.5, 2),
+        (2.5, 2),
+        (2.5, 1.25),
+        (2, 1.25),
+        (2, 2),
+        (0, 2),
+    ]
+    inset = inset_polygon(bridged, 0.4)
+    assert polygon_area(inset) == pytest.approx(1.44)

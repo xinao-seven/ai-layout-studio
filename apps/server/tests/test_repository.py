@@ -219,3 +219,51 @@ async def test_repository_rejects_corrupt_stored_document(
     with pytest.raises(SceneError) as error:
         await repository.get_scene("scene_broken")
     assert error.value.code == "invalid_input"
+
+
+async def test_save_failure_does_not_advance_memory(repository: SceneRepository) -> None:
+    document = load_fixture("studio.json")
+    await repository.create_scene(document)
+    registry = SceneRegistry(repository, catalog=CatalogService().by_kind)
+    item = Item(
+        id="it_unpersisted",
+        kind_id="plant",
+        variant_id="default",
+        transform=Transform(position=(3.0, 0.0, 2.0), rotation_y=0.0),
+    )
+
+    async def fail_save(outcome):  # noqa: ANN001, ANN202
+        raise RuntimeError("disk full")
+
+    repository.save_commit = fail_save  # type: ignore[method-assign]
+    with pytest.raises(RuntimeError):
+        await registry.commit(document.id, [ItemAddOp(op="item.add", item=item)], base_version=1)
+
+    current = await registry.get_document(document.id)
+    assert current.version == 1
+    assert all(candidate.id != "it_unpersisted" for candidate in current.items)
+
+
+async def test_idempotent_commit_does_not_write_twice(
+    repository: SceneRepository,
+) -> None:
+    document = load_fixture("studio.json")
+    await repository.create_scene(document)
+    registry = SceneRegistry(repository, catalog=CatalogService().by_kind)
+    item = Item(
+        id="it_idem",
+        kind_id="plant",
+        variant_id="default",
+        transform=Transform(position=(3.0, 0.0, 2.0), rotation_y=0.0),
+    )
+    ops = [ItemAddOp(op="item.add", item=item)]
+
+    first = await registry.commit(document.id, ops, base_version=1, client_mutation_id="mut_same")
+    second = await registry.commit(document.id, ops, base_version=1, client_mutation_id="mut_same")
+
+    assert first.patch == second.patch
+    loaded = await repository.get_scene(document.id)
+    assert loaded is not None
+    assert loaded.version == 2
+    versions = await repository.list_versions(document.id)
+    assert [row.version for row in versions] == [2, 1]

@@ -273,7 +273,8 @@ class SyncGateway:
                 outcome = await self.registry.confirm_proposal(
                     scene_id, message.payload.proposal_id
                 )
-                await self.broadcast_patch(scene_id, outcome.patch)
+                if not outcome.already_confirmed:
+                    await self.broadcast_patch(scene_id, outcome.patch)
                 await self._send_ack(
                     websocket,
                     scene_id,

@@ -836,34 +836,104 @@
       "title": "ItemSource",
       "type": "string"
     },
+    "ItemUpdateFields": {
+      "additionalProperties": false,
+      "description": "Mutable item fields; ``id`` is intentionally absent.",
+      "properties": {
+        "constraint": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ItemConstraint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "kindId": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kindid"
+        },
+        "materialOverrides": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Materialoverrides"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ItemSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transform": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TransformUpdate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "variantId": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variantid"
+        }
+      },
+      "title": "ItemUpdateFields",
+      "type": "object"
+    },
     "ItemUpdateOp": {
       "additionalProperties": false,
       "properties": {
         "after": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "After"
+          "$ref": "#/definitions/ItemUpdateFields"
         },
         "before": {
           "anyOf": [
             {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/definitions/ItemUpdateFields"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Before"
+          "default": null
         },
         "itemId": {
           "minLength": 1,
@@ -878,7 +948,8 @@
       },
       "required": [
         "op",
-        "itemId"
+        "itemId",
+        "after"
       ],
       "title": "ItemUpdateOp",
       "type": "object"
@@ -1078,34 +1149,155 @@
       "title": "OpeningType",
       "type": "string"
     },
+    "OpeningUpdateFields": {
+      "additionalProperties": false,
+      "description": "Mutable opening fields; ``id`` is intentionally absent.",
+      "properties": {
+        "door": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DoorSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "edgeIndex": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edgeindex"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
+        },
+        "offsetFrom": {
+          "anyOf": [
+            {
+              "const": "start",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offsetfrom"
+        },
+        "roomId": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roomid"
+        },
+        "sillHeight": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sillheight"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Style"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/OpeningType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "title": "OpeningUpdateFields",
+      "type": "object"
+    },
     "OpeningUpdateOp": {
       "additionalProperties": false,
       "properties": {
         "after": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "After"
+          "$ref": "#/definitions/OpeningUpdateFields"
         },
         "before": {
           "anyOf": [
             {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/definitions/OpeningUpdateFields"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Before"
+          "default": null
         },
         "op": {
           "const": "opening.update",
@@ -1120,7 +1312,8 @@
       },
       "required": [
         "op",
-        "openingId"
+        "openingId",
+        "after"
       ],
       "title": "OpeningUpdateOp",
       "type": "object"
@@ -1685,9 +1878,8 @@
         },
         "polygon": {
           "items": {
-            "maxItems": 2,
-            "minItems": 2,
-            "prefixItems": [
+            "additionalItems": false,
+            "items": [
               {
                 "type": "number"
               },
@@ -1695,6 +1887,8 @@
                 "type": "number"
               }
             ],
+            "maxItems": 2,
+            "minItems": 2,
             "type": "array"
           },
           "minItems": 3,
@@ -1819,34 +2013,134 @@
       "title": "RoomType",
       "type": "string"
     },
+    "RoomUpdateFields": {
+      "additionalProperties": false,
+      "description": "Mutable room fields; ``id`` is intentionally absent.",
+      "properties": {
+        "floorMaterial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Floormaterial"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "polygon": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalItems": false,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Polygon"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RoomType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "wallHeight": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wallheight"
+        },
+        "wallLabels": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Walllabels"
+        },
+        "wallThickness": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wallthickness"
+        }
+      },
+      "title": "RoomUpdateFields",
+      "type": "object"
+    },
     "RoomUpdateOp": {
       "additionalProperties": false,
       "properties": {
         "after": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "After"
+          "$ref": "#/definitions/RoomUpdateFields"
         },
         "before": {
           "anyOf": [
             {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/definitions/RoomUpdateFields"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Before"
+          "default": null
         },
         "op": {
           "const": "room.update",
@@ -1861,7 +2155,8 @@
       },
       "required": [
         "op",
-        "roomId"
+        "roomId",
+        "after"
       ],
       "title": "RoomUpdateOp",
       "type": "object"
@@ -1921,13 +2216,12 @@
           "type": "string"
         },
         "north": {
+          "additionalItems": false,
           "default": [
             0.0,
             -1.0
           ],
-          "maxItems": 2,
-          "minItems": 2,
-          "prefixItems": [
+          "items": [
             {
               "type": "number"
             },
@@ -1935,6 +2229,8 @@
               "type": "number"
             }
           ],
+          "maxItems": 2,
+          "minItems": 2,
           "title": "North",
           "type": "array"
         },
@@ -2151,9 +2447,8 @@
       "description": "Item placement. Rotation is radians around +Y; front axis is +Z.",
       "properties": {
         "position": {
-          "maxItems": 3,
-          "minItems": 3,
-          "prefixItems": [
+          "additionalItems": false,
+          "items": [
             {
               "type": "number"
             },
@@ -2164,6 +2459,8 @@
               "type": "number"
             }
           ],
+          "maxItems": 3,
+          "minItems": 3,
           "title": "Position",
           "type": "array"
         },
@@ -2183,6 +2480,64 @@
         "rotationY"
       ],
       "title": "Transform",
+      "type": "object"
+    },
+    "TransformUpdate": {
+      "additionalProperties": false,
+      "properties": {
+        "position": {
+          "anyOf": [
+            {
+              "additionalItems": false,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "rotationY": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rotationy"
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        }
+      },
+      "title": "TransformUpdate",
       "type": "object"
     },
     "TurnCancelMessage": {

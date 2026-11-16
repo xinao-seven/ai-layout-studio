@@ -903,32 +903,97 @@
         "title": "ItemSource",
         "type": "string"
       },
+      "ItemUpdateFields": {
+        "additionalProperties": false,
+        "description": "Mutable item fields; ``id`` is intentionally absent.",
+        "properties": {
+          "constraint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemConstraint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kindId": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kindid"
+          },
+          "materialOverrides": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialoverrides"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transform": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransformUpdate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "variantId": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variantid"
+          }
+        },
+        "title": "ItemUpdateFields",
+        "type": "object"
+      },
       "ItemUpdateOp": {
         "additionalProperties": false,
         "properties": {
           "after": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "After"
+            "$ref": "#/components/schemas/ItemUpdateFields"
           },
           "before": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/ItemUpdateFields"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Before"
+            ]
           },
           "itemId": {
             "minLength": 1,
@@ -943,7 +1008,8 @@
         },
         "required": [
           "op",
-          "itemId"
+          "itemId",
+          "after"
         ],
         "title": "ItemUpdateOp",
         "type": "object"
@@ -1136,32 +1202,144 @@
         "title": "OpeningType",
         "type": "string"
       },
+      "OpeningUpdateFields": {
+        "additionalProperties": false,
+        "description": "Mutable opening fields; ``id`` is intentionally absent.",
+        "properties": {
+          "door": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DoorSpec"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "edgeIndex": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edgeindex"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "offset": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset"
+          },
+          "offsetFrom": {
+            "anyOf": [
+              {
+                "const": "start",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offsetfrom"
+          },
+          "roomId": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roomid"
+          },
+          "sillHeight": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sillheight"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpeningType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "width": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          }
+        },
+        "title": "OpeningUpdateFields",
+        "type": "object"
+      },
       "OpeningUpdateOp": {
         "additionalProperties": false,
         "properties": {
           "after": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "After"
+            "$ref": "#/components/schemas/OpeningUpdateFields"
           },
           "before": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/OpeningUpdateFields"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Before"
+            ]
           },
           "op": {
             "const": "opening.update",
@@ -1176,7 +1354,8 @@
         },
         "required": [
           "op",
-          "openingId"
+          "openingId",
+          "after"
         ],
         "title": "OpeningUpdateOp",
         "type": "object"
@@ -1340,32 +1519,125 @@
         "title": "RoomType",
         "type": "string"
       },
+      "RoomUpdateFields": {
+        "additionalProperties": false,
+        "description": "Mutable room fields; ``id`` is intentionally absent.",
+        "properties": {
+          "floorMaterial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floormaterial"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "polygon": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                "minItems": 3,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Polygon"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "wallHeight": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallheight"
+          },
+          "wallLabels": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Walllabels"
+          },
+          "wallThickness": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallthickness"
+          }
+        },
+        "title": "RoomUpdateFields",
+        "type": "object"
+      },
       "RoomUpdateOp": {
         "additionalProperties": false,
         "properties": {
           "after": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "After"
+            "$ref": "#/components/schemas/RoomUpdateFields"
           },
           "before": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/RoomUpdateFields"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Before"
+            ]
           },
           "op": {
             "const": "room.update",
@@ -1380,7 +1652,8 @@
         },
         "required": [
           "op",
-          "roomId"
+          "roomId",
+          "after"
         ],
         "title": "RoomUpdateOp",
         "type": "object"
@@ -1737,6 +2010,60 @@
           "rotationY"
         ],
         "title": "Transform",
+        "type": "object"
+      },
+      "TransformUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "anyOf": [
+              {
+                "maxItems": 3,
+                "minItems": 3,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "rotationY": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rotationy"
+          },
+          "scale": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scale"
+          }
+        },
+        "title": "TransformUpdate",
         "type": "object"
       },
       "UndoRedoRequest": {

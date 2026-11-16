@@ -47,7 +47,7 @@ optional `turnId`/`proposalId` and `clientMutationId`. Ops:
 |---|---|---|
 | `item.add` | `item` | `item.remove` with `before` |
 | `item.remove` | `itemId`, `before` | `item.add` |
-| `item.update` | `itemId`, full `before`/`after` snapshots | swap `before`/`after` |
+| `item.update` | `itemId`, typed partial `before`/`after` fields (no `id`) | swap `before`/`after` |
 | `room.add` | `room` | `room.remove` |
 | `room.remove` | `roomId`, `before` | `room.add` |
 | `room.update` | `roomId`, `before`/`after` | swap |
@@ -55,9 +55,10 @@ optional `turnId`/`proposalId` and `clientMutationId`. Ops:
 | `opening.remove` | `openingId`, `before` | `opening.add` |
 | `opening.update` | `openingId`, `before`/`after` | swap |
 
-The server resolves partial update payloads into full `before`/`after`
-snapshots; inverses are stored in `scene_versions.inverse_json` (latest 100
-versions retained).
+Update payloads are typed partial models (`ItemUpdateFields` etc.) with
+`extra="forbid"`; identity fields such as `id` are not mutable. The server
+resolves client updates into full field snapshots (excluding identity) and
+stores inverses in `scene_versions.inverse_json` (latest 100 versions retained).
 
 ## Host messages
 
@@ -95,8 +96,13 @@ Ack/error frames: `host.ack` with `{ type, version }`, `host.error` with
 ## Pending proposals and dependencies
 
 - `Proposal.baseVersion` is the confirmed version when the turn started.
-- `dependsOn` references earlier proposals in the same turn; confirmation must
-  follow dependency order.
+- `dependsOn` references earlier proposals that are still pending in the same
+  turn; depending on an already-confirmed proposal is rejected. Confirmation
+  must follow dependency order; duplicate confirmations return
+  `alreadyConfirmed` semantics without writing a version.
+- Pending proposals expire after a 15-minute TTL, on reject (with transitive
+  dependants), when the expected version is no longer reachable, or on any
+  external commit/undo (all pending).
 - Confirm requires every dependency confirmed and
   `currentVersion == baseVersion + confirmedDependencyCount`.
 - Overlay = confirmed document + pending proposals applied in topological order;
@@ -110,9 +116,11 @@ Ack/error frames: `host.ack` with `{ type, version }`, `host.error` with
    `resume` with the last state sequence it applied.
 2. If the server's ring buffer (500 frames/scene) still contains the gap, it
    replays state frames with `seq > lastSeqs.state`.
-3. Otherwise it sends a fresh `scene.snapshot`.
+3. Otherwise it sends a fresh `scene.snapshot`; a connection also receives a
+   snapshot immediately on connect.
 4. The client ignores state frames older than its current snapshot sequence, so
-   replay and snapshot cannot regress state.
+   replay and snapshot cannot regress state. The replay buffer is a redundancy
+   path; the snapshot is authoritative on connect.
 
 ## Errors
 

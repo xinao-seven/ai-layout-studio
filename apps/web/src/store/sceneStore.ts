@@ -63,6 +63,22 @@ interface SceneState {
 }
 
 let socket: SceneSocket | null = null
+let localMutations = 0
+
+async function withLocalMutation<T>(operation: () => Promise<T>): Promise<T> {
+  localMutations += 1
+  try {
+    return await operation()
+  } finally {
+    localMutations -= 1
+  }
+}
+
+function isCurrentResult(current: SceneDocument | null, result: { scene: SceneDocument }): boolean {
+  return Boolean(
+    current && result.scene.id === current.id && result.scene.version > current.version,
+  )
+}
 
 function toUiError(error: unknown, fallback: string): UiError {
   if (error instanceof ApiError) {
@@ -181,6 +197,7 @@ export const useSceneStore = create<SceneState>()(
         })
         try {
           const scene = await api.getScene(sceneId)
+          if (get().activeSceneId !== sceneId) return
           withSceneUpdate(() =>
             set({
               scene,
@@ -234,7 +251,8 @@ export const useSceneStore = create<SceneState>()(
         const { scene } = get()
         if (!scene) return
         try {
-          const result = await api.undoScene(scene.id, scene.version)
+          const result = await withLocalMutation(() => api.undoScene(scene.id, scene.version))
+          if (!isCurrentResult(get().scene, result)) return
           withSceneUpdate(() =>
             set({
               scene: result.scene,
@@ -252,7 +270,8 @@ export const useSceneStore = create<SceneState>()(
         const { scene } = get()
         if (!scene) return
         try {
-          const result = await api.redoScene(scene.id, scene.version)
+          const result = await withLocalMutation(() => api.redoScene(scene.id, scene.version))
+          if (!isCurrentResult(get().scene, result)) return
           withSceneUpdate(() =>
             set({
               scene: result.scene,
@@ -281,7 +300,10 @@ export const useSceneStore = create<SceneState>()(
           return
         }
         try {
-          const result = await api.addItem(scene.id, { kindId, roomId: room.id })
+          const result = await withLocalMutation(() =>
+            api.addItem(scene.id, { kindId, roomId: room.id }),
+          )
+          if (!isCurrentResult(get().scene, result)) return
           const added = result.patch.ops.find((op) => op.op === 'item.add')
           withSceneUpdate(() =>
             set({
@@ -301,10 +323,13 @@ export const useSceneStore = create<SceneState>()(
         const { scene, selectedItemId } = get()
         if (!scene || !selectedItemId) return
         try {
-          const result = await api.updateItem(scene.id, selectedItemId, {
-            position,
-            rotationY,
-          })
+          const result = await withLocalMutation(() =>
+            api.updateItem(scene.id, selectedItemId, {
+              position,
+              rotationY,
+            }),
+          )
+          if (!isCurrentResult(get().scene, result)) return
           withSceneUpdate(() =>
             set({
               scene: result.scene,
@@ -333,7 +358,8 @@ export const useSceneStore = create<SceneState>()(
         const { scene, selectedItemId } = get()
         if (!scene || !selectedItemId) return
         try {
-          const result = await api.deleteItem(scene.id, selectedItemId)
+          const result = await withLocalMutation(() => api.deleteItem(scene.id, selectedItemId))
+          if (!isCurrentResult(get().scene, result)) return
           withSceneUpdate(() =>
             set({
               scene: result.scene,
@@ -373,6 +399,7 @@ export const useSceneStore = create<SceneState>()(
           const payload = envelope.payload as { scene?: SceneDocument } | undefined
           const scene = payload?.scene
           if (!scene) return
+          if (get().activeSceneId && get().activeSceneId !== scene.id) return
           const current = get().scene
           if (current && current.id === scene.id && current.version === scene.version) {
             set({ lastStateSeq: envelope.seq })
@@ -394,6 +421,7 @@ export const useSceneStore = create<SceneState>()(
         const payload = envelope.payload as { patch?: ScenePatch } | undefined
         const patch = payload?.patch
         if (!patch) return
+        if (get().activeSceneId && get().activeSceneId !== patch.sceneId) return
 
         const current = get().scene
         if (current && patch.toVersion <= current.version) {
@@ -413,7 +441,7 @@ export const useSceneStore = create<SceneState>()(
                 scene: next,
                 scenes: syncSceneSummary(get().scenes, next),
                 lastStateSeq: envelope.seq,
-                undoDepth: Math.max(1, get().undoDepth),
+                undoDepth: localMutations > 0 ? get().undoDepth : Math.max(1, get().undoDepth),
                 redoDepth: 0,
                 selectedItemId: selectedItemAfter(next, get().selectedItemId),
               }),

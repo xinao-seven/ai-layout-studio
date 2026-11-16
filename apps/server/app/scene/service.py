@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import UTC, datetime
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime, timedelta
 
 from app.contracts.enums import Actor, ProposalStatus
 from app.contracts.patch import PatchOp, ScenePatch
@@ -14,6 +14,8 @@ from app.scene.document import CatalogMap, validate_document
 from app.scene.errors import SceneError
 from app.scene.patch import apply_ops, invert_resolved_ops
 
+PROPOSAL_TTL = timedelta(minutes=15)
+
 
 @dataclass(frozen=True)
 class CommitOutcome:
@@ -22,10 +24,15 @@ class CommitOutcome:
     document: SceneDocument
     patch: ScenePatch
     inverse_ops: list[PatchOp]
+    already_confirmed: bool = False
 
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def _as_utc(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
 
 class SceneService:
@@ -46,6 +53,8 @@ class SceneService:
         self._redo: list[tuple[list[PatchOp], list[PatchOp]]] = []
         self._pending: dict[str, Proposal] = {}
         self._confirmed: set[str] = set()
+        self._confirmed_outcomes: dict[str, CommitOutcome] = {}
+        self._rejected: set[str] = set()
         self._idempotency: dict[str, CommitOutcome] = {}
 
     @property
@@ -66,7 +75,20 @@ class SceneService:
 
     @property
     def pending_proposals(self) -> list[Proposal]:
+        self._expire_ttl()
         return [proposal.model_copy(deep=True) for proposal in self._pending.values()]
+
+    def clone(self) -> SceneService:
+        """Copy service state for persist-before-swap commits in the registry."""
+        clone = SceneService(self._document, rules=self._rules, catalog=self._catalog)
+        clone._undo = list(self._undo)
+        clone._redo = list(self._redo)
+        clone._pending = dict(self._pending)
+        clone._confirmed = set(self._confirmed)
+        clone._confirmed_outcomes = dict(self._confirmed_outcomes)
+        clone._rejected = set(self._rejected)
+        clone._idempotency = dict(self._idempotency)
+        return clone
 
     def _check_version(self, expected_version: int) -> None:
         if expected_version != self._document.version:
@@ -92,17 +114,32 @@ class SceneService:
 
     def _expire_all(self, reason: str) -> list[str]:
         expired: list[str] = []
-        now = _utc_now()
-        for proposal_id, proposal in list(self._pending.items()):
+        for proposal_id in list(self._pending):
             expired.append(proposal_id)
-            self._pending[proposal_id] = proposal.model_copy(
-                update={
-                    "status": ProposalStatus.EXPIRED,
-                    "resolved_at": now,
-                    "reason": reason,
-                }
-            )
-        self._pending.clear()
+            self._pending.pop(proposal_id, None)
+        return expired
+
+    def _expire_stale_pending(self) -> list[str]:
+        """Expire proposals whose expected version can no longer be reached."""
+        expired: list[str] = []
+        for proposal_id, proposal in list(self._pending.items()):
+            if not all(dependency in self._confirmed for dependency in proposal.depends_on):
+                continue
+            required_version = proposal.base_version + len(proposal.depends_on)
+            if self._document.version == required_version:
+                continue
+            expired.append(proposal_id)
+            self._pending.pop(proposal_id, None)
+        return expired
+
+    def _expire_ttl(self) -> list[str]:
+        now = _utc_now()
+        expired: list[str] = []
+        for proposal_id, proposal in list(self._pending.items()):
+            if now - _as_utc(proposal.created_at) <= PROPOSAL_TTL:
+                continue
+            expired.append(proposal_id)
+            self._pending.pop(proposal_id, None)
         return expired
 
     def commit(
@@ -155,10 +192,11 @@ class SceneService:
                 "There is no committed change to undo.",
                 "Make a change first.",
             )
-        forward_ops, inverse_ops = self._undo.pop()
+        forward_ops, inverse_ops = self._undo[-1]
         working, resolved = apply_ops(self._document, inverse_ops, validate=True)
         new_document, patch = self._advance(working, resolved)
         patch = patch.model_copy(update={"actor": Actor.USER})
+        self._undo.pop()
         self._document = new_document
         self._redo.append((forward_ops, inverse_ops))
         self._expire_all("scene_changed")
@@ -176,10 +214,11 @@ class SceneService:
                 "There is no undone change to redo.",
                 "Undo a change first.",
             )
-        forward_ops, inverse_ops = self._redo.pop()
+        forward_ops, inverse_ops = self._redo[-1]
         working, resolved = apply_ops(self._document, forward_ops, validate=True)
         new_document, patch = self._advance(working, resolved)
         patch = patch.model_copy(update={"actor": Actor.USER})
+        self._redo.pop()
         self._document = new_document
         self._undo.append((forward_ops, inverse_ops))
         self._expire_all("scene_changed")
@@ -192,13 +231,18 @@ class SceneService:
     # ---- pending proposals (PRD §6.7) -----------------------------------
 
     def add_pending(self, proposal: Proposal) -> Proposal:
+        self._expire_ttl()
         if proposal.scene_id != self._document.id:
             raise SceneError(
                 "invalid_input",
                 "Proposal belongs to a different scene.",
                 "Use the current scene id.",
             )
-        if proposal.id in self._pending or proposal.id in self._confirmed:
+        if (
+            proposal.id in self._pending
+            or proposal.id in self._confirmed
+            or proposal.id in self._rejected
+        ):
             raise SceneError(
                 "invalid_input",
                 f"Proposal {proposal.id!r} already exists.",
@@ -218,15 +262,30 @@ class SceneService:
                 "Regenerate the proposal from the latest scene.",
                 {"proposalId": proposal.id},
             )
-        for dependency in proposal.depends_on:
-            if dependency not in self._pending and dependency not in self._confirmed:
+        depends_on = list(dict.fromkeys(proposal.depends_on))
+        for dependency in depends_on:
+            if dependency in self._confirmed:
+                raise SceneError(
+                    "proposal_expired",
+                    f"Proposal dependency {dependency!r} is already confirmed.",
+                    "A new proposal must depend on pending proposals from the same turn.",
+                    {"proposalId": proposal.id, "dependency": dependency},
+                )
+            if dependency not in self._pending:
                 raise SceneError(
                     "proposal_expired",
                     f"Proposal dependency {dependency!r} is missing or expired.",
                     "Regenerate the proposal chain.",
                     {"proposalId": proposal.id, "dependency": dependency},
                 )
-        stored = proposal.model_copy(deep=True, update={"status": ProposalStatus.PENDING})
+        stored = proposal.model_copy(
+            deep=True,
+            update={
+                "status": ProposalStatus.PENDING,
+                "depends_on": depends_on,
+                "created_at": _as_utc(proposal.created_at),
+            },
+        )
         self._pending[proposal.id] = stored
         return stored.model_copy(deep=True)
 
@@ -274,6 +333,8 @@ class SceneService:
 
     def overlay_document(self) -> SceneDocument:
         """Confirmed scene + all pending proposals, in dependency order."""
+        self._expire_ttl()
+        self._expire_stale_pending()
         working = self._document.model_copy(deep=True)
         for proposal in self._ordered_pending():
             working, _ = apply_ops(working, proposal.ops, validate=False)
@@ -286,6 +347,11 @@ class SceneService:
         *,
         expected_version: int | None = None,
     ) -> CommitOutcome:
+        cached = self._confirmed_outcomes.get(proposal_id)
+        if cached is not None:
+            return replace(cached, already_confirmed=True)
+        self._expire_ttl()
+        self._expire_stale_pending()
         proposal = self._pending.get(proposal_id)
         if proposal is None:
             raise SceneError(
@@ -324,19 +390,12 @@ class SceneService:
         )
         self._pending.pop(proposal_id, None)
         self._confirmed.add(proposal_id)
-        for candidate_id, candidate in list(self._pending.items()):
-            if candidate.turn_id != proposal.turn_id:
-                self._pending[candidate_id] = candidate.model_copy(
-                    update={
-                        "status": ProposalStatus.EXPIRED,
-                        "resolved_at": _utc_now(),
-                        "reason": "scene_changed",
-                    }
-                )
-                self._pending.pop(candidate_id, None)
+        self._confirmed_outcomes[proposal_id] = outcome
+        self._expire_stale_pending()
         return outcome
 
     def reject_proposal(self, proposal_id: str, reason: str | None = None) -> list[str]:
+        self._expire_ttl()
         proposal = self._pending.pop(proposal_id, None)
         if proposal is None:
             raise SceneError(
@@ -344,24 +403,15 @@ class SceneService:
                 f"Pending proposal {proposal_id!r} does not exist.",
                 "Query the turn for current proposal ids.",
             )
-        resolved_at = _utc_now()
+        self._rejected.add(proposal_id)
         expired: list[str] = []
         # Rejecting a proposal expires everything that depends on it.
         changed = True
         while changed:
             changed = False
             for candidate_id, candidate in list(self._pending.items()):
-                if candidate_id == proposal_id:
-                    continue
                 if set(candidate.depends_on) & {proposal_id, *expired}:
                     expired.append(candidate_id)
-                    self._pending[candidate_id] = candidate.model_copy(
-                        update={
-                            "status": ProposalStatus.EXPIRED,
-                            "resolved_at": resolved_at,
-                            "reason": f"dependency_rejected:{proposal_id}",
-                        }
-                    )
                     self._pending.pop(candidate_id, None)
                     changed = True
         return expired

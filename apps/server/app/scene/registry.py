@@ -94,13 +94,18 @@ class SceneRegistry:
     ) -> CommitOutcome:
         runtime = await self._runtime(scene_id)
         async with runtime.lock:
-            outcome = runtime.service.commit(
+            candidate = runtime.service.clone()
+            outcome = candidate.commit(
                 ops,
                 base_version=base_version,
                 actor=actor,
                 client_mutation_id=client_mutation_id,
             )
-            await self._repository.save_commit(outcome)
+            # Idempotent duplicate commits return the cached outcome without
+            # advancing the version; do not write a second version row.
+            if outcome.document.version > runtime.service.version:
+                await self._repository.save_commit(outcome)
+            runtime.service = candidate
             return outcome
 
     async def commit_with(
@@ -115,28 +120,33 @@ class SceneRegistry:
         """
         runtime = await self._runtime(scene_id)
         async with runtime.lock:
-            document = runtime.service.document
-            ops = build_ops(document)
-            outcome = runtime.service.commit(
+            candidate = runtime.service.clone()
+            ops = build_ops(candidate.document)
+            outcome = candidate.commit(
                 ops,
-                base_version=runtime.service.version,
+                base_version=candidate.version,
                 actor=Actor.USER,
             )
             await self._repository.save_commit(outcome)
+            runtime.service = candidate
             return outcome
 
     async def undo(self, scene_id: str, *, expected_version: int) -> CommitOutcome:
         runtime = await self._runtime(scene_id)
         async with runtime.lock:
-            outcome = runtime.service.undo(expected_version=expected_version)
+            candidate = runtime.service.clone()
+            outcome = candidate.undo(expected_version=expected_version)
             await self._repository.save_commit(outcome)
+            runtime.service = candidate
             return outcome
 
     async def redo(self, scene_id: str, *, expected_version: int) -> CommitOutcome:
         runtime = await self._runtime(scene_id)
         async with runtime.lock:
-            outcome = runtime.service.redo(expected_version=expected_version)
+            candidate = runtime.service.clone()
+            outcome = candidate.redo(expected_version=expected_version)
             await self._repository.save_commit(outcome)
+            runtime.service = candidate
             return outcome
 
     async def add_pending(self, scene_id: str, proposal: Proposal) -> Proposal:
@@ -147,8 +157,11 @@ class SceneRegistry:
     async def confirm_proposal(self, scene_id: str, proposal_id: str) -> CommitOutcome:
         runtime = await self._runtime(scene_id)
         async with runtime.lock:
-            outcome = runtime.service.confirm_proposal(proposal_id)
-            await self._repository.save_commit(outcome)
+            candidate = runtime.service.clone()
+            outcome = candidate.confirm_proposal(proposal_id)
+            if not outcome.already_confirmed:
+                await self._repository.save_commit(outcome)
+                runtime.service = candidate
             return outcome
 
     async def reject_proposal(

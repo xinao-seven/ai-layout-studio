@@ -208,13 +208,29 @@ export interface ItemRemoveOp {
   op: 'item.remove';
 }
 
-export type ItemUpdateOpAfter = { [key: string]: unknown } | null;
+export interface TransformUpdate {
+  position?: [number, number, number] | null;
+  rotationY?: number | null;
+  scale?: number | null;
+}
 
-export type ItemUpdateOpBefore = { [key: string]: unknown } | null;
+export type ItemUpdateFieldsMaterialOverrides = {[key: string]: string} | null;
+
+/**
+ * Mutable item fields; ``id`` is intentionally absent.
+ */
+export interface ItemUpdateFields {
+  constraint?: ItemConstraint | null;
+  kindId?: string | null;
+  materialOverrides?: ItemUpdateFieldsMaterialOverrides;
+  source?: ItemSource | null;
+  transform?: TransformUpdate | null;
+  variantId?: string | null;
+}
 
 export interface ItemUpdateOp {
-  after?: ItemUpdateOpAfter;
-  before?: ItemUpdateOpBefore;
+  after: ItemUpdateFields;
+  before?: ItemUpdateFields | null;
   /** @minLength 1 */
   itemId: string;
   op: 'item.update';
@@ -268,13 +284,24 @@ export interface RoomRemoveOp {
   roomId: string;
 }
 
-export type RoomUpdateOpAfter = { [key: string]: unknown } | null;
+export type RoomUpdateFieldsWallLabels = {[key: string]: string} | null;
 
-export type RoomUpdateOpBefore = { [key: string]: unknown } | null;
+/**
+ * Mutable room fields; ``id`` is intentionally absent.
+ */
+export interface RoomUpdateFields {
+  floorMaterial?: string | null;
+  name?: string | null;
+  polygon?: [number, number][] | null;
+  type?: RoomType | null;
+  wallHeight?: number | null;
+  wallLabels?: RoomUpdateFieldsWallLabels;
+  wallThickness?: number | null;
+}
 
 export interface RoomUpdateOp {
-  after?: RoomUpdateOpAfter;
-  before?: RoomUpdateOpBefore;
+  after: RoomUpdateFields;
+  before?: RoomUpdateFields | null;
   op: 'room.update';
   /** @minLength 1 */
   roomId: string;
@@ -357,13 +384,25 @@ export interface OpeningRemoveOp {
   openingId: string;
 }
 
-export type OpeningUpdateOpAfter = { [key: string]: unknown } | null;
-
-export type OpeningUpdateOpBefore = { [key: string]: unknown } | null;
+/**
+ * Mutable opening fields; ``id`` is intentionally absent.
+ */
+export interface OpeningUpdateFields {
+  door?: DoorSpec | null;
+  edgeIndex?: number | null;
+  height?: number | null;
+  offset?: number | null;
+  offsetFrom?: 'start' | null;
+  roomId?: string | null;
+  sillHeight?: number | null;
+  style?: string | null;
+  type?: OpeningType | null;
+  width?: number | null;
+}
 
 export interface OpeningUpdateOp {
-  after?: OpeningUpdateOpAfter;
-  before?: OpeningUpdateOpBefore;
+  after: OpeningUpdateFields;
+  before?: OpeningUpdateFields | null;
   op: 'opening.update';
   /** @minLength 1 */
   openingId: string;

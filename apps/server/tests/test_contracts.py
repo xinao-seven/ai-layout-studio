@@ -69,3 +69,11 @@ def test_rules_json_has_consistent_derived_inset() -> None:
     assert rules["WALL_HEIGHT"] > 0
     assert rules["SOLVER_BEAM_WIDTH"] > 0
     assert rules["SOLVER_ROTATIONS"] == [0, 90, 180, 270]
+
+
+def test_generated_ws_schema_is_draft07_and_has_no_prefix_items() -> None:
+    schema_path = REPO_ROOT / "packages" / "contracts" / "generated" / "ws.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+
+    assert schema["$schema"] == "http://json-schema.org/draft-07/schema#"
+    assert "prefixItems" not in json.dumps(schema)

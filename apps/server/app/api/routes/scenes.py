@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, status
@@ -32,6 +31,7 @@ from app.contracts.patch import ItemAddOp, ItemRemoveOp, ItemUpdateOp, PatchOp
 from app.contracts.rules import get_rules
 from app.contracts.scene import Item, ItemConstraint, Room, SceneDocument, Transform, Vec2
 from app.db.repository import SceneRepository
+from app.geometry.errors import GeometryError
 from app.geometry.obb import OBB, obb_from_transform, obb_overlap
 from app.geometry.polygon import (
     centroid,
@@ -41,7 +41,7 @@ from app.geometry.polygon import (
 )
 from app.scene.document import document_area
 from app.scene.errors import SceneError
-from app.scene.factory import empty_scene, export_document, remap_document_ids
+from app.scene.factory import empty_scene, export_document, import_document
 from app.scene.fixtures import FixtureService
 from app.scene.registry import SceneRegistry
 from app.sync.gateway import SyncGateway
@@ -119,7 +119,10 @@ def _free_position(
     catalog: CatalogService,
 ) -> Vec2:
     rules = get_rules()
-    inset = inset_polygon(room.polygon, rules.room_inset)
+    try:
+        inset = inset_polygon(room.polygon, rules.room_inset)
+    except GeometryError as error:
+        raise SceneError(error.code, error.message, error.suggest, error.details) from error
     occupied = [
         obb_from_transform(
             item.transform.position,
@@ -165,11 +168,17 @@ def _build_add_item_ops(
     chosen_variant = next(variant for variant in entry.variants if variant.id == variant_id)
     size = (chosen_variant.size_m[0], chosen_variant.size_m[1])
     if request.position is not None:
-        room = (
-            _find_room(document, request.room_id)
-            if request.room_id is not None
-            else _room_for_position(document, request.position)
-        )
+        if request.room_id is not None:
+            room = _find_room(document, request.room_id)
+            if not point_in_polygon(request.position, room.polygon):
+                raise SceneError(
+                    "out_of_room",
+                    "The requested position is outside the selected room.",
+                    "Pick a position inside the room or omit roomId.",
+                    {"roomId": room.id, "position": list(request.position)},
+                )
+        else:
+            room = _room_for_position(document, request.position)
         position = request.position
     else:
         room = _default_room(document, request.room_id)
@@ -270,16 +279,33 @@ async def update_scene_item(
         rotation = (
             request.rotation_y if request.rotation_y is not None else item.transform.rotation_y
         )
+        new_room = next(
+            (
+                room
+                for room in document.rooms
+                if point_in_polygon((position[0], position[2]), room.polygon)
+            ),
+            None,
+        )
+        after: dict[str, object] = {
+            "transform": {
+                "position": list(position),
+                "rotationY": rotation,
+            }
+        }
+        if (
+            new_room is not None
+            and item.constraint is not None
+            and item.constraint.room_id != new_room.id
+        ):
+            after["constraint"] = item.constraint.model_copy(
+                update={"room_id": new_room.id}
+            ).model_dump(mode="python", by_alias=True)
         return [
             ItemUpdateOp(
                 op="item.update",
                 item_id=item_id,
-                after={
-                    "transform": {
-                        "position": list(position),
-                        "rotationY": rotation,
-                    }
-                },
+                after=after,
             )
         ]
 
@@ -370,15 +396,5 @@ async def import_scene(
     request: ImportRequest,
     registry: Annotated[SceneRegistry, Depends(get_registry)],
 ) -> SceneDocument:
-    document = remap_document_ids(request.document)
-    now = datetime.now(UTC)
-    document = document.model_copy(update={"version": 1, "created_at": now, "updated_at": now})
-    try:
-        return await registry.create_scene(document)
-    except ValueError as error:
-        raise SceneError(
-            "import_invalid",
-            "Imported scene is invalid.",
-            "Check the document against the scene contract.",
-            {"error": str(error)},
-        ) from error
+    document = import_document(request.document)
+    return await registry.create_scene(document)

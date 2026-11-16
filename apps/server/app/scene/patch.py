@@ -9,14 +9,18 @@ from pydantic import BaseModel, ValidationError
 from app.contracts.patch import (
     ItemAddOp,
     ItemRemoveOp,
+    ItemUpdateFields,
     ItemUpdateOp,
     OpeningAddOp,
     OpeningRemoveOp,
+    OpeningUpdateFields,
     OpeningUpdateOp,
     PatchOp,
     RoomAddOp,
     RoomRemoveOp,
+    RoomUpdateFields,
     RoomUpdateOp,
+    TransformUpdate,
 )
 from app.contracts.scene import (
     Anchor,
@@ -140,16 +144,46 @@ def _find_opening(document: SceneDocument, opening_id: str) -> Opening:
     )
 
 
-def _item_dict(item: Item) -> dict[str, Any]:
-    return item.model_dump(mode="python", by_alias=True)
+def _item_update_fields(item: Item) -> ItemUpdateFields:
+    return ItemUpdateFields(
+        kind_id=item.kind_id,
+        variant_id=item.variant_id,
+        transform=TransformUpdate(
+            position=item.transform.position,
+            rotation_y=item.transform.rotation_y,
+            scale=item.transform.scale,
+        ),
+        constraint=item.constraint,
+        material_overrides=item.material_overrides,
+        source=item.source,
+    )
 
 
-def _room_dict(room: Room) -> dict[str, Any]:
-    return room.model_dump(mode="python", by_alias=True)
+def _room_update_fields(room: Room) -> RoomUpdateFields:
+    return RoomUpdateFields(
+        name=room.name,
+        type=room.type,
+        polygon=room.polygon,
+        wall_labels=room.wall_labels,
+        wall_height=room.wall_height,
+        wall_thickness=room.wall_thickness,
+        floor_material=room.floor_material,
+    )
 
 
-def _opening_dict(opening: Opening) -> dict[str, Any]:
-    return opening.model_dump(mode="python", by_alias=True)
+def _opening_update_fields(opening: Opening) -> OpeningUpdateFields:
+    return OpeningUpdateFields(
+        type=opening.type,
+        room_id=opening.room_id,
+        edge_index=opening.edge_index,
+        offset_from=opening.offset_from,
+        offset=opening.offset,
+        width=opening.width,
+        height=opening.height,
+        sill_height=opening.sill_height,
+        door=opening.door,
+        style=opening.style,
+    )
 
 
 def _remove_room(document: SceneDocument, room: Room) -> None:
@@ -207,7 +241,10 @@ def apply_ops(
             resolved.append(ItemRemoveOp(op="item.remove", item_id=item.id, before=item))
         elif isinstance(op, ItemUpdateOp):
             current_item = _find_item(working, op.item_id)
-            updated_item = _merge_model(current_item, op.after or {})
+            updated_item = _merge_model(
+                current_item,
+                op.after.model_dump(mode="python", by_alias=True, exclude_unset=True),
+            )
             item_index = next(
                 index for index, candidate in enumerate(working.items) if candidate.id == op.item_id
             )
@@ -216,8 +253,8 @@ def apply_ops(
                 ItemUpdateOp(
                     op="item.update",
                     item_id=op.item_id,
-                    before=_item_dict(current_item),
-                    after=_item_dict(updated_item),
+                    before=_item_update_fields(current_item),
+                    after=_item_update_fields(updated_item),
                 )
             )
         elif isinstance(op, RoomAddOp):
@@ -236,7 +273,10 @@ def apply_ops(
             resolved.append(RoomRemoveOp(op="room.remove", room_id=room.id, before=room))
         elif isinstance(op, RoomUpdateOp):
             current_room = _find_room(working, op.room_id)
-            updated_room = _merge_model(current_room, op.after or {})
+            updated_room = _merge_model(
+                current_room,
+                op.after.model_dump(mode="python", by_alias=True, exclude_unset=True),
+            )
             room_index = next(
                 index for index, candidate in enumerate(working.rooms) if candidate.id == op.room_id
             )
@@ -245,8 +285,8 @@ def apply_ops(
                 RoomUpdateOp(
                     op="room.update",
                     room_id=op.room_id,
-                    before=_room_dict(current_room),
-                    after=_room_dict(updated_room),
+                    before=_room_update_fields(current_room),
+                    after=_room_update_fields(updated_room),
                 )
             )
         elif isinstance(op, OpeningAddOp):
@@ -269,7 +309,10 @@ def apply_ops(
             )
         elif isinstance(op, OpeningUpdateOp):
             current_opening = _find_opening(working, op.opening_id)
-            updated_opening = _merge_model(current_opening, op.after or {})
+            updated_opening = _merge_model(
+                current_opening,
+                op.after.model_dump(mode="python", by_alias=True, exclude_unset=True),
+            )
             opening_index = next(
                 index
                 for index, candidate in enumerate(working.openings)
@@ -280,8 +323,8 @@ def apply_ops(
                 OpeningUpdateOp(
                     op="opening.update",
                     opening_id=op.opening_id,
-                    before=_opening_dict(current_opening),
-                    after=_opening_dict(updated_opening),
+                    before=_opening_update_fields(current_opening),
+                    after=_opening_update_fields(updated_opening),
                 )
             )
 
@@ -305,6 +348,12 @@ def invert_resolved_ops(ops: list[PatchOp]) -> list[PatchOp]:
                 )
             inverse.append(ItemAddOp(op="item.add", item=op.before))
         elif isinstance(op, ItemUpdateOp):
+            if op.before is None:
+                raise SceneError(
+                    "invalid_input",
+                    f"Cannot invert update of {op.item_id}: before snapshot missing.",
+                    "Regenerate the patch on the server.",
+                )
             inverse.append(
                 ItemUpdateOp(
                     op="item.update",
@@ -324,6 +373,12 @@ def invert_resolved_ops(ops: list[PatchOp]) -> list[PatchOp]:
                 )
             inverse.append(RoomAddOp(op="room.add", room=op.before))
         elif isinstance(op, RoomUpdateOp):
+            if op.before is None:
+                raise SceneError(
+                    "invalid_input",
+                    f"Cannot invert update of {op.room_id}: before snapshot missing.",
+                    "Regenerate the patch on the server.",
+                )
             inverse.append(
                 RoomUpdateOp(
                     op="room.update",
@@ -345,6 +400,12 @@ def invert_resolved_ops(ops: list[PatchOp]) -> list[PatchOp]:
                 )
             inverse.append(OpeningAddOp(op="opening.add", opening=op.before))
         elif isinstance(op, OpeningUpdateOp):
+            if op.before is None:
+                raise SceneError(
+                    "invalid_input",
+                    f"Cannot invert update of {op.opening_id}: before snapshot missing.",
+                    "Regenerate the patch on the server.",
+                )
             inverse.append(
                 OpeningUpdateOp(
                     op="opening.update",

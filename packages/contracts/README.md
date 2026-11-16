@@ -32,3 +32,10 @@ The only editable source is the Pydantic models in
 `apps/server/app/contracts/`. Never hand-edit files in `generated/`.
 
 Generated TypeScript lives in `apps/web/src/contracts/generated/`.
+
+## Geometry fixture scope
+
+`signedAreaCases`, `pointCases`, `wallCases` and `obbCases` run in both Python
+and Vitest. `insetCases` are **server-only**: the client precheck deliberately
+implements only OBB SAT + room boundary (PRD D16), while Shapely owns polygon
+inset and placement. There is no second inset implementation to drift.

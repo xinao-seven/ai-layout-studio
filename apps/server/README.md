@@ -44,5 +44,5 @@ uv run --directory apps/server mypy app
 uv run --directory apps/server pytest -q
 ```
 
-68 backend tests cover geometry fixtures, SceneService versions/undo, proposal
+85 backend tests cover geometry fixtures, SceneService versions/undo, proposal
 chains, repository retention, REST envelopes and WebSocket snapshot/patch/resume.

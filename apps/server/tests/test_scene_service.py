@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -444,3 +444,87 @@ def test_confirm_expires_pending_from_other_turns() -> None:
     service.confirm_proposal("prop_turn1")
 
     assert service.pending_proposals == []
+
+
+def test_duplicate_confirm_is_idempotent() -> None:
+    service = SceneService(make_document())
+    service.add_pending(make_proposal("prop_once", [ItemAddOp(op="item.add", item=make_item())]))
+
+    first = service.confirm_proposal("prop_once")
+    second = service.confirm_proposal("prop_once")
+
+    assert first.already_confirmed is False
+    assert second.already_confirmed is True
+    assert second.patch == first.patch
+    assert service.version == 2
+
+
+def test_confirm_expires_independent_same_turn_proposal() -> None:
+    service = SceneService(make_document())
+    service.add_pending(make_proposal("prop_a", [ItemAddOp(op="item.add", item=make_item())]))
+    service.add_pending(
+        make_proposal(
+            "prop_b",
+            [
+                ItemAddOp(
+                    op="item.add",
+                    item=make_item("it_table", kind_id="coffee_table", position=(3, 0, 3)),
+                )
+            ],
+        )
+    )
+
+    service.confirm_proposal("prop_a")
+
+    assert service.pending_proposals == []
+    assert [item.id for item in service.overlay_document().items] == ["it_sofa"]
+
+
+def test_add_pending_rejects_confirmed_dependency() -> None:
+    service = SceneService(make_document())
+    service.add_pending(make_proposal("prop_a", [ItemAddOp(op="item.add", item=make_item())]))
+    service.confirm_proposal("prop_a")
+
+    with pytest.raises(SceneError) as error:
+        service.add_pending(
+            make_proposal(
+                "prop_late",
+                [
+                    ItemAddOp(
+                        op="item.add",
+                        item=make_item("it_table", kind_id="coffee_table", position=(3, 0, 3)),
+                    )
+                ],
+                depends_on=["prop_a"],
+            )
+        )
+
+    assert error.value.code == "proposal_expired"
+
+
+def test_proposal_ttl_expires_stale_pending() -> None:
+    service = SceneService(make_document())
+    stale = make_proposal("prop_stale", [ItemAddOp(op="item.add", item=make_item())])
+    stale = stale.model_copy(update={"created_at": datetime.now(UTC) - timedelta(minutes=16)})
+    service.add_pending(stale)
+
+    assert service.pending_proposals == []
+    with pytest.raises(SceneError) as error:
+        service.confirm_proposal("prop_stale")
+    assert error.value.code == "not_found"
+
+
+def test_undo_keeps_history_when_apply_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    service = SceneService(make_document())
+    add_item(service, make_item())
+    assert service.can_undo
+
+    def fail_apply(*args, **kwargs):  # noqa: ANN002, ANN003
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr("app.scene.service.apply_ops", fail_apply)
+    with pytest.raises(RuntimeError):
+        service.undo(expected_version=2)
+
+    assert service.can_undo
+    assert service.version == 2

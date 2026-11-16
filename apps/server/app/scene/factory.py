@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
+from app.contracts.enums import FacingToward
 from app.contracts.ids import IdPrefix, new_id
 from app.contracts.scene import ItemConstraint, SceneDefaults, SceneDocument
 from app.scene.document import validate_document
@@ -53,10 +54,43 @@ def scene_from_fixture(
     if keep_ids:
         document = document.model_copy(update={"version": 1, "created_at": now, "updated_at": now})
     else:
-        document = remap_document_ids(document)
+        try:
+            document = remap_document_ids(document)
+        except (KeyError, ValueError) as error:
+            raise SceneError(
+                "import_invalid",
+                "Fixture has dangling room/item/opening references.",
+                "Fix the fixture references.",
+                {"error": str(error)},
+            ) from error
         document = document.model_copy(update={"version": 1, "created_at": now, "updated_at": now})
     validate_document(document)
     return document
+
+
+def import_document(document: SceneDocument) -> SceneDocument:
+    """Validate and remap an imported document; failures become import_invalid."""
+    try:
+        validate_document(document)
+        remapped = remap_document_ids(document)
+        now = _utc_now()
+        remapped = remapped.model_copy(update={"version": 1, "created_at": now, "updated_at": now})
+        validate_document(remapped)
+        return remapped
+    except SceneError as error:
+        raise SceneError(
+            "import_invalid",
+            f"Imported scene is invalid: {error.message}",
+            error.suggest,
+            {"cause": error.code, "details": error.details},
+        ) from error
+    except (KeyError, ValueError) as error:
+        raise SceneError(
+            "import_invalid",
+            "Imported scene has dangling room/item/opening references.",
+            "Check every roomId, itemId, openingId and wallId in the document.",
+            {"error": str(error)},
+        ) from error
 
 
 def remap_document_ids(document: SceneDocument) -> SceneDocument:
@@ -67,14 +101,14 @@ def remap_document_ids(document: SceneDocument) -> SceneDocument:
 
     def remap_wall_id(wall_id: str) -> str:
         room_id, separator, edge_part = wall_id.partition(":e")
-        if not separator or room_id not in room_map:
-            return wall_id
+        if not separator:
+            raise ValueError(f"invalid wall id {wall_id!r}")
         return f"{room_map[room_id]}:e{edge_part}"
 
     def remap_constraint(constraint: ItemConstraint) -> ItemConstraint:
         updates: dict[str, Any] = {}
         if constraint.room_id is not None:
-            updates["room_id"] = room_map.get(constraint.room_id, constraint.room_id)
+            updates["room_id"] = room_map[constraint.room_id]
         if constraint.anchor is not None:
             anchor = constraint.anchor.model_copy(
                 update={
@@ -84,7 +118,7 @@ def remap_document_ids(document: SceneDocument) -> SceneDocument:
                         else None
                     ),
                     "opening_id": (
-                        opening_map.get(constraint.anchor.opening_id)
+                        opening_map[constraint.anchor.opening_id]
                         if constraint.anchor.opening_id is not None
                         else None
                     ),
@@ -95,12 +129,12 @@ def remap_document_ids(document: SceneDocument) -> SceneDocument:
             near = constraint.near.model_copy(
                 update={
                     "item_id": (
-                        item_map.get(constraint.near.item_id)
+                        item_map[constraint.near.item_id]
                         if constraint.near.item_id is not None
                         else None
                     ),
                     "opening_id": (
-                        opening_map.get(constraint.near.opening_id)
+                        opening_map[constraint.near.opening_id]
                         if constraint.near.opening_id is not None
                         else None
                     ),
@@ -112,7 +146,11 @@ def remap_document_ids(document: SceneDocument) -> SceneDocument:
             assert not isinstance(facing, str)
             replacement = None
             if facing.id is not None:
-                replacement = item_map.get(facing.id) or opening_map.get(facing.id)
+                replacement = (
+                    item_map[facing.id]
+                    if facing.toward == FacingToward.ITEM
+                    else opening_map[facing.id]
+                )
             updates["facing"] = facing.model_copy(update={"id": replacement})
         return constraint.model_copy(update=updates)
 
