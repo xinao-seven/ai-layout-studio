@@ -66,9 +66,12 @@ class SceneRegistry:
             return runtime
 
     async def create_scene(self, document: SceneDocument) -> SceneDocument:
+        # Validate (including catalog refs) before inserting so a rejected
+        # import cannot leave an orphan scene row behind.
+        service = SceneService(document, catalog=self._catalog)
         await self._repository.create_scene(document)
         self._runtimes[document.id] = SceneRuntime(
-            service=SceneService(document, catalog=self._catalog),
+            service=service,
             lock=asyncio.Lock(),
         )
         return document

@@ -1,0 +1,19 @@
+{
+  "milestone": "M1",
+  "kind": "manual-render-baseline",
+  "recordedAt": "2026-11-16",
+  "gitSha": "see repository HEAD at report time",
+  "environment": {
+    "os": "Windows 11 10.0.26300",
+    "browser": "ZCode in-app Chromium (WebGL2)",
+    "viewport": "1280x720",
+    "build": "Vite dev server",
+    "scene": "studio fixture (47.5 m², 2 rooms, 11 items)",
+    "proxyBoxes": 200
+  },
+  "observations": {
+    "fps": [112, 120],
+    "note": "Interactive FPS-meter samples from the ?perf=200 harness. Not a p95 benchmark; the formal 60 fps p95 measurement belongs to the M4 evaluation/perf work."
+  },
+  "formalMetrics": "deferred to M4 eval harness"
+}

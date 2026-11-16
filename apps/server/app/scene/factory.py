@@ -8,7 +8,7 @@ from typing import Any
 from app.contracts.enums import FacingToward
 from app.contracts.ids import IdPrefix, new_id
 from app.contracts.scene import ItemConstraint, SceneDefaults, SceneDocument
-from app.scene.document import validate_document
+from app.scene.document import CatalogMap, validate_document
 from app.scene.errors import SceneError
 
 
@@ -68,14 +68,14 @@ def scene_from_fixture(
     return document
 
 
-def import_document(document: SceneDocument) -> SceneDocument:
+def import_document(document: SceneDocument, *, catalog: CatalogMap | None = None) -> SceneDocument:
     """Validate and remap an imported document; failures become import_invalid."""
     try:
-        validate_document(document)
+        validate_document(document, catalog=catalog)
         remapped = remap_document_ids(document)
         now = _utc_now()
         remapped = remapped.model_copy(update={"version": 1, "created_at": now, "updated_at": now})
-        validate_document(remapped)
+        validate_document(remapped, catalog=catalog)
         return remapped
     except SceneError as error:
         raise SceneError(

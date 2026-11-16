@@ -120,17 +120,33 @@ class SceneService:
         return expired
 
     def _expire_stale_pending(self) -> list[str]:
-        """Expire proposals whose expected version can no longer be reached."""
-        expired: list[str] = []
-        for proposal_id, proposal in list(self._pending.items()):
-            if not all(dependency in self._confirmed for dependency in proposal.depends_on):
-                continue
-            required_version = proposal.base_version + len(proposal.depends_on)
-            if self._document.version == required_version:
-                continue
-            expired.append(proposal_id)
+        """Expire proposals whose expected version can no longer be reached.
+
+        Expiry cascades to dependants so the overlay never applies a chain with
+        a missing prerequisite.
+        """
+        expired: set[str] = set()
+        changed = True
+        while changed:
+            changed = False
+            for proposal_id, proposal in list(self._pending.items()):
+                if proposal_id in expired:
+                    continue
+                dependency_expired = any(
+                    dependency in expired for dependency in proposal.depends_on
+                )
+                dependencies_confirmed = all(
+                    dependency in self._confirmed for dependency in proposal.depends_on
+                )
+                required_version = proposal.base_version + len(proposal.depends_on)
+                if dependency_expired or (
+                    dependencies_confirmed and self._document.version != required_version
+                ):
+                    expired.add(proposal_id)
+                    changed = True
+        for proposal_id in expired:
             self._pending.pop(proposal_id, None)
-        return expired
+        return sorted(expired)
 
     def _expire_ttl(self) -> list[str]:
         now = _utc_now()
@@ -373,6 +389,7 @@ class SceneService:
         required_version = proposal.base_version + len(proposal.depends_on)
         if self._document.version != required_version:
             self._pending.pop(proposal_id, None)
+            self._expire_stale_pending()
             raise SceneError(
                 "proposal_expired",
                 f"Proposal {proposal_id!r} expected version {required_version}, "

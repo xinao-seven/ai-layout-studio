@@ -140,3 +140,14 @@ Codes are frozen in PRD §6.3. M1 emits `not_found`, `unknown_room`,
 State, sequence counters, undo/redo stacks and pending proposals live in one
 process. The server refuses `WEB_CONCURRENCY`/`UVICORN_WORKERS` > 1; SQLite runs
 with WAL, foreign keys and a 5 s busy timeout.
+
+## Known M1 limitations
+
+- Opening overlap validation groups by `(roomId, edgeIndex)`. Openings placed
+  from both sides of a shared wall are rendered against the merged wall line by
+  the client, but cross-room overlap validation is deferred; built-in fixtures
+  place shared-wall doors on one side.
+- Client precheck covers OBB SAT and room bounds only (PRD D16); polygon inset,
+  door clearance, walkways and business rules are server-authoritative.
+- Undo/redo stacks live in the single server process. Versions and inverses are
+  persisted, but an app restart starts a fresh undo stack.

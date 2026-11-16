@@ -395,6 +395,7 @@ async def export_scene(
 async def import_scene(
     request: ImportRequest,
     registry: Annotated[SceneRegistry, Depends(get_registry)],
+    catalog: Annotated[CatalogService, Depends(get_catalog)],
 ) -> SceneDocument:
-    document = import_document(request.document)
+    document = import_document(request.document, catalog=catalog.by_kind)
     return await registry.create_scene(document)

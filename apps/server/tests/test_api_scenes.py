@@ -450,3 +450,17 @@ def test_item_update_cannot_change_identity(client: TestClient) -> None:
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "invalid_input"
+
+
+def test_import_unknown_kind_does_not_create_scene(client: TestClient) -> None:
+    document = create_studio(client)
+    exported = client.get(f"/api/scenes/{document['id']}/export").json()
+    exported["items"][0]["kindId"] = "hoverboard"
+    before = len(client.get("/api/scenes").json()["scenes"])
+
+    response = client.post("/api/scenes/import", json={"document": exported})
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "import_invalid"
+    after = len(client.get("/api/scenes").json()["scenes"])
+    assert after == before
