@@ -2,10 +2,10 @@
 
 | Path | Contents |
 |---|---|
-| `fixtures.json` | Built-in floor-plan index (4 scenes) |
+| `fixtures.json` | Built-in floor-plan index (6 scenes) |
 | `scenes/*.json` | Scene documents (rooms/openings/items) used by the home screen and tests |
 | `catalog.json` | Generated 60-item furniture catalog (Kenney CC0) |
-| `eval/operation-cases.json` | M2 operation-runner cases (geometry, placement, openings, reanchor warnings) |
+| `eval/operation-cases.json` | Shared 30-case table: operation, solver, verify and VLM cases |
 | `llm/G1-01.jsonl` | Scripted G1 responses (query → search → two proposals → final text) |
 
 ## Catalog
@@ -25,5 +25,13 @@ entries; change the manifest and rebuild.
 - `expect.version` and `expect.items`: successful commit shape;
 - `expect.assert`: `noCollision`, `insideRoom`, `doorClear` on the changed items.
 
-`pytest tests/test_eval_runner.py` runs every case. M3/M4 extend this file with
-agent/proposal/solver cases using the same schema.
+`pytest tests/test_eval_runner.py` runs every case. The same table also carries
+`kind: solver | verify | vlm` cases:
+
+- **solver**: runs `auto_layout`, applies placements to a scratch scene and checks
+  `verify_layout`, facing, partial results and refusals.
+- **verify**: asserts `ok` and a subset of structured issue codes.
+- **vlm**: replays scripted VLM JSON (`$blockers` is replaced with the fixture's
+  actual blocking ids), runs the geometry/circulation recheck and local replan.
+
+30 cases total: operation 13 / solver 6 / verify 8 / VLM 3.

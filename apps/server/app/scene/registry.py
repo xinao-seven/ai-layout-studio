@@ -341,6 +341,8 @@ class SceneRegistry:
             # Never create a proposal that references or mutates an item owned
             # by another turn's pending proposal: that turn's confirmation
             # would be impossible because the dependency is not same-turn.
+            existing_item_ids = {item.id for item in overlay.items}
+            proposed_add_ids: set[str] = set()
             other_turn_items: set[str] = set()
             for candidate in pending:
                 if candidate.turn_id == turn_id:
@@ -351,6 +353,28 @@ class SceneRegistry:
                     elif op.op in {"item.update", "item.remove"}:
                         other_turn_items.add(op.item_id)
             for op in build.ops:
+                if op.op == "item.add":
+                    if op.item.id in existing_item_ids or op.item.id in proposed_add_ids:
+                        return None, [
+                            Refusal(
+                                code="invalid_input",
+                                message=f"Item {op.item.id} already exists or is used twice.",
+                                suggest="Regenerate the proposal with fresh item ids.",
+                                details={"itemId": op.item.id},
+                            )
+                        ]
+                    proposed_add_ids.add(op.item.id)
+                elif op.op in {"item.update", "item.remove"} and op.item_id not in (
+                    existing_item_ids
+                ):
+                    return None, [
+                        Refusal(
+                            code="not_found",
+                            message=f"Item {op.item_id} no longer exists.",
+                            suggest="Regenerate the proposal from the latest scene.",
+                            details={"itemId": op.item_id},
+                        )
+                    ]
                 if op.op in {"item.update", "item.remove"} and op.item_id in other_turn_items:
                     return None, [
                         Refusal(

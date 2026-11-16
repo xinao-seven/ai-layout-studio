@@ -18,6 +18,9 @@ from app.contracts.patch import ScenePatch
 from app.contracts.proposal import Proposal
 from app.contracts.ws import (
     AskUserAnswerMessage,
+    CaptureRequestPayload,
+    CaptureResultMessage,
+    CaptureResultPayload,
     CommitMessage,
     HostMessageUnion,
     PingMessage,
@@ -65,6 +68,7 @@ class SyncGateway:
         self._turn_start_seq: dict[str, int] = {}
         self._connections: dict[str, set[WebSocket]] = defaultdict(set)
         self._send_locks: dict[WebSocket, asyncio.Lock] = {}
+        self._capture_futures: dict[str, tuple[asyncio.Future[CaptureResultPayload], str, str]] = {}
         self._manager: TurnManager | None = None
         self.epoch = uuid.uuid4().hex
 
@@ -166,6 +170,66 @@ class SyncGateway:
             if isinstance(result, BaseException):
                 logger.info("ws.send_failed", error=str(result))
                 await self.disconnect(websocket, scene_id)
+
+    async def request_capture(
+        self,
+        scene_id: str,
+        turn_id: str,
+        *,
+        timeout: float = 5.0,
+        legend: dict[str, Any] | None = None,
+    ) -> CaptureResultPayload | None:
+        """Ask a connected host to render a labelled screenshot.
+
+        Returns ``None`` when no browser is connected or the host does not
+        answer in time, which callers surface as ``capture_unavailable``.
+        """
+        if not self._connections.get(scene_id):
+            return None
+        loop = asyncio.get_running_loop()
+        request_id = f"cap_{uuid.uuid4().hex}"
+        future: asyncio.Future[CaptureResultPayload] = loop.create_future()
+        self._capture_futures[request_id] = (future, scene_id, turn_id)
+        envelope = self._next_envelope(
+            scene_id,
+            WsChannel.HOST,
+            "capture.request",
+            CaptureRequestPayload(legend=legend).model_dump(mode="json", by_alias=True),
+            turn_id=turn_id,
+            request_id=request_id,
+        )
+        deadline = loop.time() + timeout
+        try:
+            await asyncio.wait_for(
+                self._broadcast(scene_id, envelope),
+                timeout=max(0.01, deadline - loop.time()),
+            )
+            return await asyncio.wait_for(future, timeout=max(0.01, deadline - loop.time()))
+        except TimeoutError:
+            logger.info("capture.request_timeout", scene_id=scene_id, turn_id=turn_id)
+            return None
+        finally:
+            self._capture_futures.pop(request_id, None)
+
+    def resolve_capture(
+        self,
+        request_id: str,
+        scene_id: str,
+        turn_id: str | None,
+        payload: CaptureResultPayload,
+    ) -> bool:
+        entry = self._capture_futures.get(request_id)
+        if entry is None:
+            return False
+        future, expected_scene, expected_turn = entry
+        if future.done() or expected_scene != scene_id:
+            return False
+        if turn_id is not None and turn_id != expected_turn:
+            return False
+        if payload.turn_id != expected_turn:
+            return False
+        future.set_result(payload)
+        return True
 
     async def connect(self, websocket: WebSocket, scene_id: str) -> None:
         """Register a connection and send the initial snapshot."""
@@ -563,6 +627,34 @@ class SyncGateway:
                     message_type="ask_user.answer",
                     version=await self.registry.version(scene_id),
                 )
+            elif isinstance(message, CaptureResultMessage):
+                if not request_id:
+                    raise SceneError(
+                        "invalid_input",
+                        "capture.result must echo the requestId from capture.request.",
+                        "Reply with the same requestId.",
+                    )
+                resolved = self.resolve_capture(
+                    request_id,
+                    scene_id,
+                    message.turn_id,
+                    message.payload,
+                )
+                if not resolved:
+                    raise SceneError(
+                        "invalid_input",
+                        "capture.result does not match a pending capture request.",
+                        "Reply to the current capture.request with its requestId and turnId.",
+                        {"requestId": request_id},
+                    )
+                await self._send_ack(
+                    websocket,
+                    scene_id,
+                    request_id=request_id,
+                    message_type="capture.result",
+                    version=await self.registry.version(scene_id),
+                    extra={"accepted": resolved},
+                )
             elif isinstance(message, PingMessage):
                 envelope = self._next_envelope(
                     scene_id,
@@ -579,7 +671,7 @@ class SyncGateway:
                     ErrorBody(
                         code="invalid_input",
                         message=f"Host message {message.type!r} is not available yet.",
-                        suggest="capture.result lands with M4 screenshot support.",
+                        suggest="Check the host message contract.",
                     ),
                     request_id=request_id,
                 )

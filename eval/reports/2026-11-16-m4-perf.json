@@ -1,0 +1,48 @@
+{
+  "milestone": "M4",
+  "kind": "render-perf-200-instances",
+  "recordedAt": "2026-11-16",
+  "gitSha": "c2b5f5b (M4 changes uncommitted at report time)",
+  "environment": {
+    "os": "Windows 11 10.0.26300",
+    "browser": "ZCode in-app Chromium (WebGL2, IAB)",
+    "web": "Vite 7 dev build, React 19 + R3F 9",
+    "url": "http://127.0.0.1:5173/?perf=200",
+    "scene": "two-bedroom fixture (5 rooms, 16 furniture, 10 openings) + 200 proxy boxes",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "method": "Foreground tab; read the StatusBar FPS badge 8 times at 500 ms intervals after 4 s warm-up.",
+  "samples": [
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120
+  ],
+  "metrics": {
+    "p50Fps": 120,
+    "minFps": 120,
+    "maxFps": 120,
+    "targetFps": 60,
+    "status": "passed",
+    "solverP95Ms": 3552
+  },
+  "solver20Items": {
+    "scene": "synthetic 8x8 m empty room, 20 chairs",
+    "runs": 2,
+    "placements": 20,
+    "elapsedMs": [
+      3552,
+      3516
+    ],
+    "deterministic": true,
+    "budgetMs": 5000,
+    "status": "passed"
+  }
+}

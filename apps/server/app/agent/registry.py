@@ -10,11 +10,13 @@ from pydantic import BaseModel, ValidationError
 from app.agent.contracts import (
     AddItemInput,
     AskUserInput,
+    AutoLayoutInput,
     MoveItemInput,
     QuerySceneInput,
     RemoveItemInput,
     SearchCatalogInput,
     UpdateItemInput,
+    VerifyLayoutInput,
 )
 from app.contracts.tools import ToolBundle, ToolDefinition
 from app.scene.errors import SceneError
@@ -84,6 +86,30 @@ TOOL_SPECS: tuple[ToolSpec, ...] = (
         ),
         input_model=UpdateItemInput,
         kind="write",
+    ),
+    ToolSpec(
+        name="auto_layout",
+        description=(
+            "Solve a whole room at once from a furniture list and optional constraints "
+            "(for example bed facing south, wardrobe, nightstand). Returns one proposal "
+            "with every placement as a ghost. Use this for requests like '布置好卧室' "
+            "instead of adding items one by one. Existing furniture stays as obstacles "
+            "unless options.replaceExisting is true."
+        ),
+        input_model=AutoLayoutInput,
+        kind="write",
+    ),
+    ToolSpec(
+        name="verify_layout",
+        description=(
+            "Run structured layout checks and return every issue (collision, door/window "
+            "clearance, walkway, design warnings) without changing the scene. Set "
+            "visual=true when the user asks to visually inspect or check the layout; "
+            "the server then captures labelled top-view screenshots, asks the VLM, "
+            "rechecks issues geometrically and may propose a local re-layout."
+        ),
+        input_model=VerifyLayoutInput,
+        kind="read",
     ),
     ToolSpec(
         name="ask_user",

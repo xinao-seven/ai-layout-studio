@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "openings": [],
+  "items": [],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z",
+  "id": "scene_tiny",
+  "name": "Tiny",
+  "rooms": [
+    {
+      "id": "room_tiny",
+      "name": "room_tiny",
+      "type": "bedroom",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          1.4,
+          0
+        ],
+        [
+          1.4,
+          1.4
+        ],
+        [
+          0,
+          1.4
+        ]
+      ],
+      "wallLabels": {},
+      "floorMaterial": "default"
+    }
+  ]
+}

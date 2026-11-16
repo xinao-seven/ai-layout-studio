@@ -18,7 +18,7 @@ from app.contracts.rules import Rules
 from app.contracts.scene import Item, SceneDocument, Vec2
 from app.geometry.collision import item_allows_overlap, item_obb, item_size
 from app.geometry.obb import OBB
-from app.geometry.polygon import centroid, point_in_polygon
+from app.geometry.polygon import centroid, inset_polygon, point_in_polygon
 
 
 @dataclass(frozen=True)
@@ -181,6 +181,27 @@ def check_item_rules(
             size=(width, 0.6),
             yaw=item.transform.rotation_y,
         ).to_polygon()
+        containing = next(
+            (
+                candidate
+                for candidate in document.rooms
+                if point_in_polygon(centre, candidate.polygon)
+            ),
+            None,
+        )
+        if containing is not None:
+            inset = inset_polygon(containing.polygon, rules.room_inset)
+            if not all(
+                point_in_polygon((x, z), inset) for x, z in list(clearance.exterior.coords)[:-1]
+            ):
+                issues.append(
+                    RuleIssue(
+                        "wardrobe_no_clearance",
+                        "The wardrobe does not have 0.6 m of clear space in front.",
+                        "Move the wardrobe away from the opposite wall or use a smaller variant.",
+                        item.id,
+                    )
+                )
         for other in others:
             if clearance.intersects(item_obb(other, catalog).to_polygon()):
                 issues.append(

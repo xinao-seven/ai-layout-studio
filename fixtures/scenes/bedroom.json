@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "name": "主卧",
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "rooms": [
+    {
+      "id": "room_bedroom_main",
+      "name": "主卧",
+      "type": "bedroom",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          3.6
+        ],
+        [
+          0,
+          3.6
+        ]
+      ],
+      "wallLabels": {
+        "2": "窗墙"
+      },
+      "wallHeight": 2.8,
+      "wallThickness": 0.12,
+      "floorMaterial": "default"
+    }
+  ],
+  "openings": [
+    {
+      "id": "op_bedroom_door",
+      "type": "door",
+      "roomId": "room_bedroom_main",
+      "edgeIndex": 0,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 0.9,
+      "height": 2.1,
+      "sillHeight": 0,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_bedroom_window",
+      "type": "window",
+      "roomId": "room_bedroom_main",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 1.6,
+      "height": 1.4,
+      "sillHeight": 0.9,
+      "style": "default"
+    }
+  ],
+  "items": [],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z",
+  "id": "scene_bedroom_fixture"
+}

@@ -8,7 +8,14 @@ import { getCatalogDragKind, setCatalogDragKind } from '../../scene/catalogDrag'
 import { edgeInfo, type Vec2 } from '../../scene/geometry'
 import { pendingOverlay } from '../../scene/proposals'
 import { buildWalls } from '../../scene/walls'
-import { type CatalogGhostState, type ItemDragState, useSceneStore } from '../../store/sceneStore'
+import {
+  type CameraState,
+  type CaptureRequestState,
+  type CatalogGhostState,
+  type ItemDragState,
+  useSceneStore,
+} from '../../store/sceneStore'
+import { CaptureGrab, CaptureLabels } from './CaptureOverlay'
 
 const WALL_COLOR = '#d9d5cc'
 const WALL_SELECTED = '#8fa9e8'
@@ -84,16 +91,40 @@ function CameraFit({
   bounds,
   orthographic,
   fitToken,
+  restore,
+  saved,
+  onRestored,
 }: {
   bounds: Bounds
   orthographic: boolean
   fitToken: string
+  restore: boolean
+  saved: CameraState | null
+  onRestored: () => void
 }) {
   const camera = useThree((state) => state.camera)
   const size = useThree((state) => state.size)
   const [cx, cz] = bounds.center
+  const savedRef = useRef(saved)
+  const restoreRef = useRef(restore)
+  savedRef.current = saved
+  restoreRef.current = restore
 
   useEffect(() => {
+    const savedState = savedRef.current
+    if (restoreRef.current && savedState) {
+      camera.up.set(0, 1, 0)
+      camera.position.set(...savedState.position)
+      camera.lookAt(...savedState.target)
+      if (camera instanceof THREE.OrthographicCamera) {
+        camera.zoom = savedState.zoom
+      } else if (camera instanceof THREE.PerspectiveCamera) {
+        camera.zoom = 1
+      }
+      camera.updateProjectionMatrix()
+      onRestored()
+      return
+    }
     // fitToken/orthographic are intentional triggers for refitting.
     void fitToken
     void orthographic
@@ -113,8 +144,37 @@ function CameraFit({
     }
     // Fit only when the scene identity changes or the user resets the camera.
     // Item commits update `scene` but must not move the camera.
-  }, [bounds.maxDim, camera, cx, cz, fitToken, orthographic, size.height, size.width])
+  }, [bounds.maxDim, camera, cx, cz, fitToken, onRestored, orthographic, size.height, size.width])
 
+  return null
+}
+
+function CameraKeeper({ enabled }: { enabled: boolean }) {
+  const camera = useThree((state) => state.camera)
+  const controls = useThree((state) => state.controls) as { target?: THREE.Vector3 } | null
+  const saveCameraState = useSceneStore((state) => state.saveCameraState)
+  const lastSave = useRef(0)
+  const lastSignature = useRef('')
+
+  useFrame(() => {
+    if (!enabled) return
+    const now = performance.now()
+    if (now - lastSave.current < 1000) return
+    lastSave.current = now
+    const target = controls?.target
+      ? ([controls.target.x, controls.target.y, controls.target.z] as [number, number, number])
+      : ([camera.position.x, 0, camera.position.z] as [number, number, number])
+    const signature = [...camera.position.toArray(), ...target, camera.zoom]
+      .map((value) => value.toFixed(2))
+      .join(',')
+    if (signature === lastSignature.current) return
+    lastSignature.current = signature
+    saveCameraState({
+      position: [camera.position.x, camera.position.y, camera.position.z],
+      target,
+      zoom: camera.zoom,
+    })
+  })
   return null
 }
 
@@ -788,7 +848,13 @@ function SceneInteractions() {
   return null
 }
 
-function ViewControls({ bounds }: { bounds: Bounds }) {
+function ViewControls({
+  bounds,
+  target,
+}: {
+  bounds: Bounds
+  target?: [number, number, number] | null
+}) {
   const interacting = useSceneStore((state) => Boolean(state.drag || state.vertexDrag))
   return (
     <OrbitControls
@@ -798,12 +864,18 @@ function ViewControls({ bounds }: { bounds: Bounds }) {
       maxDistance={80}
       maxPolarAngle={Math.PI / 2 - 0.03}
       minDistance={2}
-      target={[bounds.center[0], 0, bounds.center[1]]}
+      target={target ?? [bounds.center[0], 0, bounds.center[1]]}
     />
   )
 }
 
-function TopControls({ bounds }: { bounds: Bounds }) {
+function TopControls({
+  bounds,
+  target,
+}: {
+  bounds: Bounds
+  target?: [number, number, number] | null
+}) {
   const interacting = useSceneStore((state) => Boolean(state.drag || state.vertexDrag))
   return (
     <OrbitControls
@@ -813,7 +885,7 @@ function TopControls({ bounds }: { bounds: Bounds }) {
       makeDefault
       maxZoom={200}
       minZoom={10}
-      target={[bounds.center[0], 0, bounds.center[1]]}
+      target={target ?? [bounds.center[0], 0, bounds.center[1]]}
     />
   )
 }
@@ -826,7 +898,16 @@ function SceneContents({
   perfMode,
   cameraResetToken,
   onFps,
-}: Omit<SceneCanvasProps, 'onSelectItem'>) {
+  captureRequest,
+  cameraState,
+  restoreCamera,
+  onCameraRestored,
+}: Omit<SceneCanvasProps, 'onSelectItem'> & {
+  captureRequest?: CaptureRequestState | null
+  cameraState: CameraState | null
+  restoreCamera: boolean
+  onCameraRestored: () => void
+}) {
   const bounds = useMemo(() => sceneBounds(scene), [scene])
   const topView = viewMode === 'top'
   const tool = useSceneStore((state) => state.tool)
@@ -857,8 +938,12 @@ function SceneContents({
       <CameraFit
         bounds={bounds}
         fitToken={`${scene.id}:${cameraResetToken}`}
+        onRestored={onCameraRestored}
         orthographic={topView}
+        restore={restoreCamera}
+        saved={cameraState}
       />
+      <CameraKeeper enabled={!captureRequest} />
       <FpsMeter onFps={onFps} />
       <SceneInteractions />
 
@@ -873,29 +958,53 @@ function SceneContents({
       <Walls scene={scene} topView={topView} />
 
       {scene.items.map((item) =>
-        overlay.removedItemIds.has(item.id) || overlay.updatedItemIds.has(item.id) ? null : (
+        !captureRequest &&
+        (overlay.removedItemIds.has(item.id) || overlay.updatedItemIds.has(item.id)) ? null : (
           <ItemMesh
             catalog={catalog}
-            dragState={dragState}
+            dragState={captureRequest ? null : dragState}
             item={item}
             key={item.id}
-            selected={item.id === selectedItemId}
+            selected={!captureRequest && item.id === selectedItemId}
           />
         ),
       )}
 
-      {[...overlay.addedItems, ...overlay.updatedItems].map((item) => (
-        <PendingItemGhost catalog={catalog} item={item} key={`pending-${item.id}`} />
-      ))}
+      {captureRequest
+        ? null
+        : [...overlay.addedItems, ...overlay.updatedItems].map((item) => (
+            <PendingItemGhost catalog={catalog} item={item} key={`pending-${item.id}`} />
+          ))}
 
-      {ghost ? <GhostItem catalog={catalog} ghost={ghost} /> : null}
-      {tool === 'draw-room' ? <DrawingPlane /> : null}
-      {tool === 'draw-room' ? <DraftOverlay /> : null}
-      <VertexEditor scene={scene} />
+      {!captureRequest && ghost ? <GhostItem catalog={catalog} ghost={ghost} /> : null}
+      {!captureRequest && tool === 'draw-room' ? <DrawingPlane /> : null}
+      {!captureRequest && tool === 'draw-room' ? <DraftOverlay /> : null}
+      {!captureRequest ? <VertexEditor scene={scene} /> : null}
 
-      {perfMode ? <ProxyBoxes bounds={bounds} count={200} /> : null}
+      {!captureRequest && perfMode ? <ProxyBoxes bounds={bounds} count={200} /> : null}
 
-      {topView ? <TopControls bounds={bounds} /> : <ViewControls bounds={bounds} />}
+      {captureRequest?.legend ? (
+        <>
+          <CaptureLabels
+            legend={captureRequest.legend}
+            scene={scene}
+            size={Math.max(bounds.maxDim * 0.07, 0.22)}
+          />
+          <CaptureGrab
+            maxEdge={Math.min(1536, Math.max(captureRequest.width, captureRequest.height))}
+            scene={scene}
+          />
+        </>
+      ) : null}
+      {captureRequest && !captureRequest.legend ? (
+        <CaptureGrab maxEdge={1536} scene={scene} />
+      ) : null}
+
+      {captureRequest ? null : topView ? (
+        <TopControls bounds={bounds} target={cameraState?.target} />
+      ) : (
+        <ViewControls bounds={bounds} target={cameraState?.target} />
+      )}
     </>
   )
 }
@@ -911,7 +1020,12 @@ export function SceneCanvas({
   onFps,
 }: SceneCanvasProps) {
   const bounds = useMemo(() => sceneBounds(scene), [scene])
-  const topView = viewMode === 'top'
+  const captureRequest = useSceneStore((state) => state.captureRequest)
+  const cameraState = useSceneStore((state) => state.cameraState)
+  const restoreCamera = useSceneStore((state) => state.restoreCamera)
+  const consumeCameraRestore = useSceneStore((state) => state.consumeCameraRestore)
+  const effectiveView = captureRequest ? 'top' : viewMode
+  const topView = effectiveView === 'top'
   const [cx, cz] = bounds.center
 
   return (
@@ -933,19 +1047,24 @@ export function SceneCanvas({
               }
         }
         dpr={[1, 2]}
-        key={`${scene.id}-${viewMode}-${cameraResetToken}`}
+        gl={{ antialias: true, preserveDrawingBuffer: Boolean(captureRequest) }}
+        key={`${scene.id}-${effectiveView}-${cameraResetToken}-${captureRequest?.requestId ?? ''}`}
         onPointerMissed={() => onSelectItem(null)}
         orthographic={topView}
         shadows={!topView}
       >
         <SceneContents
           cameraResetToken={cameraResetToken}
+          cameraState={cameraState}
+          captureRequest={captureRequest}
           catalog={catalog}
+          onCameraRestored={consumeCameraRestore}
           onFps={onFps}
           perfMode={perfMode}
+          restoreCamera={restoreCamera}
           scene={scene}
-          selectedItemId={selectedItemId}
-          viewMode={viewMode}
+          selectedItemId={captureRequest ? null : selectedItemId}
+          viewMode={effectiveView}
         />
       </Canvas>
     </div>

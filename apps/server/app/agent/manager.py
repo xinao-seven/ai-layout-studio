@@ -15,8 +15,9 @@ from app.agent.context import ContextBuilder
 from app.agent.llm import LLMAdapter
 from app.agent.orchestrator import AgentLoop, AgentRunResult, TurnCancelled
 from app.agent.tools import AskUserHandler, ToolExecutor
+from app.capture.service import CaptureService
 from app.contracts.catalog import CatalogEntry
-from app.contracts.enums import ProposalStatus, TurnStatus
+from app.contracts.enums import MessageRole, ProposalStatus, TurnStatus
 from app.contracts.ids import IdPrefix, new_id
 from app.contracts.proposal import Proposal, Turn, TurnMessage, TurnUsage
 from app.contracts.rules import Rules
@@ -24,6 +25,8 @@ from app.contracts.scene import SceneDocument
 from app.db.repository import SceneRepository
 from app.scene.errors import SceneError
 from app.scene.registry import OverlayView, SceneRegistry
+from app.solver.service import SolverService
+from app.vlm.service import VLMService
 
 logger = structlog.get_logger(__name__)
 
@@ -60,6 +63,8 @@ class _TurnState:
         self.event_seq = 0
         self.started_at = time.monotonic()
         self.error: dict[str, Any] | None = None
+        self.screenshot_before: str | None = None
+        self.screenshot_after: str | None = None
 
 
 class TurnManager:
@@ -74,6 +79,9 @@ class TurnManager:
         rules: Rules,
         llm: LLMAdapter,
         sink: TurnSink,
+        solver: SolverService | None = None,
+        capture: CaptureService | None = None,
+        vlm: VLMService | None = None,
     ) -> None:
         self._registry = registry
         self._repository = repository
@@ -81,6 +89,9 @@ class TurnManager:
         self._rules = rules
         self._llm = llm
         self._sink = sink
+        self._solver = solver
+        self._capture = capture
+        self._vlm = vlm
         self._context = ContextBuilder(catalog)
         self._states: dict[str, _TurnState] = {}
         self._running: dict[str, str] = {}
@@ -307,6 +318,7 @@ class TurnManager:
                 on_proposal=lambda proposal: self._on_proposal(turn, proposal),
                 is_cancelled=lambda: state.cancelled,
                 on_progress=lambda result: self._persist_progress(state, result),
+                on_write_started=lambda: self._capture_before(state),
             )
             user_message = turn.messages[0].content if turn.messages else ""
             result: AgentRunResult = await loop.run(
@@ -315,6 +327,8 @@ class TurnManager:
                 point_context=state.point_context,
             )
             turn.messages = result.messages
+            await self._capture_after(state)
+            self._attach_screenshots(turn, state)
             turn.usage = result.usage
             turn.usage.wall_clock_ms = int((time.monotonic() - state.started_at) * 1000)
             turn.status = result.status
@@ -324,6 +338,7 @@ class TurnManager:
         except (TurnCancelled, asyncio.CancelledError):
             state.cancelled = True
             self._capture_partial(state, loop)
+            self._attach_screenshots(turn, state)
             await self._expire_turn_proposals(
                 state, reason="server_restart" if state.shutdown else "turn_cancelled"
             )
@@ -349,6 +364,8 @@ class TurnManager:
                 await self._emit(turn, "turn.cancelled", {"turn": self._dump_turn(turn)})
         except SceneError as error:
             self._capture_partial(state, loop)
+            await self._capture_after(state)
+            self._attach_screenshots(turn, state)
             state.error = error.to_error_body().model_dump(mode="json", by_alias=True)
             turn.status = TurnStatus.FAILED
             turn.ended_at = datetime.now(UTC)
@@ -362,6 +379,8 @@ class TurnManager:
         except Exception as error:  # pragma: no cover - defensive
             logger.exception("turn.failed_unexpectedly", turn_id=turn.id, error=str(error))
             self._capture_partial(state, loop)
+            await self._capture_after(state)
+            self._attach_screenshots(turn, state)
             state.error = {
                 "code": "internal_error",
                 "message": "The turn failed unexpectedly.",
@@ -383,6 +402,9 @@ class TurnManager:
             scene_id=state.turn.scene_id,
             turn_id=turn_id,
             ask_user=self._ask_user_handler(state),
+            solver=self._solver,
+            capture=self._capture,
+            vlm=self._vlm,
         )
 
     def _ask_user_handler(self, state: _TurnState) -> AskUserHandler:
@@ -511,6 +533,61 @@ class TurnManager:
             self._states.pop(state.turn.id, None)
         while len(self._client_ids) > keep:
             self._client_ids.pop(next(iter(self._client_ids)))
+
+    async def _capture_before(self, state: _TurnState) -> None:
+        if self._capture is None:
+            return
+        try:
+            image = await self._capture.request(
+                state.turn.scene_id,
+                state.turn.id,
+                purpose="before",
+                persistent=True,
+            )
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:  # noqa: BLE001 - screenshots are best effort
+            logger.info("screenshot.before_failed", error=str(error))
+            return
+        if image is not None:
+            state.screenshot_before = image.url
+
+    async def _capture_after(self, state: _TurnState) -> None:
+        if self._capture is None or state.screenshot_before is None:
+            return
+        try:
+            image = await self._capture.request(
+                state.turn.scene_id,
+                state.turn.id,
+                purpose="after",
+                persistent=True,
+            )
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:  # noqa: BLE001 - screenshots are best effort
+            logger.info("screenshot.after_failed", error=str(error))
+            return
+        if image is not None:
+            state.screenshot_after = image.url
+
+    @staticmethod
+    def _attach_screenshots(turn: Turn, state: _TurnState) -> None:
+        if not turn.messages or (
+            state.screenshot_before is None and state.screenshot_after is None
+        ):
+            return
+        assistant_indexes = [
+            index
+            for index, message in enumerate(turn.messages)
+            if message.role == MessageRole.ASSISTANT
+        ]
+        if not assistant_indexes:
+            return
+        targets = assistant_indexes
+        first = turn.messages[targets[0]]
+        last = turn.messages[targets[-1]]
+        first.screenshot_before = state.screenshot_before or first.screenshot_before
+        last.screenshot_after = state.screenshot_after or last.screenshot_after
 
     @staticmethod
     def _capture_partial(state: _TurnState, loop: AgentLoop | None) -> None:

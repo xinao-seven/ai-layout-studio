@@ -1,11 +1,13 @@
 # Protocol (M1 freeze)
 
-Status: **frozen at M1 (2026-11-16); M2 and M3 are additive (2026-11-16)**. M3
-implements the agent loop against this contract without redefining envelopes,
+Status: **frozen at M1 (2026-11-16); M2, M3 and M4 are additive (2026-11-16)**.
+M3 implements the agent loop against this contract without redefining envelopes,
 patch ops, versioning or resume. M2 adds `SceneWarning` to REST/ack payloads,
 `POST /api/catalog/reload`, and static `/assets/*` delivery. M3 adds turn REST
 endpoints, turn-channel events, `turn.subscribe`/`turn.cancel`/`ask_user.answer`
-host messages and `proposal.updated`. No existing field changes meaning.
+host messages and `proposal.updated`. M4 adds `auto_layout`/`verify_layout`,
+`capture.request`/`capture.result` and an optional legend in the request. No
+existing field changes meaning.
 
 The wire contract is generated from Pydantic models
 (`apps/server/app/contracts/`): see `packages/contracts/generated/ws.schema.json`
@@ -79,7 +81,8 @@ Client frames use the discriminated `HostMessage` union (`type` discriminator),
 | `ping` | `{}` | replies `host.pong` with the client timestamp |
 | `proposal.confirm` | `{ proposalId }` | confirm in dependency order (M3 uses it) |
 | `proposal.reject` | `{ proposalId, reason? }` | reject and expire dependants |
-| `turn.subscribe` / `turn.cancel` / `ask_user.answer` / `capture.result` | reserved | M3 |
+| `turn.subscribe` / `turn.cancel` / `ask_user.answer` | `{ turnId, lastSeq? }` / `{ turnId }` / `{ turnId, answers }` | replay, cancel, resume waiting turn |
+| `capture.result` | `{ turnId, pngBase64, legend }` | host reply to a `capture.request`; must echo `requestId` |
 
 Ack/error frames: `host.ack` with `{ type, version, warnings? }`, `host.error`
 with `{ error: { code, message, suggest?, details? } }`.
@@ -87,6 +90,31 @@ with `{ error: { code, message, suggest?, details? } }`.
 `warnings` is an optional array of `SceneWarning` (`{ code, message, details? }`).
 M2 emits `opening_reanchored` / `opening_removed` when a `room.update` changes a
 polygon and existing openings are re-anchored (see below).
+
+## M4 capture and VLM loop
+
+Server -> host:
+
+| type | payload | behaviour |
+|---|---|---|
+| `capture.request` | `{ width, height, format: "png", maxBytes }` | sent on the host channel with a fresh `requestId` and the turn id |
+
+The host renders an orthographic top view (no ceiling, walls cut low), labels
+furniture `A1/A2…` and doors/windows `D1/W1…`, then replies with
+`capture.result` echoing `requestId`. The server validates the PNG, resizes the
+long edge to 1536 px, keeps it at or below 1 MB and stores it under
+`data/screenshots/<sceneId>/<turnId>-<purpose>.png` (7-day retention). Review
+captures are processed for the VLM but not persisted; before/after turn
+captures are stored. No connected host or a timeout yields
+`capture_unavailable`; the turn continues.
+
+VLM output is restricted to `{ verdict, issues[] }` with
+`type ∈ blocks_door | walkway_narrow | group_misaligned | circulation_blocked |
+window_blocked` and label ids. Coordinates are ignored. The server maps labels,
+drops unknown ids, rechecks each issue geometrically (circulation via grid
+pathfinding) and locally re-solves confirmed issues into a normal ghost
+proposal. JSON failures are retried once; after that the visual step is skipped
+without blocking the user.
 
 ## M2 editing endpoints and validation
 

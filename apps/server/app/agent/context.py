@@ -40,6 +40,19 @@ Rules:
    proposed, what still needs confirmation, and any refusal the user must know.
 7. When the request is complete, finish with a plain text message and no tool
    calls. Do not create duplicate proposals for the same request.
+8. Use auto_layout for whole-room furnishing requests ("布置好卧室"). Pass every
+   required piece and semantic constraints such as facing="south"; do not call
+   add_item once per piece. The solver returns one proposal containing all
+   placements, which the user confirms atomically.
+9. Use verify_layout to audit an existing layout. Set visual=true only when the
+   user asks to check or inspect the layout visually; it captures a labelled
+   top view, runs the VLM review and may return a local re-layout proposal. If
+   the tool reports capture_unavailable or invalid_json, rely on the geometric
+   issues and tell the user briefly.
+10. After auto_layout returns a proposal, treat it as final for this turn. Do not
+   move, rotate or re-add the items it just placed; the user confirms or rejects
+   the whole proposal. If verify_layout returns ok=true, stop editing even when
+   it has warning-severity suggestions: report the warnings and finish.
 """
 
 

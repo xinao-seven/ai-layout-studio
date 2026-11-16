@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "openings": [],
+  "items": [],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z",
+  "id": "scene_l_room",
+  "name": "L Room",
+  "rooms": [
+    {
+      "id": "room_l",
+      "name": "room_l",
+      "type": "bedroom",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "wallLabels": {},
+      "floorMaterial": "default"
+    }
+  ]
+}

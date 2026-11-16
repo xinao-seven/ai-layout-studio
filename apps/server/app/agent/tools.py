@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
@@ -9,22 +10,32 @@ from typing import Any
 from app.agent.contracts import (
     AddItemInput,
     AskUserInput,
+    AutoLayoutInput,
     MoveItemInput,
     QuerySceneInput,
     RemoveItemInput,
     SearchCatalogInput,
     UpdateItemInput,
+    VerifyLayoutInput,
 )
 from app.agent.placement import place_add, place_move, place_remove, place_update
 from app.agent.refusals import dedupe_refusals, make_refusal
 from app.agent.registry import validate_arguments
+from app.capture.service import CaptureService
 from app.contracts.catalog import CatalogEntry
+from app.contracts.enums import ItemSource
+from app.contracts.patch import ItemAddOp, ItemRemoveOp, PatchOp
 from app.contracts.proposal import Proposal, Refusal
 from app.contracts.rules import Rules
-from app.contracts.scene import SceneDocument
+from app.contracts.scene import Item, SceneDocument
+from app.geometry.errors import GeometryError
 from app.geometry.polygon import point_in_polygon
 from app.scene.errors import SceneError
 from app.scene.registry import OverlayView, ProposalBuild, SceneRegistry
+from app.solver.engine import SolveOptions, SolveSpec
+from app.solver.service import SolverService
+from app.solver.verify import verify_layout
+from app.vlm.service import VLMService, build_legend
 
 AskUserHandler = Callable[[AskUserInput], Awaitable[dict[str, list[str]]]]
 
@@ -53,6 +64,9 @@ class ToolExecutor:
         scene_id: str,
         turn_id: str,
         ask_user: AskUserHandler,
+        solver: SolverService | None = None,
+        capture: CaptureService | None = None,
+        vlm: VLMService | None = None,
     ) -> None:
         self._registry = registry
         self._catalog = catalog
@@ -60,6 +74,9 @@ class ToolExecutor:
         self._scene_id = scene_id
         self._turn_id = turn_id
         self._ask_user = ask_user
+        self._solver = solver
+        self._capture = capture
+        self._vlm = vlm
 
     async def execute(self, name: str, arguments: dict[str, Any]) -> ToolExecution:
         try:
@@ -76,6 +93,10 @@ class ToolExecutor:
 
         if isinstance(model, QuerySceneInput):
             return await self._query_scene(model)
+        if isinstance(model, AutoLayoutInput):
+            return await self._auto_layout(model)
+        if isinstance(model, VerifyLayoutInput):
+            return await self._verify_layout(model)
         if isinstance(model, SearchCatalogInput):
             return self._search_catalog(model)
         if isinstance(model, AddItemInput):
@@ -147,6 +168,242 @@ class ToolExecutor:
                 ],
             },
             refusals=[make_refusal("invalid_input", f"Tool {name!r} is not implemented.")],
+        )
+
+    async def _auto_layout(self, request: AutoLayoutInput) -> ToolExecution:
+        if self._solver is None:
+            refusal = make_refusal(
+                "internal_error",
+                "The layout solver is not available.",
+                suggest="Restart the server or use manual placement.",
+            )
+            return _refused("auto_layout", refusal)
+        view = await self._registry.overlay_view(self._scene_id)
+        document = view.document
+        base_version = document.version
+        specs = [
+            SolveSpec(
+                kind_id=item.kind_id,
+                variant_id=item.variant_id,
+                required=item.required,
+                constraint=item.constraint,
+            )
+            for item in request.items
+        ]
+        options = SolveOptions(
+            allow_partial=request.options.allow_partial,
+            seed=request.options.seed,
+            time_budget_ms=min(request.options.time_budget_ms, self._rules.solver_time_budget),
+            max_evals=self._rules.solver_max_evals,
+            replace_existing=request.options.replace_existing,
+        )
+        try:
+            result = await self._solver.solve(
+                document,
+                dict(self._catalog),
+                self._rules,
+                room_id=request.room_id,
+                items=specs,
+                options=options,
+            )
+        except (SceneError, GeometryError) as error:
+            return _refused(
+                "auto_layout",
+                make_refusal(
+                    error.code,
+                    error.message,
+                    suggest=error.suggest,
+                    details=error.details,
+                ),
+            )
+        ops: list[PatchOp] = [
+            ItemRemoveOp(op="item.remove", item_id=item_id) for item_id in result.removed_item_ids
+        ]
+        ops.extend(
+            ItemAddOp(
+                op="item.add",
+                item=Item(
+                    id=placement.item_id,
+                    kind_id=placement.kind_id,
+                    variant_id=placement.variant_id,
+                    transform=placement.transform,
+                    constraint=placement.constraint,
+                    source=ItemSource.AGENT,
+                ),
+            )
+            for placement in result.placements
+            if not placement.existing
+        )
+
+        def build(_document: SceneDocument, _pending: list[Proposal]) -> ProposalBuild:
+            if _document.version != base_version:
+                return ProposalBuild(
+                    refusals=[
+                        make_refusal(
+                            "version_conflict",
+                            "The scene changed while auto_layout was solving.",
+                            suggest="Retry the layout against the latest scene.",
+                        )
+                    ]
+                )
+            return ProposalBuild(ops=list(ops))
+
+        proposal, refusals = await self._registry.propose(
+            self._scene_id,
+            self._turn_id,
+            build,
+        )
+        if refusals:
+            return ToolExecution(
+                name="auto_layout",
+                payload={
+                    "ok": False,
+                    "refusals": [refusal.model_dump(by_alias=True) for refusal in refusals],
+                },
+                refusals=refusals,
+            )
+        assert proposal is not None
+        return ToolExecution(
+            name="auto_layout",
+            payload={
+                "ok": True,
+                "proposalId": proposal.id,
+                "baseVersion": proposal.base_version,
+                "placements": [
+                    placement.model_dump(mode="json", by_alias=True)
+                    for placement in result.placements
+                ],
+                "unplaced": [
+                    unplaced.model_dump(mode="json", by_alias=True) for unplaced in result.unplaced
+                ],
+                "removedItemIds": result.removed_item_ids,
+                "stats": result.stats.model_dump(mode="json", by_alias=True),
+                "needsConfirmation": True,
+            },
+            proposal=proposal,
+        )
+
+    async def _verify_layout(self, request: VerifyLayoutInput) -> ToolExecution:
+        view = await self._registry.overlay_view(self._scene_id)
+        document = view.document
+        try:
+            result = await asyncio.to_thread(
+                verify_layout,
+                document,
+                self._catalog,
+                self._rules,
+                room_id=request.room_id,
+            )
+        except (SceneError, GeometryError) as error:
+            return _refused(
+                "verify_layout",
+                make_refusal(
+                    error.code,
+                    error.message,
+                    suggest=error.suggest,
+                    details=error.details,
+                ),
+            )
+        payload: dict[str, Any] = {
+            "ok": result.ok,
+            "issues": [issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
+        }
+        if not request.visual:
+            return ToolExecution(name="verify_layout", payload=payload)
+        if not result.ok:
+            payload["visual"] = {
+                "status": "skipped",
+                "reason": "geometry_errors",
+            }
+            return ToolExecution(name="verify_layout", payload=payload)
+        if self._capture is None or self._vlm is None or self._solver is None:
+            payload["visual"] = {
+                "status": "unavailable",
+                "reason": "vlm_not_configured",
+            }
+            return ToolExecution(name="verify_layout", payload=payload)
+        room_id = request.room_id
+        if room_id is None and len(document.rooms) == 1:
+            room_id = document.rooms[0].id
+        if room_id is None:
+            payload["visual"] = {
+                "status": "unavailable",
+                "reason": "room_id_required",
+            }
+            return ToolExecution(name="verify_layout", payload=payload)
+        room = next(
+            (candidate for candidate in document.rooms if candidate.id == room_id),
+            None,
+        )
+        if room is None:
+            return _refused(
+                "verify_layout",
+                make_refusal(
+                    "unknown_room",
+                    f"Room {room_id!r} does not exist.",
+                    details={"roomId": room_id},
+                ),
+            )
+        legend = build_legend(document, room)
+        image = await self._capture.request(
+            self._scene_id,
+            self._turn_id,
+            purpose="review",
+            legend=legend,
+        )
+        if image is None:
+            payload["visual"] = {
+                "status": "unavailable",
+                "reason": "capture_unavailable",
+            }
+            return ToolExecution(name="verify_layout", payload=payload)
+        reviewed = await self._vlm.review_and_replan(
+            document,
+            room,
+            image,
+            self._catalog,
+            self._rules,
+            self._solver,
+            legend=legend,
+        )
+        payload["visual"] = reviewed.review.model_dump(mode="json", by_alias=True)
+        payload["visual"]["legend"] = image.legend
+        proposal: Proposal | None = None
+        if reviewed.review.status == "replanned" and reviewed.placements:
+            ops = reviewed.update_ops(document)
+            base_version = document.version
+
+            def build(_document: SceneDocument, _pending: list[Proposal]) -> ProposalBuild:
+                if _document.version != base_version:
+                    return ProposalBuild(
+                        refusals=[
+                            make_refusal(
+                                "version_conflict",
+                                "The scene changed during the visual review.",
+                                suggest="Run verify_layout again on the latest scene.",
+                            )
+                        ]
+                    )
+                return ProposalBuild(ops=list(ops))
+
+            proposal, refusals = await self._registry.propose(
+                self._scene_id,
+                self._turn_id,
+                build,
+            )
+            if refusals:
+                payload["visual"]["status"] = "issues_found"
+                payload["visual"]["refusals"] = [
+                    refusal.model_dump(by_alias=True) for refusal in refusals
+                ]
+            elif proposal is not None:
+                payload["visual"]["proposalId"] = proposal.id
+                payload["visual"]["status"] = "replanned"
+                payload["proposalId"] = proposal.id
+        return ToolExecution(
+            name="verify_layout",
+            payload=payload,
+            proposal=proposal,
         )
 
     async def _query_scene(self, request: QuerySceneInput) -> ToolExecution:

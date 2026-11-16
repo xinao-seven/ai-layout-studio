@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "openings": [],
+  "items": [
+    {
+      "id": "it_walk_a",
+      "kindId": "wardrobe",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          1.0925,
+          0,
+          1.5
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_walk_b",
+      "kindId": "wardrobe",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          3.2175,
+          0,
+          1.5
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    }
+  ],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z",
+  "id": "scene_walkway",
+  "name": "Walkway",
+  "rooms": [
+    {
+      "id": "room_walk",
+      "name": "room_walk",
+      "type": "bedroom",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4.4,
+          0
+        ],
+        [
+          4.4,
+          3.0
+        ],
+        [
+          0,
+          3.0
+        ]
+      ],
+      "wallLabels": {},
+      "floorMaterial": "default"
+    }
+  ]
+}

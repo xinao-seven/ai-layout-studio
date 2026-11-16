@@ -28,6 +28,7 @@ export class SceneSocket {
     type: string
     payload: Record<string, unknown>
     turnId?: string | null
+    requestId?: string | null
   }> = []
   private disposed = false
 
@@ -139,9 +140,14 @@ export class SceneSocket {
     this.resumeTurnSeq = seq
   }
 
-  sendHost(type: string, payload: Record<string, unknown>, turnId?: string | null): void {
+  sendHost(
+    type: string,
+    payload: Record<string, unknown>,
+    turnId?: string | null,
+    requestId?: string | null,
+  ): void {
     if (this.socket?.readyState !== WebSocket.OPEN) {
-      this.queuedHost.push({ type, payload, turnId })
+      this.queuedHost.push({ type, payload, turnId, requestId })
       return
     }
     this.send({
@@ -151,6 +157,7 @@ export class SceneSocket {
       seq: 0,
       ts: Date.now(),
       turnId: turnId ?? null,
+      requestId: requestId ?? null,
       payload,
     } as WsEnvelope)
   }
@@ -159,7 +166,7 @@ export class SceneSocket {
     const queued = this.queuedHost
     this.queuedHost = []
     for (const message of queued) {
-      this.sendHost(message.type, message.payload, message.turnId)
+      this.sendHost(message.type, message.payload, message.turnId, message.requestId)
     }
   }
 

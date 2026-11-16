@@ -762,6 +762,387 @@
         }
       },
       {
+        "description": "Solve a whole room at once from a furniture list and optional constraints (for example bed facing south, wardrobe, nightstand). Returns one proposal with every placement as a ghost. Use this for requests like '布置好卧室' instead of adding items one by one. Existing furniture stays as obstacles unless options.replaceExisting is true.",
+        "name": "auto_layout",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "additionalProperties": false,
+                "description": "One furniture request for a whole-room solve.",
+                "properties": {
+                  "constraint": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "description": "Preserved agent intent so placements stay explainable and re-solvable.",
+                        "properties": {
+                          "anchor": {
+                            "anyOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "openingId": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Openingid"
+                                  },
+                                  "type": {
+                                    "enum": [
+                                      "wall",
+                                      "corner",
+                                      "window",
+                                      "door",
+                                      "center"
+                                    ],
+                                    "title": "AnchorType",
+                                    "type": "string"
+                                  },
+                                  "wallId": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Wallid"
+                                  },
+                                  "wallLabel": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Walllabel"
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ],
+                                "title": "Anchor",
+                                "type": "object"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null
+                          },
+                          "clearance": {
+                            "anyOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "back": {
+                                    "anyOf": [
+                                      {
+                                        "minimum": 0,
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Back"
+                                  },
+                                  "front": {
+                                    "anyOf": [
+                                      {
+                                        "minimum": 0,
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Front"
+                                  },
+                                  "sides": {
+                                    "anyOf": [
+                                      {
+                                        "minimum": 0,
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Sides"
+                                  }
+                                },
+                                "title": "Clearance",
+                                "type": "object"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null
+                          },
+                          "facing": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "north",
+                                  "east",
+                                  "south",
+                                  "west"
+                                ],
+                                "title": "FacingDirection",
+                                "type": "string"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "id": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Id"
+                                  },
+                                  "toward": {
+                                    "enum": [
+                                      "door",
+                                      "window",
+                                      "item"
+                                    ],
+                                    "title": "FacingToward",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "toward"
+                                ],
+                                "title": "FacingTowardSpec",
+                                "type": "object"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Facing"
+                          },
+                          "group": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Group"
+                          },
+                          "near": {
+                            "anyOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "distance": {
+                                    "anyOf": [
+                                      {
+                                        "exclusiveMinimum": 0,
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Distance"
+                                  },
+                                  "itemId": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Itemid"
+                                  },
+                                  "openingId": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ],
+                                    "default": null,
+                                    "title": "Openingid"
+                                  }
+                                },
+                                "title": "Near",
+                                "type": "object"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null
+                          },
+                          "roomId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "default": null,
+                            "title": "Roomid"
+                          }
+                        },
+                        "title": "ItemConstraint",
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Optional intent such as facing='south', anchor.wallLabel, near or group. The solver resolves it to coordinates."
+                  },
+                  "kindId": {
+                    "minLength": 1,
+                    "title": "Kindid",
+                    "type": "string"
+                  },
+                  "required": {
+                    "default": true,
+                    "title": "Required",
+                    "type": "boolean"
+                  },
+                  "variantId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Variantid"
+                  }
+                },
+                "required": [
+                  "kindId"
+                ],
+                "title": "AutoLayoutItemInput",
+                "type": "object"
+              },
+              "maxItems": 20,
+              "minItems": 1,
+              "title": "Items",
+              "type": "array"
+            },
+            "options": {
+              "additionalProperties": false,
+              "properties": {
+                "allowPartial": {
+                  "default": false,
+                  "description": "Return the best partial layout instead of failing when not every item fits.",
+                  "title": "Allowpartial",
+                  "type": "boolean"
+                },
+                "replaceExisting": {
+                  "default": false,
+                  "description": "Remove existing furniture in the room and solve from scratch.",
+                  "title": "Replaceexisting",
+                  "type": "boolean"
+                },
+                "seed": {
+                  "default": 0,
+                  "description": "Deterministic tie-break hint; never random.",
+                  "title": "Seed",
+                  "type": "integer"
+                },
+                "timeBudgetMs": {
+                  "default": 5000,
+                  "maximum": 5000,
+                  "minimum": 500,
+                  "title": "Timebudgetms",
+                  "type": "integer"
+                }
+              },
+              "title": "AutoLayoutOptionsInput",
+              "type": "object"
+            },
+            "roomId": {
+              "minLength": 1,
+              "title": "Roomid",
+              "type": "string"
+            }
+          },
+          "required": [
+            "roomId",
+            "items"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Run structured layout checks and return every issue (collision, door/window clearance, walkway, design warnings) without changing the scene. Set visual=true when the user asks to visually inspect or check the layout; the server then captures labelled top-view screenshots, asks the VLM, rechecks issues geometrically and may propose a local re-layout.",
+        "name": "verify_layout",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "roomId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Limit the geometric checks to one room; omit to verify every room.",
+              "title": "Roomid"
+            },
+            "visual": {
+              "default": false,
+              "description": "Run the VLM screenshot review closed loop when geometry passes. Set true when the user asks to visually check the layout.",
+              "title": "Visual",
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        }
+      },
+      {
         "description": "Ask the user a clarifying question and pause the turn until they answer. Use sparingly; prefer reasonable defaults when the intent is clear.",
         "name": "ask_user",
         "parameters": {
@@ -846,6 +1227,6 @@
       "type": "object"
     }
   },
-  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the seven M3 tools for contract drift checks.",
+  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the nine M3/M4 tools for contract drift checks.",
   "title": "Agent tool contracts"
 }

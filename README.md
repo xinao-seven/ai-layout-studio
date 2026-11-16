@@ -3,13 +3,14 @@
 对话式 AI 室内布局工作台：上传/绘制户型，用自然语言和直接操作完成家具布置。
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
-> 当前状态：**M3 Agent 层完成**（2026-11-16；已用 `deepseek-flash` 跑通真实 G1）。7 个 Agent 工具（查询/检索/新增/移动/
-> 删除/更新/ask_user）、TurnManager（单场景 1 running + 1 queued）、OpenAI 兼容流式
-> LLMAdapter、ContextBuilder/场景快照、五层校验（L0–L3）、pending overlay + 幽灵提案、
-> 依赖链确认/拒绝/过期、WS turn 事件/取消/断线重连、G1 脚本化用例与 OpenAI 兼容假服务
-> 已打通。M2 的 60 件 CC0 资产、拖放/吸附/旋转、服务端碰撞复核、手绘房间、门窗开口、
-> 详情卡 + PointContext 保持兼容。界面视觉参照 aedifex / Pascal Editor（MIT），代码为
-> 独立实现。
+> 当前状态：**M4 求解器 + VLM + 评测完成**（2026-11-16）。在 M3 的 7 个 Agent 工具之上
+> 新增 `auto_layout` / `verify_layout`：确定性 beam search 求解整室布局（凸多边形、门/窗/
+> 过道/衣柜净空、成组间距、5s 预算、进程池），`verify_layout` 返回结构化问题；带 ID 标注
+> 的正交俯视截图经 WS `capture.request/result` 回传，VLM 只回语义 issue，服务端做 ID 校验、
+> 几何/主路径复核并局部重排（最多 2 轮）。before/after 截图落 `data/screenshots/`（7 天清理，
+> ≤1MB / 长边 1536）。共享用例表 30 例一键跑：`pnpm eval` → `eval/reports/`。
+> M2 的 60 件 CC0 资产、拖放/吸附/旋转、服务端碰撞复核、手绘房间、门窗开口、详情卡 +
+> PointContext 保持兼容。界面视觉参照 aedifex / Pascal Editor（MIT），代码为独立实现。
 >
 > 项目为独立自研实现；aedifex 等开源项目仅作**架构思想参考**，不复制源码。
 
@@ -67,14 +68,18 @@ SMOKE_WEB=1 pnpm smoke   # 同时检查前端
 - API 文档：<http://127.0.0.1:8000/api/docs>
 - Web：<http://127.0.0.1:5173>
 - 健康检查：`GET /api/health` → `{ "ok": true, "version": "0.1.0", "model": "" }`
-- 首页会列出 4 个内置户型；打开后可 3D/俯视切换、从目录拖放家具（松开前显示
-  绿色/红色 ghost）、拖拽移动、R 旋转 15°、方向键微调、删除、undo/redo。
+- 首页会列出 6 个内置户型（含空白主卧 G2 场景与 G3 视觉检查场景）；打开后可 3D/俯视
+  切换、从目录拖放家具（松开前显示绿色/红色 ghost）、拖拽移动、R 旋转 15°、方向键微调、
+  删除、undo/redo。
 - 家具面板支持分类/搜索/缩略图与 `POST /api/catalog/reload` 热加载；详情卡显示
   尺寸/位置/朝向/约束并生成 PointContext。
 - 房间面板可手绘闭合房间、拖动顶点、选择墙段放置门/窗并调整 offset/width/height/
   sill/swing；改多边形后服务端重锚定开口并返回 warning toast。
 - AI 面板可发送自然语言：模型先 `query_scene`/`search_catalog`，写工具生成青色幽灵
   提案；确认后按依赖顺序落库，可 undo；支持取消、ask_user 回答和断线重连。
+- 整室布置用 `auto_layout`（床/衣柜/床头柜一次成提案）；"检查布局"用
+  `verify_layout(visual=true)`：前端自动切正交俯视、给家具/门窗打 A1/D1/W1 标签并回传
+  PNG，VLM 复核后生成局部重排提案。
 - 带 `?perf=200` 时渲染 200 个代理盒并显示 FPS。
 
 ## 常用命令
@@ -89,7 +94,9 @@ SMOKE_WEB=1 pnpm smoke   # 同时检查前端
 | `pnpm contracts:gen` | 重新导出 schema 并生成 TS |
 | `pnpm contracts:check` | 重新生成并检查改动/新增（CI 用） |
 | `pnpm smoke` | 健康检查冒烟 |
+| `pnpm eval` | 跑 30 例共享用例表并写 `eval/reports/YYYY-MM-DD-m4-eval.json` |
 | `uv run --directory apps/server pytest tests/test_agent_m3.py tests/test_agent_lifecycle.py -q` | G1/工具/提案链/回合生命周期回归 |
+| `uv run --directory apps/server pytest tests/test_solver_m4.py tests/test_m4_agent.py -q` | G2/G3、求解器、verify、VLM 与截图链路回归 |
 | `uv run --directory apps/server pytest tests/test_fake_openai_e2e.py -q` | 真 OpenAI SDK 路径 + 假 LLM 服务 |
 | `pnpm check:web-assets` | 构建后校验 nginx 资产代理不与 Vite bundle 冲突 |
 | `uv run --directory apps/server python ../../scripts/build_catalog_assets.py --check` | 校验 60 件资产/尺寸/缩略图/许可 |
@@ -145,7 +152,7 @@ docker compose up --build
 | M1 | 场景内核、几何、REST/WS、渲染、undo、协议冻结 | ✅ 2026-11-16 |
 | M2 | 目录、拖放、手绘、门窗、服务端复核、评测骨架、求解器 spike | ✅ 2026-11-16 |
 | M3 | Agent 循环、7 工具、proposal 链、G1 | ✅ 2026-11-16 |
-| M4 | 求解器、VLM、30 例评测、G2/G3 | 计划中 |
+| M4 | 求解器、VLM、30 例评测、G2/G3 | ✅ 2026-11-16 |
 | M5 | 导出、第一人称、MCP、日照（可选） | 可选 |
 
 ## 文档
@@ -156,9 +163,25 @@ docker compose up --build
 - [ADR-0003 Python/FastAPI 选型](docs/adr/0003-python-fastapi.md)
 - [ADR-0004 契约生成](docs/adr/0004-contract-generation.md)
 - [ADR-0005 前端视觉语言](docs/adr/0005-frontend-visual-language.md)
-- [PROTOCOL（M1 冻结 + M2 增量）](docs/PROTOCOL.md)
 - [ADR-0008 求解器 spike](docs/adr/0008-solver-spike.md)
+- [ADR-0009 生产求解器与 VLM 闭环](docs/adr/0009-solver-vlm-m4.md)
+- [PROTOCOL（含 capture.request/result）](docs/PROTOCOL.md)
 - [CONVENTIONS](docs/CONVENTIONS.md) · [DEPENDENCIES](docs/DEPENDENCIES.md)
+
+## M4 实测指标（来源：`eval/reports/2026-11-16-m4-eval.json`）
+
+| 指标 | 实测 | 说明 |
+|---|---|---|
+| 共享用例通过率 | **30/30 (100%)** | operation 13 / solver 6 / verify 8 / VLM 3 |
+| `auto_layout` p95 | **104 ms** | 4 次评测求解；20 件最坏用例 3.6 s（`m4-perf.json`），预算 5000 ms |
+| `auto_layout` 平均候选评估 | 893 | 上限 50k；同输入同输出（单测） |
+| G2 床尾朝南 | 通过 | `dot(front, north) < -0.99` + `verify_layout` 零问题 |
+| G2 真模型 | 通过（`deepseek-flash`） | 4 轮、16.3 s、1 个 3-op 提案、0 refusal、确认后 verify 0 问题 |
+| G3 视觉闭环 | 通过（脚本化 VLM） | 主路径阻断 → VLM → 几何复核 → 局部重排 → 复检通过；真实 VLM 未配置 |
+| VLM JSON 解析率 | 100%（每例 1 次调用） | 脚本化 VLM 桩；真实 VLM 未配置 |
+| VLM 误报过滤 | 1 条误报被几何复核拒绝，0 个未知 ID | 3 例脚本化 VLM 用例，样本较小 |
+| before/after 截图 | 通过 | WS 回传 PNG → ≤1MB/1536 → `data/screenshots/` |
+| 渲染 FPS | **120 / 120 / 120**（8 次采样） | `?perf=200`，5 房间 + 16 家具 + 200 代理盒，IAB WebGL2 |
 
 ## License
 

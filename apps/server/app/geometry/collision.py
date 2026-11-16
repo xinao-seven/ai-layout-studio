@@ -67,7 +67,33 @@ def _is_circulation_blocker(item: Item, catalog: Mapping[str, CatalogEntry] | No
         return False
     if entry.category.value in {"sofa", "bed", "storage"}:
         return True
-    return item.kind_id.startswith(("wardrobe", "tv_stand", "kitchen_", "fridge"))
+    return item.kind_id.startswith(("wardrobe", "tv_stand", "kitchen_", "fridge", "bed_"))
+
+
+def is_circulation_blocker(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> bool:
+    """Public predicate shared by validation, verification and the solver."""
+    return _is_circulation_blocker(item, catalog)
+
+
+def catalog_items_grouped(
+    first: Item,
+    second: Item,
+    catalog: Mapping[str, CatalogEntry] | None,
+) -> bool:
+    """True when the catalog declares the two kinds as a functional group.
+
+    Grouped pieces (bed + nightstand, sofa + coffee table) are allowed to sit
+    closer than the secondary passage width; unrelated large pieces are not.
+    """
+    if catalog is None:
+        return False
+    first_entry = catalog.get(first.kind_id)
+    second_entry = catalog.get(second.kind_id)
+    if first_entry is None or second_entry is None:
+        return False
+    first_group = set(first_entry.rules.group_with) if first_entry.rules else set()
+    second_group = set(second_entry.rules.group_with) if second_entry.rules else set()
+    return second_entry.kind_id in first_group or first_entry.kind_id in second_group
 
 
 def item_obb(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> OBB:
@@ -222,6 +248,8 @@ def validate_walkways(
             changed_room = item_room_id(document, item)
             if changed_room is not None and other_room is not None and changed_room != other_room:
                 continue
+            if catalog_items_grouped(item, other, catalog):
+                continue
             gap = float(box.distance(item_obb(other, catalog).to_polygon()))
             if 1e-6 < gap < rules.passage_secondary - 1e-6:
                 raise GeometryError(
@@ -284,6 +312,11 @@ def validate_door_clearance(
                     "Keep the door approach clear (at least 0.6 m deep).",
                     {"itemId": item.id, "openingId": opening.id},
                 )
+
+
+def window_clearance_obb(room: Room, opening: Opening, rules: Rules) -> OBB | None:
+    """Public wrapper used by the verifier and VLM geometry recheck."""
+    return _window_clearance_obb(room, opening, rules)
 
 
 def validate_room_change(

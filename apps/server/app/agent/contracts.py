@@ -13,7 +13,7 @@ from pydantic import Field, model_validator
 
 from app.contracts.base import CamelModel
 from app.contracts.enums import CatalogCategory, FacingDirection
-from app.contracts.scene import Clearance
+from app.contracts.scene import Clearance, ItemConstraint
 
 
 class AgainstWallRelation(CamelModel):
@@ -158,3 +158,51 @@ class AskUserInput(CamelModel):
     question: str = Field(min_length=1, max_length=1000)
     options: list[str] = Field(default_factory=list, max_length=8)
     allow_multiple: bool = False
+
+
+class AutoLayoutItemInput(CamelModel):
+    """One furniture request for a whole-room solve."""
+
+    kind_id: str = Field(min_length=1)
+    variant_id: str | None = None
+    required: bool = True
+    constraint: ItemConstraint | None = Field(
+        default=None,
+        description=(
+            "Optional intent such as facing='south', anchor.wallLabel, near or group. "
+            "The solver resolves it to coordinates."
+        ),
+    )
+
+
+class AutoLayoutOptionsInput(CamelModel):
+    allow_partial: bool = Field(
+        default=False,
+        description="Return the best partial layout instead of failing when not every item fits.",
+    )
+    seed: int = Field(default=0, description="Deterministic tie-break hint; never random.")
+    time_budget_ms: int = Field(default=5000, ge=500, le=5000)
+    replace_existing: bool = Field(
+        default=False,
+        description="Remove existing furniture in the room and solve from scratch.",
+    )
+
+
+class AutoLayoutInput(CamelModel):
+    room_id: str = Field(min_length=1)
+    items: list[AutoLayoutItemInput] = Field(min_length=1, max_length=20)
+    options: AutoLayoutOptionsInput = Field(default_factory=AutoLayoutOptionsInput)
+
+
+class VerifyLayoutInput(CamelModel):
+    room_id: str | None = Field(
+        default=None,
+        description="Limit the geometric checks to one room; omit to verify every room.",
+    )
+    visual: bool = Field(
+        default=False,
+        description=(
+            "Run the VLM screenshot review closed loop when geometry passes. "
+            "Set true when the user asks to visually check the layout."
+        ),
+    )

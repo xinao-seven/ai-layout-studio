@@ -196,6 +196,54 @@
       "title": "AssistantMessagePayload",
       "type": "object"
     },
+    "CaptureRequestPayload": {
+      "additionalProperties": false,
+      "description": "Server -> host request for an orthographic labelled screenshot.",
+      "properties": {
+        "format": {
+          "const": "png",
+          "default": "png",
+          "title": "Format",
+          "type": "string"
+        },
+        "height": {
+          "default": 1536,
+          "exclusiveMinimum": 0,
+          "maximum": 4096,
+          "title": "Height",
+          "type": "integer"
+        },
+        "legend": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative label/ID map for this screenshot. When present the host must label exactly these entries so the server can validate VLM ids.",
+          "title": "Legend"
+        },
+        "maxBytes": {
+          "default": 1000000,
+          "exclusiveMinimum": 0,
+          "title": "Maxbytes",
+          "type": "integer"
+        },
+        "width": {
+          "default": 1536,
+          "exclusiveMinimum": 0,
+          "maximum": 4096,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "title": "CaptureRequestPayload",
+      "type": "object"
+    },
     "CaptureResultMessage": {
       "additionalProperties": false,
       "properties": {
@@ -3134,6 +3182,9 @@
         },
         "AssistantMessagePayload": {
           "$ref": "#/definitions/AssistantMessagePayload"
+        },
+        "CaptureRequestPayload": {
+          "$ref": "#/definitions/CaptureRequestPayload"
         },
         "CaptureResultMessage": {
           "$ref": "#/definitions/CaptureResultMessage"

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "openings": [
+    {
+      "id": "op_bad_door",
+      "type": "door",
+      "roomId": "room_bad",
+      "edgeIndex": 0,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 0.9,
+      "height": 2.1,
+      "sillHeight": 0
+    },
+    {
+      "id": "op_bad_window",
+      "type": "window",
+      "roomId": "room_bad",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 1.6,
+      "height": 1.4,
+      "sillHeight": 0.9
+    }
+  ],
+  "items": [
+    {
+      "id": "it_bad_plant_a",
+      "kindId": "plant",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          1.0,
+          0,
+          2.0
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_bad_plant_b",
+      "kindId": "plant",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          1.0,
+          0,
+          2.0
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_bad_door",
+      "kindId": "wardrobe",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          0.5
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_bad_window",
+      "kindId": "wardrobe",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          3.2
+        ],
+        "rotationY": 0,
+        "scale": 1
+      },
+      "source": "manual"
+    }
+  ],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z",
+  "id": "scene_verify_bad",
+  "name": "Verify Bad",
+  "rooms": [
+    {
+      "id": "room_bad",
+      "name": "room_bad",
+      "type": "bedroom",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          3.6
+        ],
+        [
+          0,
+          3.6
+        ]
+      ],
+      "wallLabels": {},
+      "floorMaterial": "default"
+    }
+  ]
+}

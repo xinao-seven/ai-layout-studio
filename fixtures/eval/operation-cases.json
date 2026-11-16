@@ -4,7 +4,11 @@
   "cases": [
     {
       "id": "M2-OP-01-add-plant",
-      "tags": ["operation", "placement", "valid"],
+      "tags": [
+        "operation",
+        "placement",
+        "valid"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -13,20 +17,41 @@
             "id": "it_eval_plant",
             "kindId": "plant",
             "variantId": "default",
-            "transform": { "position": [0.7, 0, 3.3], "rotationY": 0 },
+            "transform": {
+              "position": [
+                0.7,
+                0,
+                3.3
+              ],
+              "rotationY": 0
+            },
             "source": "manual"
           }
         }
       ],
       "expect": {
         "version": 2,
-        "items": [{ "kindId": "plant", "count": 2 }],
-        "assert": ["noCollision", "insideRoom", "doorClear"]
+        "items": [
+          {
+            "kindId": "plant",
+            "count": 2
+          }
+        ],
+        "assert": [
+          "noCollision",
+          "insideRoom",
+          "doorClear"
+        ]
       }
     },
     {
       "id": "M2-OP-02-collision-refused",
-      "tags": ["operation", "placement", "refusal", "collision"],
+      "tags": [
+        "operation",
+        "placement",
+        "refusal",
+        "collision"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -35,16 +60,30 @@
             "id": "it_eval_collision",
             "kindId": "plant",
             "variantId": "default",
-            "transform": { "position": [6.2, 0, 4.2], "rotationY": 0 },
+            "transform": {
+              "position": [
+                6.2,
+                0,
+                4.2
+              ],
+              "rotationY": 0
+            },
             "source": "manual"
           }
         }
       ],
-      "expect": { "refusal": "collision" }
+      "expect": {
+        "refusal": "collision"
+      }
     },
     {
       "id": "M2-OP-03-out-of-room-refused",
-      "tags": ["operation", "placement", "refusal", "out_of_room"],
+      "tags": [
+        "operation",
+        "placement",
+        "refusal",
+        "out_of_room"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -53,16 +92,30 @@
             "id": "it_eval_outside",
             "kindId": "plant",
             "variantId": "default",
-            "transform": { "position": [20, 0, 20], "rotationY": 0 },
+            "transform": {
+              "position": [
+                20,
+                0,
+                20
+              ],
+              "rotationY": 0
+            },
             "source": "manual"
           }
         }
       ],
-      "expect": { "refusal": "out_of_room" }
+      "expect": {
+        "refusal": "out_of_room"
+      }
     },
     {
       "id": "M2-OP-04-blocks-door-refused",
-      "tags": ["operation", "placement", "refusal", "blocks_door"],
+      "tags": [
+        "operation",
+        "placement",
+        "refusal",
+        "blocks_door"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -71,16 +124,29 @@
             "id": "it_eval_door_block",
             "kindId": "plant",
             "variantId": "default",
-            "transform": { "position": [0.4, 0, 2.5], "rotationY": 0 },
+            "transform": {
+              "position": [
+                0.4,
+                0,
+                2.5
+              ],
+              "rotationY": 0
+            },
             "source": "manual"
           }
         }
       ],
-      "expect": { "refusal": "blocks_door" }
+      "expect": {
+        "refusal": "blocks_door"
+      }
     },
     {
       "id": "M2-OP-05-add-door",
-      "tags": ["operation", "opening", "valid"],
+      "tags": [
+        "operation",
+        "opening",
+        "valid"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -94,15 +160,29 @@
             "offset": 1.25,
             "width": 0.8,
             "height": 2.1,
-            "door": { "swing": "single", "hinge": "start", "opensTo": "in" }
+            "door": {
+              "swing": "single",
+              "hinge": "start",
+              "opensTo": "in"
+            }
           }
         }
       ],
-      "expect": { "version": 2, "assert": ["insideRoom"] }
+      "expect": {
+        "version": 2,
+        "assert": [
+          "insideRoom"
+        ]
+      }
     },
     {
       "id": "M2-OP-06-opening-overlap-refused",
-      "tags": ["operation", "opening", "refusal", "opening_overlap"],
+      "tags": [
+        "operation",
+        "opening",
+        "refusal",
+        "opening_overlap"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -120,11 +200,18 @@
           }
         }
       ],
-      "expect": { "refusal": "opening_overlap" }
+      "expect": {
+        "refusal": "opening_overlap"
+      }
     },
     {
       "id": "M2-OP-07-invalid-polygon-refused",
-      "tags": ["operation", "room", "refusal", "invalid_polygon"],
+      "tags": [
+        "operation",
+        "room",
+        "refusal",
+        "invalid_polygon"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
@@ -133,26 +220,651 @@
             "id": "room_eval_bad",
             "name": "Bad room",
             "type": "other",
-            "polygon": [[20, 20], [22, 22], [22, 20], [20, 22]]
+            "polygon": [
+              [
+                20,
+                20
+              ],
+              [
+                22,
+                22
+              ],
+              [
+                22,
+                20
+              ],
+              [
+                20,
+                22
+              ]
+            ]
           }
         }
       ],
-      "expect": { "refusal": "invalid_polygon" }
+      "expect": {
+        "refusal": "invalid_polygon"
+      }
     },
     {
       "id": "M2-OP-08-reanchor-warning",
-      "tags": ["operation", "room", "opening", "warning"],
+      "tags": [
+        "operation",
+        "room",
+        "opening",
+        "warning"
+      ],
       "scene": "fixtures/scenes/studio.json",
       "operations": [
         {
           "op": "room.update",
           "roomId": "room_studio_bath",
           "after": {
-            "polygon": [[8, 0], [10.6, 0], [10.6, 3], [8, 3]]
+            "polygon": [
+              [
+                8,
+                0
+              ],
+              [
+                10.6,
+                0
+              ],
+              [
+                10.6,
+                3
+              ],
+              [
+                8,
+                3
+              ]
+            ]
           }
         }
       ],
-      "expect": { "version": 2, "assert": ["insideRoom"] }
+      "expect": {
+        "version": 2,
+        "assert": [
+          "insideRoom"
+        ]
+      }
+    },
+    {
+      "id": "M4-SOL-01-bedroom-g2",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "golden",
+        "g2"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_bedroom_main",
+        "items": [
+          {
+            "kindId": "bed_double",
+            "constraint": {
+              "facing": "south"
+            }
+          },
+          {
+            "kindId": "wardrobe"
+          },
+          {
+            "kindId": "nightstand"
+          }
+        ]
+      },
+      "expect": {
+        "placementCount": 3,
+        "ok": true,
+        "facingSouth": true,
+        "maxElapsedMs": 5000
+      }
+    },
+    {
+      "id": "M4-SOL-02-living-room",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "living"
+      ],
+      "scene": "fixtures/scenes/living-room.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_living_main",
+        "items": [
+          {
+            "kindId": "sofa"
+          },
+          {
+            "kindId": "coffee_table"
+          },
+          {
+            "kindId": "tv_stand"
+          }
+        ]
+      },
+      "expect": {
+        "placementCount": 3,
+        "ok": true,
+        "maxElapsedMs": 5000,
+        "kinds": [
+          "sofa",
+          "coffee_table",
+          "tv_stand"
+        ]
+      }
+    },
+    {
+      "id": "M4-SOL-03-partial",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "partial"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_bedroom_main",
+        "items": [
+          {
+            "kindId": "bed_double"
+          },
+          {
+            "kindId": "bed_double",
+            "required": false
+          }
+        ],
+        "options": {
+          "allowPartial": true
+        }
+      },
+      "expect": {
+        "placementCount": 1,
+        "unplacedMin": 1,
+        "ok": true
+      }
+    },
+    {
+      "id": "M4-SOL-04-replace-existing",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "replaceExisting"
+      ],
+      "scene": "fixtures/scenes/studio.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_studio_main",
+        "items": [
+          {
+            "kindId": "sofa"
+          },
+          {
+            "kindId": "coffee_table"
+          }
+        ],
+        "options": {
+          "replaceExisting": true
+        }
+      },
+      "expect": {
+        "placementCount": 2,
+        "ok": true,
+        "maxElapsedMs": 5000,
+        "removedMin": 1
+      }
+    },
+    {
+      "id": "M4-SOL-05-item-too-large",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "refusal",
+        "item_too_large"
+      ],
+      "scene": "fixtures/scenes/tiny-room.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_tiny",
+        "items": [
+          {
+            "kindId": "bed_double"
+          }
+        ]
+      },
+      "expect": {
+        "refusal": "item_too_large"
+      }
+    },
+    {
+      "id": "M4-SOL-06-unsupported-concave",
+      "kind": "solver",
+      "tags": [
+        "solver",
+        "refusal",
+        "unsupported_room_shape"
+      ],
+      "scene": "fixtures/scenes/l-room.json",
+      "roomIndex": 0,
+      "layout": {
+        "roomId": "room_l",
+        "items": [
+          {
+            "kindId": "plant"
+          }
+        ]
+      },
+      "expect": {
+        "refusal": "unsupported_room_shape"
+      }
+    },
+    {
+      "id": "M4-VER-01-living-empty",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "ok"
+      ],
+      "scene": "fixtures/scenes/living-room.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "id": "M4-VER-02-bedroom-empty",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "ok"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "id": "M4-VER-03-g3-geometry-pass",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "g3",
+        "ok"
+      ],
+      "scene": "fixtures/scenes/bedroom-g3.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "id": "M4-VER-04-studio-existing-issues",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "issues"
+      ],
+      "scene": "fixtures/scenes/studio.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": false,
+        "issueCodes": [
+          "collision",
+          "out_of_room"
+        ]
+      }
+    },
+    {
+      "id": "M4-VER-05-one-bedroom-issues",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "issues"
+      ],
+      "scene": "fixtures/scenes/one-bedroom.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": false,
+        "issueCodes": [
+          "blocks_door",
+          "out_of_room",
+          "coffee_table_gap"
+        ]
+      }
+    },
+    {
+      "id": "M4-VER-06-two-bedroom-issues",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "issues"
+      ],
+      "scene": "fixtures/scenes/two-bedroom.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": false,
+        "issueCodes": [
+          "blocks_door",
+          "out_of_room",
+          "coffee_table_gap"
+        ]
+      }
+    },
+    {
+      "id": "M4-VER-07-door-window-collision",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "issues"
+      ],
+      "scene": "fixtures/scenes/verify-bad.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": false,
+        "issueCodes": [
+          "collision",
+          "blocks_door",
+          "blocks_window"
+        ]
+      }
+    },
+    {
+      "id": "M4-VER-08-walkway",
+      "kind": "verify",
+      "tags": [
+        "verify",
+        "issues",
+        "walkway"
+      ],
+      "scene": "fixtures/scenes/verify-walkway.json",
+      "roomIndex": 0,
+      "expect": {
+        "ok": false,
+        "issueCodes": [
+          "walkway_too_narrow"
+        ]
+      }
+    },
+    {
+      "id": "M4-VLM-01-circulation-replan",
+      "kind": "vlm",
+      "tags": [
+        "vlm",
+        "g3",
+        "replan"
+      ],
+      "scene": "fixtures/scenes/bedroom-g3.json",
+      "roomIndex": 0,
+      "vlmScript": [
+        {
+          "verdict": "fail",
+          "issues": [
+            {
+              "type": "circulation_blocked",
+              "severity": "high",
+              "itemIds": "$plantBlocker",
+              "openingIds": [],
+              "evidence": "The door-to-window route is blocked.",
+              "suggest": "Move the table."
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "visualStatus": "replanned",
+        "rechecked": true,
+        "pathBlocked": false
+      }
+    },
+    {
+      "id": "M4-VLM-02-pass",
+      "kind": "vlm",
+      "tags": [
+        "vlm",
+        "pass"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "roomIndex": 0,
+      "vlmScript": [
+        {
+          "verdict": "pass",
+          "issues": []
+        }
+      ],
+      "expect": {
+        "visualStatus": "passed",
+        "rechecked": false,
+        "pathBlocked": false
+      }
+    },
+    {
+      "id": "M4-VLM-03-false-positive",
+      "kind": "vlm",
+      "tags": [
+        "vlm",
+        "false_positive"
+      ],
+      "scene": "fixtures/scenes/bedroom-g3.json",
+      "roomIndex": 0,
+      "vlmScript": [
+        {
+          "verdict": "fail",
+          "issues": [
+            {
+              "type": "blocks_door",
+              "severity": "high",
+              "itemIds": [
+                "A1"
+              ],
+              "openingIds": [],
+              "evidence": "invented",
+              "suggest": "none"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "visualStatus": "passed",
+        "rechecked": false,
+        "unconfirmedMin": 1,
+        "unknownIdsMax": 0
+      }
+    },
+    {
+      "id": "M4-OP-01-add-nightstand",
+      "tags": [
+        "operation",
+        "placement",
+        "valid"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "operations": [
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_ns",
+            "kindId": "nightstand",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                0.5,
+                0,
+                0.5
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        }
+      ],
+      "expect": {
+        "version": 2,
+        "items": [
+          {
+            "kindId": "nightstand",
+            "count": 1
+          }
+        ],
+        "assert": [
+          "noCollision",
+          "insideRoom",
+          "doorClear"
+        ]
+      }
+    },
+    {
+      "id": "M4-OP-02-bedroom-collision",
+      "tags": [
+        "operation",
+        "refusal",
+        "collision"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "operations": [
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_c1",
+            "kindId": "plant",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                1.0,
+                0,
+                2.0
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        },
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_c2",
+            "kindId": "plant",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                1.0,
+                0,
+                2.0
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        }
+      ],
+      "expect": {
+        "refusal": "collision"
+      }
+    },
+    {
+      "id": "M4-OP-03-bedroom-blocks-window",
+      "tags": [
+        "operation",
+        "refusal",
+        "blocks_window"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "operations": [
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_w",
+            "kindId": "wardrobe",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                2.0,
+                0,
+                3.2
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        }
+      ],
+      "expect": {
+        "refusal": "blocks_window"
+      }
+    },
+    {
+      "id": "M4-OP-04-bedroom-blocks-door",
+      "tags": [
+        "operation",
+        "refusal",
+        "blocks_door"
+      ],
+      "scene": "fixtures/scenes/bedroom.json",
+      "operations": [
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_d",
+            "kindId": "wardrobe",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                2.0,
+                0,
+                0.5
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        }
+      ],
+      "expect": {
+        "refusal": "blocks_door"
+      }
+    },
+    {
+      "id": "M4-OP-05-studio-valid-plant",
+      "tags": [
+        "operation",
+        "placement",
+        "valid"
+      ],
+      "scene": "fixtures/scenes/studio.json",
+      "operations": [
+        {
+          "op": "item.add",
+          "item": {
+            "id": "it_eval_studio_plant",
+            "kindId": "plant",
+            "variantId": "default",
+            "transform": {
+              "position": [
+                7.5,
+                0,
+                4.5
+              ],
+              "rotationY": 0
+            },
+            "source": "manual"
+          }
+        }
+      ],
+      "expect": {
+        "version": 2,
+        "items": [
+          {
+            "kindId": "plant",
+            "count": 2
+          }
+        ],
+        "assert": [
+          "noCollision",
+          "insideRoom",
+          "doorClear"
+        ]
+      }
     }
   ]
 }

@@ -38,7 +38,7 @@ def test_fixtures_and_catalog_endpoints(client: TestClient) -> None:
     fixtures = client.get("/api/fixtures")
     assert fixtures.status_code == 200
     payload = fixtures.json()
-    assert len(payload["fixtures"]) == 4
+    assert len(payload["fixtures"]) == 6
     assert payload["fixtures"][0]["areaM2"] > 20
 
     catalog = client.get("/api/catalog")

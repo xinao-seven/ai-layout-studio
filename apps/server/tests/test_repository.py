@@ -151,15 +151,17 @@ async def test_undo_redo_round_trip_through_repository(repository: SceneReposito
 def test_fixture_service_lists_and_instantiates() -> None:
     service = FixtureService()
     fixtures = service.list_fixtures()
-    assert len(fixtures) == 4
+    assert len(fixtures) == 6
     assert {fixture.id for fixture in fixtures} == {
         "studio",
         "one-bedroom",
         "two-bedroom",
         "living-room",
+        "bedroom",
+        "bedroom-g3",
     }
     assert all(fixture.room_count > 0 for fixture in fixtures)
-    assert all(fixture.area_m2 > 20 for fixture in fixtures)
+    assert all(fixture.area_m2 > 10 for fixture in fixtures)
 
     first = service.create_document("studio")
     second = service.create_document("studio")

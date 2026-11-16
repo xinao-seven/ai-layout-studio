@@ -11,7 +11,7 @@ export type Tools = ToolDefinition[];
 export type Version = 1;
 
 /**
- * Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the seven M3 tools for contract drift checks.
+ * Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the nine M3/M4 tools for contract drift checks.
  */
 export interface AgentToolContracts {
   tools?: Tools;

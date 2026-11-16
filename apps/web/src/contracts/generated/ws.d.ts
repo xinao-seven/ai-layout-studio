@@ -18,6 +18,16 @@ export type Content = string;
 export type Toolcalls = {
   [k: string]: unknown;
 }[];
+export type Format = "png";
+export type Height = number;
+/**
+ * Authoritative label/ID map for this screenshot. When present the host must label exactly these entries so the server can validate VLM ids.
+ */
+export type Legend = {
+  [k: string]: unknown;
+} | null;
+export type Maxbytes = number;
+export type Width = number;
 export type Ch1 = "host";
 export type Pngbase64 = string;
 export type Turnid2 = string;
@@ -106,7 +116,7 @@ export type DoorHinge = "start" | "end";
 export type OpensTo = "in" | "out";
 export type DoorSwing = "single" | "double" | "sliding";
 export type Edgeindex = number;
-export type Height = number;
+export type Height1 = number;
 export type Id3 = string;
 export type Offset = number;
 export type Offsetfrom = "start";
@@ -114,17 +124,17 @@ export type Roomid3 = string;
 export type Sillheight = number | null;
 export type Style = string | null;
 export type OpeningType = "door" | "window";
-export type Width = number;
+export type Width1 = number;
 export type Op7 = "opening.remove";
 export type Openingid2 = string;
 export type Edgeindex1 = number | null;
-export type Height1 = number | null;
+export type Height2 = number | null;
 export type Offset1 = number | null;
 export type Offsetfrom1 = "start" | null;
 export type Roomid4 = string | null;
 export type Sillheight1 = number | null;
 export type Style1 = string | null;
-export type Width1 = number | null;
+export type Width2 = number | null;
 export type Op8 = "opening.update";
 export type Openingid3 = string;
 export type Ops = (
@@ -342,6 +352,7 @@ export interface WebSocketContracts {
   AskUserAnswerPayload?: AskUserAnswerPayload;
   AssistantDeltaPayload?: AssistantDeltaPayload;
   AssistantMessagePayload?: AssistantMessagePayload;
+  CaptureRequestPayload?: CaptureRequestPayload;
   CaptureResultMessage?: CaptureResultMessage;
   CaptureResultPayload?: CaptureResultPayload;
   CommitMessage?: CommitMessage;
@@ -396,6 +407,16 @@ export interface AssistantMessagePayload {
   content?: Content;
   toolCalls?: Toolcalls;
 }
+/**
+ * Server -> host request for an orthographic labelled screenshot.
+ */
+export interface CaptureRequestPayload {
+  format?: Format;
+  height?: Height;
+  legend?: Legend;
+  maxBytes?: Maxbytes;
+  width?: Width;
+}
 export interface CaptureResultMessage {
   ch?: Ch1;
   payload: CaptureResultPayload;
@@ -407,11 +428,11 @@ export interface CaptureResultMessage {
   v?: V1;
 }
 export interface CaptureResultPayload {
-  legend?: Legend;
+  legend?: Legend1;
   pngBase64: Pngbase64;
   turnId: Turnid2;
 }
-export interface Legend {
+export interface Legend1 {
   [k: string]: unknown;
 }
 export interface CommitMessage {
@@ -558,7 +579,7 @@ export interface OpeningAddOp {
 export interface Opening {
   door?: DoorSpec | null;
   edgeIndex: Edgeindex;
-  height: Height;
+  height: Height1;
   id: Id3;
   offset: Offset;
   offsetFrom?: Offsetfrom;
@@ -566,7 +587,7 @@ export interface Opening {
   sillHeight?: Sillheight;
   style?: Style;
   type: OpeningType;
-  width: Width;
+  width: Width1;
 }
 /**
  * Door geometry and swing metadata (PRD §5.1).
@@ -593,14 +614,14 @@ export interface OpeningUpdateOp {
 export interface OpeningUpdateFields {
   door?: DoorSpec | null;
   edgeIndex?: Edgeindex1;
-  height?: Height1;
+  height?: Height2;
   offset?: Offset1;
   offsetFrom?: Offsetfrom1;
   roomId?: Roomid4;
   sillHeight?: Sillheight1;
   style?: Style1;
   type?: OpeningType | null;
-  width?: Width1;
+  width?: Width2;
 }
 export interface EmptyPayload {}
 /**

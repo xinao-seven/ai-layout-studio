@@ -178,6 +178,28 @@ export function ChatPanel() {
                 }`}
               >
                 {entry.content || (entry.streaming ? '…' : '')}
+                {entry.screenshotBefore || entry.screenshotAfter ? (
+                  <div className="mt-1.5 flex gap-1.5">
+                    {entry.screenshotBefore ? (
+                      <a href={entry.screenshotBefore} rel="noreferrer" target="_blank">
+                        <img
+                          alt="操作前"
+                          className="h-14 w-20 rounded border border-border/60 object-cover"
+                          src={entry.screenshotBefore}
+                        />
+                      </a>
+                    ) : null}
+                    {entry.screenshotAfter ? (
+                      <a href={entry.screenshotAfter} rel="noreferrer" target="_blank">
+                        <img
+                          alt="操作后"
+                          className="h-14 w-20 rounded border border-border/60 object-cover"
+                          src={entry.screenshotAfter}
+                        />
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           )

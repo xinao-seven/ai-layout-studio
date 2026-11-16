@@ -1,0 +1,80 @@
+{
+  "milestone": "M4",
+  "kind": "shared-eval-table",
+  "recordedAt": "2026-11-16",
+  "gitSha": "c2b5f5b-dirty",
+  "environment": {
+    "os": "Windows 11",
+    "python": "3.12.15",
+    "server": "FastAPI + uvicorn single worker, SQLite WAL",
+    "solverPool": "n/a (eval runner calls solve_layout directly)"
+  },
+  "models": {
+    "llm": {
+      "mode": "scripted",
+      "model": "scripted"
+    },
+    "vlm": {
+      "mode": "scripted",
+      "model": "scripted-vlm"
+    }
+  },
+  "totals": {
+    "cases": 30,
+    "passed": 30,
+    "failed": 0,
+    "passRate": 1.0,
+    "byKind": {
+      "operation": {
+        "total": 13,
+        "passed": 13
+      },
+      "solver": {
+        "total": 6,
+        "passed": 6
+      },
+      "verify": {
+        "total": 8,
+        "passed": 8
+      },
+      "vlm": {
+        "total": 3,
+        "passed": 3
+      }
+    }
+  },
+  "metrics": {
+    "caseWallClockMs": {
+      "p50": 1.951,
+      "p95": 74.924,
+      "max": 106.61
+    },
+    "solver": {
+      "runs": 4,
+      "p50Ms": 72.0,
+      "p95Ms": 104.0,
+      "maxMs": 104.0,
+      "avgCandidates": 893.2
+    },
+    "vlm": {
+      "runs": 3,
+      "statuses": {
+        "replanned": 1,
+        "passed": 2
+      },
+      "jsonParseRate": 1.0,
+      "confirmedIssues": 1,
+      "unconfirmedIssues": 1,
+      "unknownIds": 0,
+      "falsePositiveRate": 0.5,
+      "note": "Scripted VLM; small sample. Unknown labels are excluded from the confirmed/unconfirmed ratio."
+    }
+  },
+  "failures": [],
+  "caseKinds": {
+    "operation": 13,
+    "solver": 6,
+    "verify": 8,
+    "vlm": 3
+  }
+}

@@ -128,6 +128,22 @@ class AskUserAnswerPayload(CamelModel):
     answers: dict[str, list[str]] = Field(default_factory=dict)
 
 
+class CaptureRequestPayload(CamelModel):
+    """Server -> host request for an orthographic labelled screenshot."""
+
+    width: int = Field(default=1536, gt=0, le=4096)
+    height: int = Field(default=1536, gt=0, le=4096)
+    format: Literal["png"] = "png"
+    max_bytes: int = Field(default=1_000_000, gt=0)
+    legend: dict[str, Any] | None = Field(
+        default=None,
+        description=(
+            "Authoritative label/ID map for this screenshot. When present the host "
+            "must label exactly these entries so the server can validate VLM ids."
+        ),
+    )
+
+
 class CaptureResultPayload(CamelModel):
     turn_id: str
     png_base64: str
@@ -254,6 +270,7 @@ WS_MODELS: tuple[type[CamelModel], ...] = (
     ProposalConfirmPayload,
     ProposalRejectPayload,
     AskUserAnswerPayload,
+    CaptureRequestPayload,
     CaptureResultPayload,
     EmptyPayload,
     HostMessage,

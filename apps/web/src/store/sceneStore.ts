@@ -18,6 +18,7 @@ import type {
   TurnStatus,
 } from '../contracts/generated/client/rest'
 import type { WsEnvelope } from '../contracts/generated/ws'
+import type { CaptureLegend } from '../scene/capture'
 import {
   distance,
   isSimplePolygon,
@@ -56,6 +57,23 @@ export interface ChatEntry {
   arguments?: Record<string, unknown> | null
   result?: unknown
   streaming?: boolean
+  screenshotBefore?: string | null
+  screenshotAfter?: string | null
+}
+
+export interface CaptureRequestState {
+  requestId: string
+  turnId: string | null
+  width: number
+  height: number
+  maxBytes: number
+  legend: CaptureLegend | null
+}
+
+export interface CameraState {
+  position: [number, number, number]
+  target: [number, number, number]
+  zoom: number
 }
 
 export interface WaitingUserState {
@@ -137,6 +155,9 @@ interface SceneState {
   turnStatus: TurnStatus | null
   proposals: Record<string, Proposal>
   waitingUser: WaitingUserState | null
+  captureRequest: CaptureRequestState | null
+  cameraState: CameraState | null
+  restoreCamera: boolean
 
   bootstrap: () => Promise<void>
   refreshScenes: () => Promise<void>
@@ -196,6 +217,10 @@ interface SceneState {
   commitOps: (ops: PatchOps, failureMessage: string) => Promise<SceneResultWithWarnings | null>
   sendChatMessage: (text: string) => Promise<void>
   cancelActiveTurn: () => Promise<void>
+  completeCapture: (requestId: string, pngBase64: string, legend: Record<string, unknown>) => void
+  cancelCapture: (requestId: string) => void
+  saveCameraState: (state: CameraState) => void
+  consumeCameraRestore: () => void
   confirmProposal: (proposalId: string) => void
   rejectProposal: (proposalId: string) => void
   answerUser: (answers: string[]) => void
@@ -349,6 +374,8 @@ function chatFromTurn(turn: Turn): ChatEntry[] {
       id: `history-${message.role}-${turn.id}-${index}`,
       role: message.role === 'assistant' ? 'assistant' : 'user',
       content: message.content ?? '',
+      screenshotBefore: message.screenshotBefore ?? null,
+      screenshotAfter: message.screenshotAfter ?? null,
     })
   })
   return entries
@@ -409,6 +436,9 @@ export const useSceneStore = create<SceneState>()(
       turnStatus: null,
       proposals: {},
       waitingUser: null,
+      captureRequest: null,
+      cameraState: null,
+      restoreCamera: false,
 
       bootstrap: async () => {
         set({ loading: true, error: null })
@@ -499,6 +529,8 @@ export const useSceneStore = create<SceneState>()(
           turnStatus: null,
           proposals: {},
           waitingUser: null,
+          captureRequest: null,
+          restoreCamera: false,
         })
         try {
           const [scene, turns, pendingProposals] = await Promise.all([
@@ -585,6 +617,8 @@ export const useSceneStore = create<SceneState>()(
             turnStatus: null,
             proposals: {},
             waitingUser: null,
+            captureRequest: null,
+            restoreCamera: false,
           }),
         )
       },
@@ -1338,8 +1372,54 @@ export const useSceneStore = create<SceneState>()(
         }
       },
 
+      completeCapture: (requestId, pngBase64, legend) => {
+        const request = get().captureRequest
+        if (!request || request.requestId !== requestId) return
+        socket?.sendHost(
+          'capture.result',
+          {
+            turnId: request.turnId ?? '',
+            pngBase64,
+            legend,
+          },
+          request.turnId,
+          request.requestId,
+        )
+        set({ captureRequest: null, restoreCamera: true })
+      },
+
+      cancelCapture: (requestId) => {
+        const request = get().captureRequest
+        if (!request || request.requestId !== requestId) return
+        set({ captureRequest: null, restoreCamera: true })
+      },
+
+      saveCameraState: (cameraState) => set({ cameraState }),
+      consumeCameraRestore: () => set({ restoreCamera: false }),
+
       handleWsEnvelope: (envelope) => {
         if (envelope.ch === 'host') {
+          if (envelope.type === 'capture.request') {
+            const payload = envelope.payload as
+              | {
+                  width?: number
+                  height?: number
+                  maxBytes?: number
+                  legend?: CaptureLegend | null
+                }
+              | undefined
+            set({
+              captureRequest: {
+                requestId: envelope.requestId ?? '',
+                turnId: envelope.turnId ?? null,
+                width: payload?.width ?? 1536,
+                height: payload?.height ?? 1536,
+                maxBytes: payload?.maxBytes ?? 1_000_000,
+                legend: (payload?.legend as CaptureLegend | null | undefined) ?? null,
+              },
+            })
+            return
+          }
           if (envelope.type === 'host.error') {
             const payload = envelope.payload as
               | { error?: { code?: string; message?: string; suggest?: string } }

@@ -68,6 +68,7 @@ class AgentLoop:
         on_proposal: ProposalHandler,
         is_cancelled: CancelCheck,
         on_progress: ProgressHandler | None = None,
+        on_write_started: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
         self._llm = llm
         self._context = context_builder
@@ -77,6 +78,8 @@ class AgentLoop:
         self._on_proposal = on_proposal
         self._is_cancelled = is_cancelled
         self._on_progress = on_progress
+        self._on_write_started = on_write_started
+        self._write_started = False
         self.result = AgentRunResult()
 
     async def run(
@@ -200,6 +203,15 @@ class AgentLoop:
             write_failures = 0
             for call in tool_calls:
                 self._check_cancel()
+                spec = TOOL_BY_NAME.get(call.name)
+                if (
+                    not self._write_started
+                    and spec is not None
+                    and spec.kind == "write"
+                    and self._on_write_started is not None
+                ):
+                    self._write_started = True
+                    await self._on_write_started()
                 await self._emit(
                     "tool.started",
                     {"toolCallId": call.id, "name": call.name},

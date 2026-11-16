@@ -1,0 +1,79 @@
+{
+  "milestone": "M4",
+  "kind": "live-llm-g2-smoke",
+  "recordedAt": "2026-11-16",
+  "gitSha": "c2b5f5b (M4 changes uncommitted at report time)",
+  "environment": {
+    "os": "Windows 11 10.0.26300",
+    "python": "3.12.15",
+    "server": "FastAPI + uvicorn single worker, SQLite WAL, isolated temp data dir",
+    "solver": "thread fallback (test environment)"
+  },
+  "llm": {
+    "mode": "live",
+    "provider": "DeepSeek OpenAI-compatible endpoint",
+    "model": "deepseek-flash",
+    "temperature": 0
+  },
+  "vlm": {
+    "mode": "not-configured",
+    "model": "",
+    "note": "VLM_MODEL is empty in this environment; G3 is covered by the scripted VLM chain in the 30-case eval."
+  },
+  "g2": {
+    "user": "帮我把卧室布置好：床、衣柜、床头柜，床要朝南不挡门",
+    "sceneFixture": "bedroom (4.0 x 3.6 m, door south, window north)",
+    "status": "passed",
+    "turnStatus": "done",
+    "iterations": 4,
+    "tokensIn": 39778,
+    "tokensOut": 2418,
+    "refusals": [],
+    "wallClockMs": 16327,
+    "proposalsCreated": 1,
+    "proposalOps": [
+      "item.add",
+      "item.add",
+      "item.add"
+    ],
+    "placements": [
+      {
+        "kindId": "bed_double",
+        "position": [
+          1.65,
+          0.0,
+          2.52
+        ],
+        "rotationY": -3.142,
+        "facesSouth": true
+      },
+      {
+        "kindId": "wardrobe",
+        "position": [
+          3.6035,
+          0.0,
+          1.8
+        ],
+        "rotationY": 4.712
+      },
+      {
+        "kindId": "nightstand",
+        "position": [
+          0.2375,
+          0.0,
+          0.7175
+        ],
+        "rotationY": 1.571
+      }
+    ],
+    "confirmed": true,
+    "verifyLayout": {
+      "ok": true,
+      "issues": []
+    },
+    "note": "Final run after prompt guardrails (no post-auto_layout moves). Earlier runs created extra accessory proposals or self-corrected moves; live behavior remains stochastic.",
+    "solverStats": {
+      "note": "not captured in the live turn; deterministic G2 solver stats are in m4-eval.json"
+    }
+  }
+}

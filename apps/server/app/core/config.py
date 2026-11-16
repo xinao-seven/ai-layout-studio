@@ -49,6 +49,16 @@ class Settings(BaseSettings):
     vlm_base_url: str = ""
     vlm_api_key: SecretStr = SecretStr("")
     vlm_model: str = ""
+    vlm_enabled: bool = True
+    vlm_timeout_seconds: float = 30.0
+    vlm_max_rounds: int = 2
+    # Optional JSON array of scripted VLM outputs (tests and offline demos).
+    vlm_script_path: str = ""
+
+    # M4 solver / capture behaviour.
+    solver_process_pool: bool = True
+    capture_timeout_seconds: float = 5.0
+    screenshot_retention_days: int = 7
 
     @property
     def database_url(self) -> str:
