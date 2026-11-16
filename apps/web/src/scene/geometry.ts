@@ -135,11 +135,48 @@ export const GRID_STEP = rules.GRID_SNAP
 export const MANUAL_ROTATION_RADIANS = (rules.MANUAL_ROTATION_STEP * Math.PI) / 180
 
 export function snapValue(value: number, step = GRID_STEP): number {
-  return Math.round(value / step) * step
+  // 消除 Math.round(v/step)*step 的浮点尘埃(如 1.2000000000000002),保证吸附后坐标可精确比较。
+  return Number((Math.round(value / step) * step).toFixed(4))
 }
 
 export function snapPoint(point: Vec2, step = GRID_STEP): Vec2 {
   return [snapValue(point[0], step), snapValue(point[1], step)]
+}
+
+/** 顶点拖拽时,光标距“与相邻顶点共横/共纵”位置小于该值即自动直角对齐(米)。 */
+export const VERTEX_ALIGN_THRESHOLD = 0.15
+
+/** 直角吸附:把 from→point 的线段锁定到最近的水平/垂直方向,移动轴坐标做网格吸附。 */
+export function orthoSnap(from: Vec2, point: Vec2, step = GRID_STEP): Vec2 {
+  if (Math.abs(point[0] - from[0]) >= Math.abs(point[1] - from[1])) {
+    return [snapValue(point[0], step), from[1]]
+  }
+  return [from[0], snapValue(point[1], step)]
+}
+
+/**
+ * 顶点拖拽的直角对齐:光标靠近“与相邻顶点共横/共纵”的位置时吸附过去,
+ * 对齐的坐标保持精确(不被网格吸附破坏),其余坐标正常网格吸附。
+ */
+export function vertexAlignSnap(
+  polygon: Vec2[],
+  index: number,
+  point: Vec2,
+  step = GRID_STEP,
+  threshold = VERTEX_ALIGN_THRESHOLD,
+): Vec2 {
+  const count = polygon.length
+  if (count < 3) return snapPoint(point, step)
+  const prev = polygon[(index - 1 + count) % count]
+  const next = polygon[(index + 1) % count]
+  let x = snapValue(point[0], step)
+  let z = snapValue(point[1], step)
+  for (const neighbor of [prev, next]) {
+    if (!neighbor) continue
+    if (Math.abs(point[0] - neighbor[0]) <= threshold) x = neighbor[0]
+    if (Math.abs(point[1] - neighbor[1]) <= threshold) z = neighbor[1]
+  }
+  return [x, z]
 }
 
 export function distance(a: Vec2, b: Vec2): number {

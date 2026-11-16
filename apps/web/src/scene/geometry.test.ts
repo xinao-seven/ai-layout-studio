@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest'
 import {
   type Obb,
   obbOverlap,
+  orthoSnap,
   pointInPolygon,
   signedArea,
   type Vec2,
+  vertexAlignSnap,
   wallInnerNormal,
 } from './geometry'
 
@@ -59,5 +61,44 @@ describe('shared geometry fixtures (client runner)', () => {
       expect(obbOverlap(a, b)).toBe(testCase.overlap)
       expect(obbOverlap(b, a)).toBe(testCase.overlap)
     }
+  })
+})
+
+describe('room snap helpers', () => {
+  it('ortho-snaps to the dominant axis and keeps the other coordinate exact', () => {
+    expect(orthoSnap([0, 0], [2.34, 0.42])).toEqual([2.3, 0])
+    expect(orthoSnap([0, 0], [0.42, 2.34])).toEqual([0, 2.3])
+    expect(orthoSnap([1.23, 2.47], [1.31, 2.52])).toEqual([1.3, 2.47])
+    expect(orthoSnap([0, 0], [3, 0.09])).toEqual([3, 0])
+    expect(orthoSnap([0, 0], [0.09, 3])).toEqual([0, 3])
+  })
+
+  it('snaps a draw point to the grid when no axis wins', () => {
+    expect(orthoSnap([0, 0], [0, 0])).toEqual([0, 0])
+  })
+
+  it('vertexAlignSnap restores right angles near neighbors', () => {
+    const square: Vec2[] = [
+      [0, 0],
+      [4, 0],
+      [4, 3],
+      [0, 3],
+    ]
+    // vertex 0: prev = [0, 3], next = [4, 0] → cursor near the corner realigns both axes
+    expect(vertexAlignSnap(square, 0, [0.12, 0.06])).toEqual([0, 0])
+    expect(vertexAlignSnap(square, 0, [0.12, 1])).toEqual([0, 1])
+    expect(vertexAlignSnap(square, 0, [2, 0.08])).toEqual([2, 0])
+    // nothing within threshold → plain grid snap
+    expect(vertexAlignSnap(square, 0, [2, 1.44])).toEqual([2, 1.4])
+  })
+
+  it('vertexAlignSnap keeps aligned coordinates exact even off-grid', () => {
+    const polygon: Vec2[] = [
+      [1.05, 0],
+      [4, 0],
+      [4, 3],
+    ]
+    // x would grid-snap to 1.0/1.1, but alignment with prev.x wins and stays exact
+    expect(vertexAlignSnap(polygon, 1, [1.12, 0.07])).toEqual([1.05, 0])
   })
 })

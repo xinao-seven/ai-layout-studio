@@ -22,10 +22,12 @@ import type { CaptureLegend } from '../scene/capture'
 import {
   distance,
   isSimplePolygon,
+  orthoSnap,
   polygonArea,
   signedArea,
   snapPoint,
   type Vec2,
+  vertexAlignSnap,
 } from '../scene/geometry'
 import { applyPatchToDocument } from '../scene/patch'
 import { checkPlacement, type PlacementIssue, variantFor } from '../scene/placement'
@@ -116,8 +118,28 @@ export interface VertexDragState {
   issue?: PlacementIssue
 }
 
+/** 手绘房间/顶点拖拽的吸附选项:free=true 时跳过直角对齐,只保留网格吸附。 */
+export interface DraftPointOptions {
+  free?: boolean
+}
+
 type SceneResultWithWarnings = SceneResult & { warnings?: UiWarning[] }
 type PatchOps = SceneResult['patch']['ops']
+
+function resolveDraftPoint(draftRoom: Vec2[], point: Vec2, free: boolean): Vec2 {
+  if (free) return snapPoint(point)
+  const anchor = draftRoom[draftRoom.length - 1]
+  return anchor ? orthoSnap(anchor, point) : snapPoint(point)
+}
+
+function resolveVertexPosition(
+  polygon: Vec2[],
+  index: number,
+  position: Vec2,
+  free: boolean,
+): Vec2 {
+  return free ? snapPoint(position) : vertexAlignSnap(polygon, index, position)
+}
 
 interface SceneState {
   scenes: SceneSummary[]
@@ -201,14 +223,14 @@ interface SceneState {
   ) => Promise<void>
   rotateSelectedItem: (deltaRadians: number) => Promise<void>
   deleteSelectedItem: () => Promise<void>
-  setDraftCursor: (point: Vec2 | null) => void
-  addDraftPoint: (point: Vec2) => void
+  setDraftCursor: (point: Vec2 | null, options?: DraftPointOptions) => void
+  addDraftPoint: (point: Vec2, options?: DraftPointOptions) => void
   cancelDraft: () => void
   createRoomFromDraft: () => Promise<void>
   updateRoomPolygon: (roomId: string, polygon: Vec2[]) => Promise<void>
   deleteRoom: (roomId: string) => Promise<void>
   startVertexDrag: (roomId: string, vertexIndex: number, position: Vec2) => void
-  updateVertexDrag: (position: Vec2) => void
+  updateVertexDrag: (position: Vec2, options?: DraftPointOptions) => void
   cancelVertexDrag: () => void
   endVertexDrag: () => Promise<void>
   addOpening: (roomId: string, edgeIndex: number, type: 'door' | 'window') => Promise<void>
@@ -1027,20 +1049,27 @@ export const useSceneStore = create<SceneState>()(
         })
       },
 
-      setDraftCursor: (draftCursor) => set({ draftCursor }),
+      setDraftCursor: (draftCursor, options) =>
+        set({
+          draftCursor: draftCursor
+            ? resolveDraftPoint(get().draftRoom, draftCursor, options?.free === true)
+            : null,
+        }),
 
-      addDraftPoint: (point) => {
+      addDraftPoint: (point, options) => {
         const { draftRoom } = get()
-        const snapped = snapPoint(point)
         if (draftRoom.length >= 3) {
           const first = draftRoom[0]
-          if (first && distance(snapped, first) <= 0.3) {
+          // 闭合判定用原始光标:直角吸附可能把提交点拉离起点,但用户意图是回到起点。
+          if (first && distance(point, first) <= 0.3) {
             void get().createRoomFromDraft()
             return
           }
         }
+        const snapped = resolveDraftPoint(draftRoom, point, options?.free === true)
         const last = draftRoom[draftRoom.length - 1]
-        if (last && distance(snapped, last) <= 0.05) return
+        // 吸附可能把 0.05–0.07m 的斜向点击拉回上一点,两种情况都要拦住。
+        if (last && (distance(point, last) <= 0.05 || distance(snapped, last) <= 1e-9)) return
         set({ draftRoom: [...draftRoom, snapped] })
       },
 
@@ -1158,15 +1187,27 @@ export const useSceneStore = create<SceneState>()(
           selectedWall: null,
           selectedOpeningId: null,
           pointContext: null,
+          // 拖拽起点只做网格吸附:对齐吸附交给移动过程,避免“点一下就跳位”。
           vertexDrag: { roomId, vertexIndex, position: snapPoint(position), valid: true },
         })
       },
 
-      updateVertexDrag: (position) => {
-        const { vertexDrag } = get()
+      updateVertexDrag: (position, options) => {
+        const { vertexDrag, scene } = get()
         if (!vertexDrag) return
+        const room = scene?.rooms.find((candidate) => candidate.id === vertexDrag.roomId)
+        const polygon = (room?.polygon as Vec2[] | undefined) ?? []
         set({
-          vertexDrag: { ...vertexDrag, position: snapPoint(position), valid: true },
+          vertexDrag: {
+            ...vertexDrag,
+            position: resolveVertexPosition(
+              polygon,
+              vertexDrag.vertexIndex,
+              position,
+              options?.free === true,
+            ),
+            valid: true,
+          },
         })
       },
 

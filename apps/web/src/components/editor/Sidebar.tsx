@@ -500,12 +500,15 @@ function RoomsTab({ scene }: { scene: SceneDocument }) {
         variant={tool === 'draw-room' ? 'default' : 'outline'}
       >
         <Pencil className="h-3.5 w-3.5" />
-        {tool === 'draw-room' ? '正在绘制房间（点击地面加点）' : '绘制房间'}
+        {tool === 'draw-room'
+          ? '正在绘制房间（点击加点 · 默认直角+网格吸附 · Shift 自由）'
+          : '绘制房间'}
       </Button>
 
       {scene.rooms.length === 0 ? (
         <p className="px-1 py-4 text-center text-[11px] text-muted-foreground">
-          还没有房间。用上方工具在地面上点击墙中心线，点击起点闭合。
+          还没有房间。用上方工具在地面上点击墙中心线：默认直角+0.1m 网格吸附，按住 Shift
+          自由绘制，点击起点闭合。
         </p>
       ) : null}
 

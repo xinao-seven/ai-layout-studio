@@ -1,11 +1,11 @@
 // biome-ignore-all lint/suspicious/noArrayIndexKey: draft vertices and polygon edges are positional identities in this editor.
-import { Edges, Line, OrbitControls, useGLTF } from '@react-three/drei'
+import { Edges, Html, Line, OrbitControls, useGLTF } from '@react-three/drei'
 import { Canvas, type ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 import { Component, type ReactNode, Suspense, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import type { CatalogEntry, Item, Room, SceneDocument } from '../../contracts/generated/client/rest'
 import { getCatalogDragKind, setCatalogDragKind } from '../../scene/catalogDrag'
-import { edgeInfo, type Vec2 } from '../../scene/geometry'
+import { distance, edgeInfo, type Vec2 } from '../../scene/geometry'
 import { pendingOverlay } from '../../scene/proposals'
 import { buildWalls } from '../../scene/walls'
 import {
@@ -595,6 +595,7 @@ function DraftOverlay() {
   const first = points[0]
   const last = points[points.length - 1]
   const canClose = points.length >= 3
+  const anchor = draftRoom[draftRoom.length - 1]
   return (
     <group>
       {points.length >= 2 ? (
@@ -631,6 +632,17 @@ function DraftOverlay() {
           <meshBasicMaterial color="#dbe6ff" opacity={0.8} side={THREE.DoubleSide} transparent />
         </mesh>
       ) : null}
+      {anchor && draftCursor ? (
+        <Html
+          center
+          position={[(anchor[0] + draftCursor[0]) / 2, 0.14, (anchor[1] + draftCursor[1]) / 2]}
+          style={{ pointerEvents: 'none' }}
+        >
+          <div className="rounded bg-slate-900/80 px-1.5 py-0.5 text-[10px] leading-tight text-white select-none tabular-nums">
+            {distance(anchor, draftCursor).toFixed(2)} m
+          </div>
+        </Html>
+      ) : null}
     </group>
   )
 }
@@ -643,9 +655,11 @@ function DrawingPlane() {
     <mesh
       onClick={(event) => {
         event.stopPropagation()
-        addDraftPoint([event.point.x, event.point.z])
+        addDraftPoint([event.point.x, event.point.z], { free: event.nativeEvent.shiftKey })
       }}
-      onPointerMove={(event) => setDraftCursor([event.point.x, event.point.z])}
+      onPointerMove={(event) =>
+        setDraftCursor([event.point.x, event.point.z], { free: event.nativeEvent.shiftKey })
+      }
       onPointerOut={() => setDraftCursor(null)}
       position={[0, 0.004, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
@@ -796,7 +810,7 @@ function SceneInteractions() {
         }
       } else if (state.vertexDrag) {
         const groundPoint = ground(event.clientX, event.clientY)
-        if (groundPoint) state.updateVertexDrag(groundPoint)
+        if (groundPoint) state.updateVertexDrag(groundPoint, { free: event.shiftKey })
       }
     }
 
