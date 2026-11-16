@@ -25,9 +25,7 @@ def vlm_client(
     test_settings: Settings,
     responses: list[str | dict],
 ) -> TestClient:
-    client = TestClient(
-        create_app(test_settings, vlm_client=ScriptedVLMClient(responses))
-    )
+    client = TestClient(create_app(test_settings, vlm_client=ScriptedVLMClient(responses)))
     return client
 
 
@@ -88,9 +86,7 @@ def test_import_photo_returns_draft_and_round_trips(test_settings: Settings) -> 
         assert payload["document"]["items"] == []
 
         # The draft imports cleanly as a real scene.
-        imported = client.post(
-            "/api/scenes/import", json={"document": payload["document"]}
-        )
+        imported = client.post("/api/scenes/import", json={"document": payload["document"]})
         assert imported.status_code == 201, imported.text
         assert imported.json()["id"] != payload["document"]["id"]
 

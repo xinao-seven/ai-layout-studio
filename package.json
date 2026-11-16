@@ -20,7 +20,8 @@
     "contracts:check": "pnpm contracts:gen && node scripts/check_contracts.mjs",
     "smoke": "node scripts/smoke.mjs",
     "eval": "uv run --directory apps/server python ../../scripts/run_eval.py",
-    "check:web-assets": "node scripts/check_web_assets_proxy.mjs"
+    "check:web-assets": "node scripts/check_web_assets_proxy.mjs",
+    "mcp": "uv run --directory apps/server python -m app.mcp"
   },
   "devDependencies": {
     "concurrently": "^10.0.7",

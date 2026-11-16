@@ -190,6 +190,18 @@ def tool_bundle() -> ToolBundle:
     )
 
 
+def parameter_schema(name: str) -> dict[str, Any]:
+    """JSON Schema for one tool's arguments (same source as ``tools/list``)."""
+    spec = TOOL_BY_NAME.get(name)
+    if spec is None:
+        raise SceneError(
+            "invalid_input",
+            f"Unknown tool {name!r}.",
+            "Use one of: " + ", ".join(TOOL_NAMES) + ".",
+        )
+    return _parameter_schema(spec.input_model)
+
+
 def openai_tools() -> list[dict[str, Any]]:
     """OpenAI ``tools`` payload derived from the same Pydantic models."""
     return [
