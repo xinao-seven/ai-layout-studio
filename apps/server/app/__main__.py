@@ -2,7 +2,7 @@
 
 Usage (from ``apps/server``):
 
-    python -m app             # production-ish
+    python -m app             # apply migrations, then serve
     python -m app --reload    # development auto-reload
 
 ``HOST`` and ``PORT`` are read from the environment or a .env file, so the
@@ -12,10 +12,18 @@ values documented in .env.example actually take effect.
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 import uvicorn
+from alembic import command
+from alembic.config import Config
 
 from app.core.config import get_settings
+
+
+def _run_migrations() -> None:
+    config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
+    command.upgrade(config, "head")
 
 
 def main() -> None:
@@ -25,7 +33,15 @@ def main() -> None:
         action="store_true",
         help="Enable uvicorn auto-reload (development only).",
     )
+    parser.add_argument(
+        "--skip-migrations",
+        action="store_true",
+        help="Do not apply the Alembic migration chain before serving.",
+    )
     args = parser.parse_args()
+
+    if not args.skip_migrations:
+        _run_migrations()
 
     settings = get_settings()
     uvicorn.run(

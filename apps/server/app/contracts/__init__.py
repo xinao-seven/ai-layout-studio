@@ -1,7 +1,100 @@
 """Pydantic contract models (single source for REST/WS/tool schemas)."""
 
+from app.contracts.api import (
+    CatalogResponse,
+    CommitRequest,
+    CreateSceneRequest,
+    ErrorBody,
+    ErrorEnvelope,
+    FixtureListResponse,
+    FixtureSummary,
+    ImportRequest,
+    SceneListResponse,
+    SceneResult,
+    SceneSummary,
+    UndoRedoRequest,
+)
 from app.contracts.base import CamelModel
+from app.contracts.catalog import (
+    CatalogCollision,
+    CatalogEntry,
+    CatalogLicense,
+    CatalogRules,
+    CatalogVariant,
+)
 from app.contracts.health import HealthResponse
-from app.contracts.ws import WsChannel, WsEnvelope
+from app.contracts.patch import PatchOp, ScenePatch
+from app.contracts.proposal import Proposal, Refusal, Turn, TurnMessage, TurnUsage
+from app.contracts.rules import Rules, get_rules, load_rules
+from app.contracts.scene import (
+    Anchor,
+    Clearance,
+    DoorSpec,
+    FacingTowardSpec,
+    Item,
+    ItemConstraint,
+    Near,
+    Opening,
+    Room,
+    SceneDefaults,
+    SceneDocument,
+    Transform,
+    WallSegment,
+)
+from app.contracts.ws import (
+    HOST_MESSAGE_TYPES,
+    WS_MODELS,
+    HostMessageUnion,
+    WsChannel,
+    WsEnvelope,
+)
 
-__all__ = ["CamelModel", "HealthResponse", "WsChannel", "WsEnvelope"]
+__all__ = [
+    "HOST_MESSAGE_TYPES",
+    "WS_MODELS",
+    "Anchor",
+    "CamelModel",
+    "CatalogCollision",
+    "CatalogEntry",
+    "CatalogLicense",
+    "CatalogResponse",
+    "CatalogRules",
+    "CatalogVariant",
+    "Clearance",
+    "CommitRequest",
+    "CreateSceneRequest",
+    "DoorSpec",
+    "ErrorBody",
+    "ErrorEnvelope",
+    "FacingTowardSpec",
+    "FixtureListResponse",
+    "FixtureSummary",
+    "HealthResponse",
+    "HostMessageUnion",
+    "ImportRequest",
+    "Item",
+    "ItemConstraint",
+    "Near",
+    "Opening",
+    "PatchOp",
+    "Proposal",
+    "Refusal",
+    "Room",
+    "Rules",
+    "SceneDefaults",
+    "SceneDocument",
+    "SceneListResponse",
+    "ScenePatch",
+    "SceneResult",
+    "SceneSummary",
+    "Transform",
+    "Turn",
+    "TurnMessage",
+    "TurnUsage",
+    "UndoRedoRequest",
+    "WallSegment",
+    "WsChannel",
+    "WsEnvelope",
+    "get_rules",
+    "load_rules",
+]

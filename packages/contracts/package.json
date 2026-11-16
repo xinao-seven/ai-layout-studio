@@ -6,6 +6,7 @@
   "type": "module",
   "exports": {
     "./rules.json": "./rules.json",
+    "./geometry-fixtures.json": "./geometry-fixtures.json",
     "./generated/*": "./generated/*"
   }
 }

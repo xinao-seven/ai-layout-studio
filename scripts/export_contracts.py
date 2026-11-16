@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Export REST OpenAPI and WebSocket JSON Schema artifacts.
+"""Export REST OpenAPI, WebSocket and tool JSON Schema artifacts.
 
 The Pydantic models in ``apps/server/app/contracts`` are the only source of
 truth (PRD D6 / §5.6). Output is deterministic: keys are sorted and files end
-with a newline, so CI can fail on any drift with a plain ``git diff``.
+with a newline, so CI can fail on any drift with ``pnpm contracts:check``.
 
 Usage (from the repository root):
 
@@ -22,13 +22,15 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SERVER_ROOT = REPO_ROOT / "apps" / "server"
 OUTPUT_DIR = REPO_ROOT / "packages" / "contracts" / "generated"
+DRAFT_07 = "http://json-schema.org/draft-07/schema#"
 
 if str(SERVER_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVER_ROOT))
 
 from pydantic import TypeAdapter  # noqa: E402
 
-from app.contracts.ws import WsEnvelope  # noqa: E402
+from app.contracts.tools import ToolBundle  # noqa: E402
+from app.contracts.ws import WS_MODELS, WsEnvelope  # noqa: E402
 from app.main import create_app  # noqa: E402
 
 
@@ -41,29 +43,67 @@ def write_json(path: Path, payload: Any) -> None:
     print(f"wrote {path.relative_to(REPO_ROOT).as_posix()}")
 
 
-def build_ws_schema() -> dict[str, Any]:
-    """Bundle the WS envelope model and its dependencies into one JSON Schema.
-
-    Draft-07 with ``definitions`` is used because the front-end generator
-    (json-schema-to-typescript) resolves that reliably; M0 ships the envelope
-    only. The discriminated union of turn/state/host events is frozen at the
-    end of M1 (PRD §6.7).
-    """
-    envelope_schema = TypeAdapter(WsEnvelope).json_schema(
+def _model_schema(model: type) -> tuple[dict[str, Any], dict[str, Any]]:
+    schema = TypeAdapter(model).json_schema(
         mode="validation",
         ref_template="#/definitions/{model}",
     )
-    definitions = envelope_schema.pop("$defs", {})
+    definitions = schema.pop("$defs", {})
+    return schema, definitions
+
+
+def build_ws_schema() -> dict[str, Any]:
+    """Bundle every WS message/payload model and its dependencies.
+
+    Draft-07 with ``definitions`` is used because json-schema-to-typescript
+    resolves that reliably. A wrapper object references every exported model
+    so the TypeScript generator emits types for all of them (an envelope's
+    payload is a generic dict at runtime).
+    """
+    definitions: dict[str, Any] = {}
+    for model in WS_MODELS:
+        schema, nested = _model_schema(model)
+        definitions.setdefault(model.__name__, schema)
+        for name, nested_schema in nested.items():
+            definitions.setdefault(name, nested_schema)
+
+    wrapper_name = "WebSocketContracts"
+    definitions[wrapper_name] = {
+        "type": "object",
+        "title": wrapper_name,
+        "description": "All M1 WebSocket message and payload shapes.",
+        "properties": {
+            model.__name__: {"$ref": f"#/definitions/{model.__name__}"}
+            for model in WS_MODELS
+        },
+        "additionalProperties": False,
+    }
     return {
-        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$schema": DRAFT_07,
         "$id": "https://ai-layout.local/contracts/ws.schema.json",
-        "title": "WsEnvelope",
+        "title": "WebSocket contracts",
         "description": (
-            "M0 envelope contract. The full turn/state/host event union is "
-            "frozen at the end of M1."
+            "M1 WebSocket protocol: envelope, state/turn payloads and the "
+            "client -> server host message union."
         ),
-        "$ref": "#/definitions/WsEnvelope",
-        "definitions": {"WsEnvelope": envelope_schema, **definitions},
+        "$ref": f"#/definitions/{wrapper_name}",
+        "definitions": definitions,
+    }
+
+
+def build_tools_schema() -> dict[str, Any]:
+    """Tool contract bundle; the registry populates it in M3."""
+    schema, definitions = _model_schema(ToolBundle)
+    return {
+        "$schema": DRAFT_07,
+        "$id": "https://ai-layout.local/contracts/tools.schema.json",
+        "title": "Agent tool contracts",
+        "description": (
+            "Tool names, descriptions and Pydantic-derived parameter schemas. "
+            "The registry is populated in M3; M1 fixes the export pipeline."
+        ),
+        "$ref": "#/definitions/ToolBundle",
+        "definitions": {"ToolBundle": schema, **definitions},
     }
 
 
@@ -71,6 +111,7 @@ def main() -> int:
     app = create_app()
     write_json(OUTPUT_DIR / "openapi.json", app.openapi())
     write_json(OUTPUT_DIR / "ws.schema.json", build_ws_schema())
+    write_json(OUTPUT_DIR / "tools.schema.json", build_tools_schema())
     return 0
 
 

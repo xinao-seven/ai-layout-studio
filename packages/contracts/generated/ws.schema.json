@@ -1,8 +1,2520 @@
 {
   "$id": "https://ai-layout.local/contracts/ws.schema.json",
-  "$ref": "#/definitions/WsEnvelope",
+  "$ref": "#/definitions/WebSocketContracts",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "Actor": {
+      "enum": [
+        "user",
+        "agent",
+        "system"
+      ],
+      "title": "Actor",
+      "type": "string"
+    },
+    "Anchor": {
+      "additionalProperties": false,
+      "properties": {
+        "openingId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Openingid"
+        },
+        "type": {
+          "$ref": "#/definitions/AnchorType"
+        },
+        "wallId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wallid"
+        },
+        "wallLabel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Walllabel"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "AnchorType": {
+      "enum": [
+        "wall",
+        "corner",
+        "window",
+        "door",
+        "center"
+      ],
+      "title": "AnchorType",
+      "type": "string"
+    },
+    "AskUserAnswerMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/AskUserAnswerPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "ask_user.answer",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "AskUserAnswerMessage",
+      "type": "object"
+    },
+    "AskUserAnswerPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "answers": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Answers",
+          "type": "object"
+        },
+        "turnId": {
+          "title": "Turnid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turnId"
+      ],
+      "title": "AskUserAnswerPayload",
+      "type": "object"
+    },
+    "CaptureResultMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/CaptureResultPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "capture.result",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "CaptureResultMessage",
+      "type": "object"
+    },
+    "CaptureResultPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "legend": {
+          "additionalProperties": true,
+          "title": "Legend",
+          "type": "object"
+        },
+        "pngBase64": {
+          "title": "Pngbase64",
+          "type": "string"
+        },
+        "turnId": {
+          "title": "Turnid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turnId",
+        "pngBase64"
+      ],
+      "title": "CaptureResultPayload",
+      "type": "object"
+    },
+    "Clearance": {
+      "additionalProperties": false,
+      "properties": {
+        "back": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Back"
+        },
+        "front": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Front"
+        },
+        "sides": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sides"
+        }
+      },
+      "title": "Clearance",
+      "type": "object"
+    },
+    "CommitMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/CommitPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "commit",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "CommitMessage",
+      "type": "object"
+    },
+    "CommitPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "baseVersion": {
+          "minimum": 1,
+          "title": "Baseversion",
+          "type": "integer"
+        },
+        "clientMutationId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clientmutationid"
+        },
+        "ops": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "item.add": "#/definitions/ItemAddOp",
+                "item.remove": "#/definitions/ItemRemoveOp",
+                "item.update": "#/definitions/ItemUpdateOp",
+                "opening.add": "#/definitions/OpeningAddOp",
+                "opening.remove": "#/definitions/OpeningRemoveOp",
+                "opening.update": "#/definitions/OpeningUpdateOp",
+                "room.add": "#/definitions/RoomAddOp",
+                "room.remove": "#/definitions/RoomRemoveOp",
+                "room.update": "#/definitions/RoomUpdateOp"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/definitions/ItemAddOp"
+              },
+              {
+                "$ref": "#/definitions/ItemRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/ItemUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/RoomAddOp"
+              },
+              {
+                "$ref": "#/definitions/RoomRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/RoomUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningAddOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningUpdateOp"
+              }
+            ]
+          },
+          "title": "Ops",
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseVersion",
+        "ops"
+      ],
+      "title": "CommitPayload",
+      "type": "object"
+    },
+    "DoorHinge": {
+      "enum": [
+        "start",
+        "end"
+      ],
+      "title": "DoorHinge",
+      "type": "string"
+    },
+    "DoorSpec": {
+      "additionalProperties": false,
+      "description": "Door geometry and swing metadata (PRD §5.1).",
+      "properties": {
+        "hinge": {
+          "$ref": "#/definitions/DoorHinge",
+          "default": "start"
+        },
+        "opensTo": {
+          "$ref": "#/definitions/OpensTo",
+          "default": "in"
+        },
+        "swing": {
+          "$ref": "#/definitions/DoorSwing",
+          "default": "single"
+        }
+      },
+      "title": "DoorSpec",
+      "type": "object"
+    },
+    "DoorSwing": {
+      "enum": [
+        "single",
+        "double",
+        "sliding"
+      ],
+      "title": "DoorSwing",
+      "type": "string"
+    },
+    "EmptyPayload": {
+      "additionalProperties": false,
+      "properties": {},
+      "title": "EmptyPayload",
+      "type": "object"
+    },
+    "ErrorBody": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "suggest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Suggest"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ErrorBody",
+      "type": "object"
+    },
+    "FacingDirection": {
+      "enum": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "title": "FacingDirection",
+      "type": "string"
+    },
+    "FacingToward": {
+      "enum": [
+        "door",
+        "window",
+        "item"
+      ],
+      "title": "FacingToward",
+      "type": "string"
+    },
+    "FacingTowardSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "toward": {
+          "$ref": "#/definitions/FacingToward"
+        }
+      },
+      "required": [
+        "toward"
+      ],
+      "title": "FacingTowardSpec",
+      "type": "object"
+    },
+    "HostMessage": {
+      "additionalProperties": false,
+      "description": "Base for every client -> server WebSocket message.",
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts"
+      ],
+      "title": "HostMessage",
+      "type": "object"
+    },
+    "Item": {
+      "additionalProperties": false,
+      "properties": {
+        "constraint": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ItemConstraint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kindId": {
+          "minLength": 1,
+          "title": "Kindid",
+          "type": "string"
+        },
+        "materialOverrides": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Materialoverrides"
+        },
+        "source": {
+          "$ref": "#/definitions/ItemSource",
+          "default": "manual"
+        },
+        "transform": {
+          "$ref": "#/definitions/Transform"
+        },
+        "variantId": {
+          "minLength": 1,
+          "title": "Variantid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kindId",
+        "variantId",
+        "transform"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "ItemAddOp": {
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/Item"
+        },
+        "op": {
+          "const": "item.add",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "item"
+      ],
+      "title": "ItemAddOp",
+      "type": "object"
+    },
+    "ItemConstraint": {
+      "additionalProperties": false,
+      "description": "Preserved agent intent so placements stay explainable and re-solvable.",
+      "properties": {
+        "anchor": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Anchor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "clearance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Clearance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "facing": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/FacingDirection"
+            },
+            {
+              "$ref": "#/definitions/FacingTowardSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Facing"
+        },
+        "group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group"
+        },
+        "near": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Near"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "roomId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Roomid"
+        }
+      },
+      "title": "ItemConstraint",
+      "type": "object"
+    },
+    "ItemRemoveOp": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Item"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "itemId": {
+          "minLength": 1,
+          "title": "Itemid",
+          "type": "string"
+        },
+        "op": {
+          "const": "item.remove",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "itemId"
+      ],
+      "title": "ItemRemoveOp",
+      "type": "object"
+    },
+    "ItemSource": {
+      "enum": [
+        "manual",
+        "agent"
+      ],
+      "title": "ItemSource",
+      "type": "string"
+    },
+    "ItemUpdateOp": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "itemId": {
+          "minLength": 1,
+          "title": "Itemid",
+          "type": "string"
+        },
+        "op": {
+          "const": "item.update",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "itemId"
+      ],
+      "title": "ItemUpdateOp",
+      "type": "object"
+    },
+    "Near": {
+      "additionalProperties": false,
+      "properties": {
+        "distance": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance"
+        },
+        "itemId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Itemid"
+        },
+        "openingId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Openingid"
+        }
+      },
+      "title": "Near",
+      "type": "object"
+    },
+    "Opening": {
+      "additionalProperties": false,
+      "description": "Door or window anchored to a room polygon edge.",
+      "properties": {
+        "door": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DoorSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "edgeIndex": {
+          "minimum": 0,
+          "title": "Edgeindex",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "offset": {
+          "minimum": 0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "offsetFrom": {
+          "const": "start",
+          "default": "start",
+          "title": "Offsetfrom",
+          "type": "string"
+        },
+        "roomId": {
+          "minLength": 1,
+          "title": "Roomid",
+          "type": "string"
+        },
+        "sillHeight": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sillheight"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Style"
+        },
+        "type": {
+          "$ref": "#/definitions/OpeningType"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "roomId",
+        "edgeIndex",
+        "offset",
+        "width",
+        "height"
+      ],
+      "title": "Opening",
+      "type": "object"
+    },
+    "OpeningAddOp": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "const": "opening.add",
+          "title": "Op",
+          "type": "string"
+        },
+        "opening": {
+          "$ref": "#/definitions/Opening"
+        }
+      },
+      "required": [
+        "op",
+        "opening"
+      ],
+      "title": "OpeningAddOp",
+      "type": "object"
+    },
+    "OpeningRemoveOp": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Opening"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "op": {
+          "const": "opening.remove",
+          "title": "Op",
+          "type": "string"
+        },
+        "openingId": {
+          "minLength": 1,
+          "title": "Openingid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "openingId"
+      ],
+      "title": "OpeningRemoveOp",
+      "type": "object"
+    },
+    "OpeningType": {
+      "enum": [
+        "door",
+        "window"
+      ],
+      "title": "OpeningType",
+      "type": "string"
+    },
+    "OpeningUpdateOp": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "op": {
+          "const": "opening.update",
+          "title": "Op",
+          "type": "string"
+        },
+        "openingId": {
+          "minLength": 1,
+          "title": "Openingid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "openingId"
+      ],
+      "title": "OpeningUpdateOp",
+      "type": "object"
+    },
+    "OpensTo": {
+      "enum": [
+        "in",
+        "out"
+      ],
+      "title": "OpensTo",
+      "type": "string"
+    },
+    "PingMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/EmptyPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "ping",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts"
+      ],
+      "title": "PingMessage",
+      "type": "object"
+    },
+    "Proposal": {
+      "additionalProperties": false,
+      "properties": {
+        "baseVersion": {
+          "minimum": 1,
+          "title": "Baseversion",
+          "type": "integer"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "ops": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "item.add": "#/definitions/ItemAddOp",
+                "item.remove": "#/definitions/ItemRemoveOp",
+                "item.update": "#/definitions/ItemUpdateOp",
+                "opening.add": "#/definitions/OpeningAddOp",
+                "opening.remove": "#/definitions/OpeningRemoveOp",
+                "opening.update": "#/definitions/OpeningUpdateOp",
+                "room.add": "#/definitions/RoomAddOp",
+                "room.remove": "#/definitions/RoomRemoveOp",
+                "room.update": "#/definitions/RoomUpdateOp"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/definitions/ItemAddOp"
+              },
+              {
+                "$ref": "#/definitions/ItemRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/ItemUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/RoomAddOp"
+              },
+              {
+                "$ref": "#/definitions/RoomRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/RoomUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningAddOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningUpdateOp"
+              }
+            ]
+          },
+          "title": "Ops",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "resolvedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolvedat"
+        },
+        "sceneId": {
+          "minLength": 1,
+          "title": "Sceneid",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/ProposalStatus",
+          "default": "pending"
+        },
+        "turnId": {
+          "minLength": 1,
+          "title": "Turnid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sceneId",
+        "turnId",
+        "baseVersion",
+        "ops",
+        "createdAt"
+      ],
+      "title": "Proposal",
+      "type": "object"
+    },
+    "ProposalConfirmMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/ProposalConfirmPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "proposal.confirm",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "ProposalConfirmMessage",
+      "type": "object"
+    },
+    "ProposalConfirmPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "proposalId": {
+          "title": "Proposalid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proposalId"
+      ],
+      "title": "ProposalConfirmPayload",
+      "type": "object"
+    },
+    "ProposalRejectMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/ProposalRejectPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "proposal.reject",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "ProposalRejectMessage",
+      "type": "object"
+    },
+    "ProposalRejectPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "proposalId": {
+          "title": "Proposalid",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "proposalId"
+      ],
+      "title": "ProposalRejectPayload",
+      "type": "object"
+    },
+    "ProposalStatus": {
+      "enum": [
+        "pending",
+        "confirmed",
+        "rejected",
+        "expired"
+      ],
+      "title": "ProposalStatus",
+      "type": "string"
+    },
+    "ProposalUpdatedPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "proposal": {
+          "$ref": "#/definitions/Proposal"
+        }
+      },
+      "required": [
+        "proposal"
+      ],
+      "title": "ProposalUpdatedPayload",
+      "type": "object"
+    },
+    "RedoMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/UndoRedoPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "redo",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "RedoMessage",
+      "type": "object"
+    },
+    "ResumeMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/ResumePayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "resume",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "ResumeMessage",
+      "type": "object"
+    },
+    "ResumePayload": {
+      "additionalProperties": false,
+      "properties": {
+        "lastSeqs": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Lastseqs",
+          "type": "object"
+        }
+      },
+      "title": "ResumePayload",
+      "type": "object"
+    },
+    "Room": {
+      "additionalProperties": false,
+      "description": "Room whose polygon is the wall centerline (CCW).",
+      "properties": {
+        "floorMaterial": {
+          "default": "default",
+          "title": "Floormaterial",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "polygon": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 3,
+          "title": "Polygon",
+          "type": "array"
+        },
+        "type": {
+          "$ref": "#/definitions/RoomType",
+          "default": "other"
+        },
+        "wallHeight": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wallheight"
+        },
+        "wallLabels": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Walllabels"
+        },
+        "wallThickness": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wallthickness"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "polygon"
+      ],
+      "title": "Room",
+      "type": "object"
+    },
+    "RoomAddOp": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "const": "room.add",
+          "title": "Op",
+          "type": "string"
+        },
+        "room": {
+          "$ref": "#/definitions/Room"
+        }
+      },
+      "required": [
+        "op",
+        "room"
+      ],
+      "title": "RoomAddOp",
+      "type": "object"
+    },
+    "RoomRemoveOp": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Room"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "op": {
+          "const": "room.remove",
+          "title": "Op",
+          "type": "string"
+        },
+        "roomId": {
+          "minLength": 1,
+          "title": "Roomid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "roomId"
+      ],
+      "title": "RoomRemoveOp",
+      "type": "object"
+    },
+    "RoomType": {
+      "enum": [
+        "living",
+        "bedroom",
+        "kitchen",
+        "bathroom",
+        "study",
+        "balcony",
+        "other"
+      ],
+      "title": "RoomType",
+      "type": "string"
+    },
+    "RoomUpdateOp": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "op": {
+          "const": "room.update",
+          "title": "Op",
+          "type": "string"
+        },
+        "roomId": {
+          "minLength": 1,
+          "title": "Roomid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "roomId"
+      ],
+      "title": "RoomUpdateOp",
+      "type": "object"
+    },
+    "SceneDefaults": {
+      "additionalProperties": false,
+      "description": "Default structural values for a scene.",
+      "properties": {
+        "wallHeight": {
+          "default": 2.8,
+          "exclusiveMinimum": 0,
+          "title": "Wallheight",
+          "type": "number"
+        },
+        "wallMaterial": {
+          "default": "default",
+          "title": "Wallmaterial",
+          "type": "string"
+        },
+        "wallThickness": {
+          "default": 0.12,
+          "exclusiveMinimum": 0,
+          "title": "Wallthickness",
+          "type": "number"
+        }
+      },
+      "title": "SceneDefaults",
+      "type": "object"
+    },
+    "SceneDocument": {
+      "additionalProperties": false,
+      "description": "Confirmed scene document; the single source of truth on the server.",
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "defaults": {
+          "$ref": "#/definitions/SceneDefaults"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/definitions/Item"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "north": {
+          "default": [
+            0.0,
+            -1.0
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "North",
+          "type": "array"
+        },
+        "openings": {
+          "items": {
+            "$ref": "#/definitions/Opening"
+          },
+          "title": "Openings",
+          "type": "array"
+        },
+        "rooms": {
+          "items": {
+            "$ref": "#/definitions/Room"
+          },
+          "title": "Rooms",
+          "type": "array"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "default": 1,
+          "title": "Schemaversion",
+          "type": "integer"
+        },
+        "units": {
+          "const": "metric",
+          "default": "metric",
+          "title": "Units",
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "title": "Updatedat",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "version",
+        "defaults",
+        "rooms",
+        "openings",
+        "items",
+        "createdAt",
+        "updatedAt"
+      ],
+      "title": "SceneDocument",
+      "type": "object"
+    },
+    "ScenePatch": {
+      "additionalProperties": false,
+      "description": "A validated change set between two scene versions.",
+      "properties": {
+        "actor": {
+          "$ref": "#/definitions/Actor",
+          "default": "user"
+        },
+        "clientMutationId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clientmutationid"
+        },
+        "fromVersion": {
+          "minimum": 1,
+          "title": "Fromversion",
+          "type": "integer"
+        },
+        "ops": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "item.add": "#/definitions/ItemAddOp",
+                "item.remove": "#/definitions/ItemRemoveOp",
+                "item.update": "#/definitions/ItemUpdateOp",
+                "opening.add": "#/definitions/OpeningAddOp",
+                "opening.remove": "#/definitions/OpeningRemoveOp",
+                "opening.update": "#/definitions/OpeningUpdateOp",
+                "room.add": "#/definitions/RoomAddOp",
+                "room.remove": "#/definitions/RoomRemoveOp",
+                "room.update": "#/definitions/RoomUpdateOp"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/definitions/ItemAddOp"
+              },
+              {
+                "$ref": "#/definitions/ItemRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/ItemUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/RoomAddOp"
+              },
+              {
+                "$ref": "#/definitions/RoomRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/RoomUpdateOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningAddOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningRemoveOp"
+              },
+              {
+                "$ref": "#/definitions/OpeningUpdateOp"
+              }
+            ]
+          },
+          "title": "Ops",
+          "type": "array"
+        },
+        "proposalId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposalid"
+        },
+        "sceneId": {
+          "minLength": 1,
+          "title": "Sceneid",
+          "type": "string"
+        },
+        "toVersion": {
+          "minimum": 1,
+          "title": "Toversion",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        }
+      },
+      "required": [
+        "sceneId",
+        "fromVersion",
+        "toVersion",
+        "ops"
+      ],
+      "title": "ScenePatch",
+      "type": "object"
+    },
+    "ScenePatchPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "patch": {
+          "$ref": "#/definitions/ScenePatch"
+        }
+      },
+      "required": [
+        "patch"
+      ],
+      "title": "ScenePatchPayload",
+      "type": "object"
+    },
+    "SceneSnapshotPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "scene": {
+          "$ref": "#/definitions/SceneDocument"
+        }
+      },
+      "required": [
+        "scene"
+      ],
+      "title": "SceneSnapshotPayload",
+      "type": "object"
+    },
+    "ServerErrorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/ErrorBody"
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "title": "ServerErrorPayload",
+      "type": "object"
+    },
+    "Transform": {
+      "additionalProperties": false,
+      "description": "Item placement. Rotation is radians around +Y; front axis is +Z.",
+      "properties": {
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "rotationY": {
+          "title": "Rotationy",
+          "type": "number"
+        },
+        "scale": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        }
+      },
+      "required": [
+        "position",
+        "rotationY"
+      ],
+      "title": "Transform",
+      "type": "object"
+    },
+    "TurnCancelMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/TurnCancelPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "turn.cancel",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "TurnCancelMessage",
+      "type": "object"
+    },
+    "TurnCancelPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "turnId": {
+          "title": "Turnid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turnId"
+      ],
+      "title": "TurnCancelPayload",
+      "type": "object"
+    },
+    "TurnSubscribeMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/TurnSubscribePayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "turn.subscribe",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "TurnSubscribeMessage",
+      "type": "object"
+    },
+    "TurnSubscribePayload": {
+      "additionalProperties": false,
+      "properties": {
+        "turnId": {
+          "title": "Turnid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "turnId"
+      ],
+      "title": "TurnSubscribePayload",
+      "type": "object"
+    },
+    "UndoMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "ch": {
+          "const": "host",
+          "default": "host",
+          "title": "Ch",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/definitions/UndoRedoPayload"
+        },
+        "requestId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requestid"
+        },
+        "seq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "integer"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "type": {
+          "const": "undo",
+          "title": "Type",
+          "type": "string"
+        },
+        "v": {
+          "const": 1,
+          "default": 1,
+          "title": "V",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "ts",
+        "payload"
+      ],
+      "title": "UndoMessage",
+      "type": "object"
+    },
+    "UndoRedoPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "expectedVersion": {
+          "minimum": 1,
+          "title": "Expectedversion",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "expectedVersion"
+      ],
+      "title": "UndoRedoPayload",
+      "type": "object"
+    },
+    "WebSocketContracts": {
+      "additionalProperties": false,
+      "description": "All M1 WebSocket message and payload shapes.",
+      "properties": {
+        "AskUserAnswerMessage": {
+          "$ref": "#/definitions/AskUserAnswerMessage"
+        },
+        "AskUserAnswerPayload": {
+          "$ref": "#/definitions/AskUserAnswerPayload"
+        },
+        "CaptureResultMessage": {
+          "$ref": "#/definitions/CaptureResultMessage"
+        },
+        "CaptureResultPayload": {
+          "$ref": "#/definitions/CaptureResultPayload"
+        },
+        "CommitMessage": {
+          "$ref": "#/definitions/CommitMessage"
+        },
+        "CommitPayload": {
+          "$ref": "#/definitions/CommitPayload"
+        },
+        "EmptyPayload": {
+          "$ref": "#/definitions/EmptyPayload"
+        },
+        "HostMessage": {
+          "$ref": "#/definitions/HostMessage"
+        },
+        "PingMessage": {
+          "$ref": "#/definitions/PingMessage"
+        },
+        "ProposalConfirmMessage": {
+          "$ref": "#/definitions/ProposalConfirmMessage"
+        },
+        "ProposalConfirmPayload": {
+          "$ref": "#/definitions/ProposalConfirmPayload"
+        },
+        "ProposalRejectMessage": {
+          "$ref": "#/definitions/ProposalRejectMessage"
+        },
+        "ProposalRejectPayload": {
+          "$ref": "#/definitions/ProposalRejectPayload"
+        },
+        "ProposalUpdatedPayload": {
+          "$ref": "#/definitions/ProposalUpdatedPayload"
+        },
+        "RedoMessage": {
+          "$ref": "#/definitions/RedoMessage"
+        },
+        "ResumeMessage": {
+          "$ref": "#/definitions/ResumeMessage"
+        },
+        "ResumePayload": {
+          "$ref": "#/definitions/ResumePayload"
+        },
+        "ScenePatchPayload": {
+          "$ref": "#/definitions/ScenePatchPayload"
+        },
+        "SceneSnapshotPayload": {
+          "$ref": "#/definitions/SceneSnapshotPayload"
+        },
+        "ServerErrorPayload": {
+          "$ref": "#/definitions/ServerErrorPayload"
+        },
+        "TurnCancelMessage": {
+          "$ref": "#/definitions/TurnCancelMessage"
+        },
+        "TurnCancelPayload": {
+          "$ref": "#/definitions/TurnCancelPayload"
+        },
+        "TurnSubscribeMessage": {
+          "$ref": "#/definitions/TurnSubscribeMessage"
+        },
+        "TurnSubscribePayload": {
+          "$ref": "#/definitions/TurnSubscribePayload"
+        },
+        "UndoMessage": {
+          "$ref": "#/definitions/UndoMessage"
+        },
+        "UndoRedoPayload": {
+          "$ref": "#/definitions/UndoRedoPayload"
+        },
+        "WsEnvelope": {
+          "$ref": "#/definitions/WsEnvelope"
+        }
+      },
+      "title": "WebSocketContracts",
+      "type": "object"
+    },
     "WsChannel": {
       "description": "Logical channel multiplexed over the single WebSocket.",
       "enum": [
@@ -15,7 +2527,7 @@
     },
     "WsEnvelope": {
       "additionalProperties": false,
-      "description": "Envelope wrapping every WebSocket message (PRD §6.7).",
+      "description": "Envelope wrapping every server -> client WebSocket message.",
       "properties": {
         "ch": {
           "$ref": "#/definitions/WsChannel"
@@ -39,7 +2551,7 @@
           "title": "Requestid"
         },
         "seq": {
-          "description": "Server sequence number, monotonically increasing per channel.",
+          "description": "Monotonic sequence number per channel.",
           "minimum": 0,
           "title": "Seq",
           "type": "integer"
@@ -86,6 +2598,6 @@
       "type": "object"
     }
   },
-  "description": "M0 envelope contract. The full turn/state/host event union is frozen at the end of M1.",
-  "title": "WsEnvelope"
+  "description": "M1 WebSocket protocol: envelope, state/turn payloads and the client -> server host message union.",
+  "title": "WebSocket contracts"
 }

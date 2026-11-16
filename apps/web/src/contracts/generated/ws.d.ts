@@ -5,41 +5,693 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type Ch = "host";
+export type Turnid = string;
+export type Requestid = string | null;
+export type Seq = number;
+export type Ts = number;
+export type Turnid1 = string | null;
+export type Type = "ask_user.answer";
+export type V = 1;
+export type Ch1 = "host";
+export type Pngbase64 = string;
+export type Turnid2 = string;
+export type Requestid1 = string | null;
+export type Seq1 = number;
+export type Ts1 = number;
+export type Turnid3 = string | null;
+export type Type1 = "capture.result";
+export type V1 = 1;
+export type Ch2 = "host";
+export type Baseversion = number;
+export type Clientmutationid = string | null;
+export type Openingid = string | null;
+export type AnchorType = "wall" | "corner" | "window" | "door" | "center";
+export type Wallid = string | null;
+export type Walllabel = string | null;
+export type Back = number | null;
+export type Front = number | null;
+export type Sides = number | null;
+export type Facing = FacingDirection | FacingTowardSpec | null;
+export type FacingDirection = "north" | "east" | "south" | "west";
+export type Id = string | null;
+export type FacingToward = "door" | "window" | "item";
+export type Group = string | null;
+export type Distance = number | null;
+export type Itemid = string | null;
+export type Openingid1 = string | null;
+export type Roomid = string | null;
+export type Id1 = string;
+export type Kindid = string;
+export type Materialoverrides = {
+  [k: string]: string;
+} | null;
+export type ItemSource = "manual" | "agent";
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type Position = [unknown, unknown, unknown];
+export type Rotationy = number;
+export type Scale = number;
+export type Variantid = string;
+export type Op = "item.add";
+export type Itemid1 = string;
+export type Op1 = "item.remove";
+export type After = {
+  [k: string]: unknown;
+} | null;
+export type Before = {
+  [k: string]: unknown;
+} | null;
+export type Itemid2 = string;
+export type Op2 = "item.update";
+export type Op3 = "room.add";
+export type Floormaterial = string;
+export type Id2 = string;
+export type Name = string;
+/**
+ * @minItems 3
+ */
+export type Polygon = [[unknown, unknown], [unknown, unknown], [unknown, unknown], ...[unknown, unknown][]];
+export type RoomType = "living" | "bedroom" | "kitchen" | "bathroom" | "study" | "balcony" | "other";
+export type Wallheight = number | null;
+export type Walllabels = {
+  [k: string]: string;
+} | null;
+export type Wallthickness = number | null;
+export type Op4 = "room.remove";
+export type Roomid1 = string;
+export type After1 = {
+  [k: string]: unknown;
+} | null;
+export type Before1 = {
+  [k: string]: unknown;
+} | null;
+export type Op5 = "room.update";
+export type Roomid2 = string;
+export type Op6 = "opening.add";
+export type DoorHinge = "start" | "end";
+export type OpensTo = "in" | "out";
+export type DoorSwing = "single" | "double" | "sliding";
+export type Edgeindex = number;
+export type Height = number;
+export type Id3 = string;
+export type Offset = number;
+export type Offsetfrom = "start";
+export type Roomid3 = string;
+export type Sillheight = number | null;
+export type Style = string | null;
+export type OpeningType = "door" | "window";
+export type Width = number;
+export type Op7 = "opening.remove";
+export type Openingid2 = string;
+export type After2 = {
+  [k: string]: unknown;
+} | null;
+export type Before2 = {
+  [k: string]: unknown;
+} | null;
+export type Op8 = "opening.update";
+export type Openingid3 = string;
+export type Ops = (
+  | ItemAddOp
+  | ItemRemoveOp
+  | ItemUpdateOp
+  | RoomAddOp
+  | RoomRemoveOp
+  | RoomUpdateOp
+  | OpeningAddOp
+  | OpeningRemoveOp
+  | OpeningUpdateOp
+)[];
+export type Requestid2 = string | null;
+export type Seq2 = number;
+export type Ts2 = number;
+export type Turnid4 = string | null;
+export type Type2 = "commit";
+export type V2 = 1;
+export type Ch3 = "host";
+export type Requestid3 = string | null;
+export type Seq3 = number;
+export type Ts3 = number;
+export type Turnid5 = string | null;
+export type Type3 = string;
+export type V3 = 1;
+export type Ch4 = "host";
+export type Requestid4 = string | null;
+export type Seq4 = number;
+export type Ts4 = number;
+export type Turnid6 = string | null;
+export type Type4 = "ping";
+export type V4 = 1;
+export type Ch5 = "host";
+export type Proposalid = string;
+export type Requestid5 = string | null;
+export type Seq5 = number;
+export type Ts5 = number;
+export type Turnid7 = string | null;
+export type Type5 = "proposal.confirm";
+export type V5 = 1;
+export type Ch6 = "host";
+export type Proposalid1 = string;
+export type Reason = string | null;
+export type Requestid6 = string | null;
+export type Seq6 = number;
+export type Ts6 = number;
+export type Turnid8 = string | null;
+export type Type6 = "proposal.reject";
+export type V6 = 1;
+export type Baseversion1 = number;
+export type Createdat = string;
+export type Dependson = string[];
+export type Id4 = string;
+export type Ops1 = (
+  | ItemAddOp
+  | ItemRemoveOp
+  | ItemUpdateOp
+  | RoomAddOp
+  | RoomRemoveOp
+  | RoomUpdateOp
+  | OpeningAddOp
+  | OpeningRemoveOp
+  | OpeningUpdateOp
+)[];
+export type Reason1 = string | null;
+export type Resolvedat = string | null;
+export type Sceneid = string;
+export type ProposalStatus = "pending" | "confirmed" | "rejected" | "expired";
+export type Turnid9 = string;
+export type Ch7 = "host";
+export type Expectedversion = number;
+export type Requestid7 = string | null;
+export type Seq7 = number;
+export type Ts7 = number;
+export type Turnid10 = string | null;
+export type Type7 = "redo";
+export type V7 = 1;
+export type Ch8 = "host";
+export type Requestid8 = string | null;
+export type Seq8 = number;
+export type Ts8 = number;
+export type Turnid11 = string | null;
+export type Type8 = "resume";
+export type V8 = 1;
+export type Actor = "user" | "agent" | "system";
+export type Clientmutationid1 = string | null;
+export type Fromversion = number;
+export type Ops2 = (
+  | ItemAddOp
+  | ItemRemoveOp
+  | ItemUpdateOp
+  | RoomAddOp
+  | RoomRemoveOp
+  | RoomUpdateOp
+  | OpeningAddOp
+  | OpeningRemoveOp
+  | OpeningUpdateOp
+)[];
+export type Proposalid2 = string | null;
+export type Sceneid1 = string;
+export type Toversion = number;
+export type Turnid12 = string | null;
+export type Createdat1 = string;
+export type Wallheight1 = number;
+export type Wallmaterial = string;
+export type Wallthickness1 = number;
+export type Id5 = string;
+export type Items = Item[];
+export type Name1 = string;
+/**
+ * @minItems 2
+ * @maxItems 2
+ */
+export type North = [unknown, unknown];
+export type Openings = Opening[];
+export type Rooms = Room[];
+export type Schemaversion = 1;
+export type Units = "metric";
+export type Updatedat = string;
+export type Version = number;
+export type Code = string;
+export type Details = {
+  [k: string]: unknown;
+} | null;
+export type Message = string;
+export type Suggest = string | null;
+export type Ch9 = "host";
+export type Turnid13 = string;
+export type Requestid9 = string | null;
+export type Seq9 = number;
+export type Ts9 = number;
+export type Turnid14 = string | null;
+export type Type9 = "turn.cancel";
+export type V9 = 1;
+export type Ch10 = "host";
+export type Turnid15 = string;
+export type Requestid10 = string | null;
+export type Seq10 = number;
+export type Ts10 = number;
+export type Turnid16 = string | null;
+export type Type10 = "turn.subscribe";
+export type V10 = 1;
+export type Ch11 = "host";
+export type Requestid11 = string | null;
+export type Seq11 = number;
+export type Ts11 = number;
+export type Turnid17 = string | null;
+export type Type11 = "undo";
+export type V11 = 1;
 /**
  * Logical channel multiplexed over the single WebSocket.
  */
 export type WsChannel = "turn" | "state" | "host";
-export type Requestid = string | null;
+export type Requestid12 = string | null;
 /**
- * Server sequence number, monotonically increasing per channel.
+ * Monotonic sequence number per channel.
  */
-export type Seq = number;
+export type Seq12 = number;
 /**
  * Server unix timestamp in milliseconds.
  */
-export type Ts = number;
-export type Turnid = string | null;
+export type Ts12 = number;
+export type Turnid18 = string | null;
 /**
  * Event type, e.g. turn.started.
  */
-export type Type = string;
+export type Type12 = string;
 /**
  * Protocol version.
  */
-export type V = 1;
+export type V12 = 1;
 
 /**
- * M0 envelope contract. The full turn/state/host event union is frozen at the end of M1.
+ * M1 WebSocket protocol: envelope, state/turn payloads and the client -> server host message union.
+ */
+export interface WebSocketContracts {
+  AskUserAnswerMessage?: AskUserAnswerMessage;
+  AskUserAnswerPayload?: AskUserAnswerPayload;
+  CaptureResultMessage?: CaptureResultMessage;
+  CaptureResultPayload?: CaptureResultPayload;
+  CommitMessage?: CommitMessage;
+  CommitPayload?: CommitPayload;
+  EmptyPayload?: EmptyPayload;
+  HostMessage?: HostMessage;
+  PingMessage?: PingMessage;
+  ProposalConfirmMessage?: ProposalConfirmMessage;
+  ProposalConfirmPayload?: ProposalConfirmPayload;
+  ProposalRejectMessage?: ProposalRejectMessage;
+  ProposalRejectPayload?: ProposalRejectPayload;
+  ProposalUpdatedPayload?: ProposalUpdatedPayload;
+  RedoMessage?: RedoMessage;
+  ResumeMessage?: ResumeMessage;
+  ResumePayload?: ResumePayload;
+  ScenePatchPayload?: ScenePatchPayload;
+  SceneSnapshotPayload?: SceneSnapshotPayload;
+  ServerErrorPayload?: ServerErrorPayload;
+  TurnCancelMessage?: TurnCancelMessage;
+  TurnCancelPayload?: TurnCancelPayload;
+  TurnSubscribeMessage?: TurnSubscribeMessage;
+  TurnSubscribePayload?: TurnSubscribePayload;
+  UndoMessage?: UndoMessage;
+  UndoRedoPayload?: UndoRedoPayload;
+  WsEnvelope?: WsEnvelope;
+}
+export interface AskUserAnswerMessage {
+  ch?: Ch;
+  payload: AskUserAnswerPayload;
+  requestId?: Requestid;
+  seq?: Seq;
+  ts: Ts;
+  turnId?: Turnid1;
+  type: Type;
+  v?: V;
+}
+export interface AskUserAnswerPayload {
+  answers?: Answers;
+  turnId: Turnid;
+}
+export interface Answers {
+  [k: string]: string[];
+}
+export interface CaptureResultMessage {
+  ch?: Ch1;
+  payload: CaptureResultPayload;
+  requestId?: Requestid1;
+  seq?: Seq1;
+  ts: Ts1;
+  turnId?: Turnid3;
+  type: Type1;
+  v?: V1;
+}
+export interface CaptureResultPayload {
+  legend?: Legend;
+  pngBase64: Pngbase64;
+  turnId: Turnid2;
+}
+export interface Legend {
+  [k: string]: unknown;
+}
+export interface CommitMessage {
+  ch?: Ch2;
+  payload: CommitPayload;
+  requestId?: Requestid2;
+  seq?: Seq2;
+  ts: Ts2;
+  turnId?: Turnid4;
+  type: Type2;
+  v?: V2;
+}
+export interface CommitPayload {
+  baseVersion: Baseversion;
+  clientMutationId?: Clientmutationid;
+  ops: Ops;
+}
+export interface ItemAddOp {
+  item: Item;
+  op: Op;
+}
+export interface Item {
+  constraint?: ItemConstraint | null;
+  id: Id1;
+  kindId: Kindid;
+  materialOverrides?: Materialoverrides;
+  source?: ItemSource;
+  transform: Transform;
+  variantId: Variantid;
+}
+/**
+ * Preserved agent intent so placements stay explainable and re-solvable.
+ */
+export interface ItemConstraint {
+  anchor?: Anchor | null;
+  clearance?: Clearance | null;
+  facing?: Facing;
+  group?: Group;
+  near?: Near | null;
+  roomId?: Roomid;
+}
+export interface Anchor {
+  openingId?: Openingid;
+  type: AnchorType;
+  wallId?: Wallid;
+  wallLabel?: Walllabel;
+}
+export interface Clearance {
+  back?: Back;
+  front?: Front;
+  sides?: Sides;
+}
+export interface FacingTowardSpec {
+  id?: Id;
+  toward: FacingToward;
+}
+export interface Near {
+  distance?: Distance;
+  itemId?: Itemid;
+  openingId?: Openingid1;
+}
+/**
+ * Item placement. Rotation is radians around +Y; front axis is +Z.
+ */
+export interface Transform {
+  position: Position;
+  rotationY: Rotationy;
+  scale?: Scale;
+}
+export interface ItemRemoveOp {
+  before?: Item | null;
+  itemId: Itemid1;
+  op: Op1;
+}
+export interface ItemUpdateOp {
+  after?: After;
+  before?: Before;
+  itemId: Itemid2;
+  op: Op2;
+}
+export interface RoomAddOp {
+  op: Op3;
+  room: Room;
+}
+/**
+ * Room whose polygon is the wall centerline (CCW).
+ */
+export interface Room {
+  floorMaterial?: Floormaterial;
+  id: Id2;
+  name: Name;
+  polygon: Polygon;
+  type?: RoomType;
+  wallHeight?: Wallheight;
+  wallLabels?: Walllabels;
+  wallThickness?: Wallthickness;
+}
+export interface RoomRemoveOp {
+  before?: Room | null;
+  op: Op4;
+  roomId: Roomid1;
+}
+export interface RoomUpdateOp {
+  after?: After1;
+  before?: Before1;
+  op: Op5;
+  roomId: Roomid2;
+}
+export interface OpeningAddOp {
+  op: Op6;
+  opening: Opening;
+}
+/**
+ * Door or window anchored to a room polygon edge.
+ */
+export interface Opening {
+  door?: DoorSpec | null;
+  edgeIndex: Edgeindex;
+  height: Height;
+  id: Id3;
+  offset: Offset;
+  offsetFrom?: Offsetfrom;
+  roomId: Roomid3;
+  sillHeight?: Sillheight;
+  style?: Style;
+  type: OpeningType;
+  width: Width;
+}
+/**
+ * Door geometry and swing metadata (PRD §5.1).
+ */
+export interface DoorSpec {
+  hinge?: DoorHinge;
+  opensTo?: OpensTo;
+  swing?: DoorSwing;
+}
+export interface OpeningRemoveOp {
+  before?: Opening | null;
+  op: Op7;
+  openingId: Openingid2;
+}
+export interface OpeningUpdateOp {
+  after?: After2;
+  before?: Before2;
+  op: Op8;
+  openingId: Openingid3;
+}
+export interface EmptyPayload {}
+/**
+ * Base for every client -> server WebSocket message.
+ */
+export interface HostMessage {
+  ch?: Ch3;
+  requestId?: Requestid3;
+  seq?: Seq3;
+  ts: Ts3;
+  turnId?: Turnid5;
+  type: Type3;
+  v?: V3;
+}
+export interface PingMessage {
+  ch?: Ch4;
+  payload?: EmptyPayload;
+  requestId?: Requestid4;
+  seq?: Seq4;
+  ts: Ts4;
+  turnId?: Turnid6;
+  type: Type4;
+  v?: V4;
+}
+export interface ProposalConfirmMessage {
+  ch?: Ch5;
+  payload: ProposalConfirmPayload;
+  requestId?: Requestid5;
+  seq?: Seq5;
+  ts: Ts5;
+  turnId?: Turnid7;
+  type: Type5;
+  v?: V5;
+}
+export interface ProposalConfirmPayload {
+  proposalId: Proposalid;
+}
+export interface ProposalRejectMessage {
+  ch?: Ch6;
+  payload: ProposalRejectPayload;
+  requestId?: Requestid6;
+  seq?: Seq6;
+  ts: Ts6;
+  turnId?: Turnid8;
+  type: Type6;
+  v?: V6;
+}
+export interface ProposalRejectPayload {
+  proposalId: Proposalid1;
+  reason?: Reason;
+}
+export interface ProposalUpdatedPayload {
+  proposal: Proposal;
+}
+export interface Proposal {
+  baseVersion: Baseversion1;
+  createdAt: Createdat;
+  dependsOn?: Dependson;
+  id: Id4;
+  ops: Ops1;
+  reason?: Reason1;
+  resolvedAt?: Resolvedat;
+  sceneId: Sceneid;
+  status?: ProposalStatus;
+  turnId: Turnid9;
+}
+export interface RedoMessage {
+  ch?: Ch7;
+  payload: UndoRedoPayload;
+  requestId?: Requestid7;
+  seq?: Seq7;
+  ts: Ts7;
+  turnId?: Turnid10;
+  type: Type7;
+  v?: V7;
+}
+export interface UndoRedoPayload {
+  expectedVersion: Expectedversion;
+}
+export interface ResumeMessage {
+  ch?: Ch8;
+  payload: ResumePayload;
+  requestId?: Requestid8;
+  seq?: Seq8;
+  ts: Ts8;
+  turnId?: Turnid11;
+  type: Type8;
+  v?: V8;
+}
+export interface ResumePayload {
+  lastSeqs?: Lastseqs;
+}
+export interface Lastseqs {
+  [k: string]: number;
+}
+export interface ScenePatchPayload {
+  patch: ScenePatch;
+}
+/**
+ * A validated change set between two scene versions.
+ */
+export interface ScenePatch {
+  actor?: Actor;
+  clientMutationId?: Clientmutationid1;
+  fromVersion: Fromversion;
+  ops: Ops2;
+  proposalId?: Proposalid2;
+  sceneId: Sceneid1;
+  toVersion: Toversion;
+  turnId?: Turnid12;
+}
+export interface SceneSnapshotPayload {
+  scene: SceneDocument;
+}
+/**
+ * Confirmed scene document; the single source of truth on the server.
+ */
+export interface SceneDocument {
+  createdAt: Createdat1;
+  defaults: SceneDefaults;
+  id: Id5;
+  items: Items;
+  name: Name1;
+  north?: North;
+  openings: Openings;
+  rooms: Rooms;
+  schemaVersion?: Schemaversion;
+  units?: Units;
+  updatedAt: Updatedat;
+  version: Version;
+}
+/**
+ * Default structural values for a scene.
+ */
+export interface SceneDefaults {
+  wallHeight?: Wallheight1;
+  wallMaterial?: Wallmaterial;
+  wallThickness?: Wallthickness1;
+}
+export interface ServerErrorPayload {
+  error: ErrorBody;
+}
+export interface ErrorBody {
+  code: Code;
+  details?: Details;
+  message: Message;
+  suggest?: Suggest;
+}
+export interface TurnCancelMessage {
+  ch?: Ch9;
+  payload: TurnCancelPayload;
+  requestId?: Requestid9;
+  seq?: Seq9;
+  ts: Ts9;
+  turnId?: Turnid14;
+  type: Type9;
+  v?: V9;
+}
+export interface TurnCancelPayload {
+  turnId: Turnid13;
+}
+export interface TurnSubscribeMessage {
+  ch?: Ch10;
+  payload: TurnSubscribePayload;
+  requestId?: Requestid10;
+  seq?: Seq10;
+  ts: Ts10;
+  turnId?: Turnid16;
+  type: Type10;
+  v?: V10;
+}
+export interface TurnSubscribePayload {
+  turnId: Turnid15;
+}
+export interface UndoMessage {
+  ch?: Ch11;
+  payload: UndoRedoPayload;
+  requestId?: Requestid11;
+  seq?: Seq11;
+  ts: Ts11;
+  turnId?: Turnid17;
+  type: Type11;
+  v?: V11;
+}
+/**
+ * Envelope wrapping every server -> client WebSocket message.
  */
 export interface WsEnvelope {
   ch: WsChannel;
   payload: Payload;
-  requestId?: Requestid;
-  seq: Seq;
-  ts: Ts;
-  turnId?: Turnid;
-  type: Type;
-  v: V;
+  requestId?: Requestid12;
+  seq: Seq12;
+  ts: Ts12;
+  turnId?: Turnid18;
+  type: Type12;
+  v: V12;
 }
 /**
  * Event payload.

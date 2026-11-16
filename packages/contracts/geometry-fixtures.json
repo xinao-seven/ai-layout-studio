@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "polygons": {
+    "rect-ccw": [[0, 0], [4, 0], [4, 3], [0, 3]],
+    "rect-cw": [[0, 0], [0, 3], [4, 3], [4, 0]],
+    "l-shape-ccw": [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]],
+    "triangle-ccw": [[0, 0], [3, 0], [0, 4]],
+    "square-10": [[0, 0], [10, 0], [10, 10], [0, 10]]
+  },
+  "signedAreaCases": [
+    { "id": "rect-ccw", "polygonId": "rect-ccw", "expected": 12, "ccw": true },
+    { "id": "rect-cw", "polygonId": "rect-cw", "expected": -12, "ccw": false },
+    { "id": "l-shape-ccw", "polygonId": "l-shape-ccw", "expected": 12, "ccw": true },
+    { "id": "triangle-ccw", "polygonId": "triangle-ccw", "expected": 6, "ccw": true }
+  ],
+  "pointCases": [
+    { "id": "rect-center", "polygonId": "rect-ccw", "point": [2, 1.5], "inside": true },
+    { "id": "rect-outside", "polygonId": "rect-ccw", "point": [5, 1.5], "inside": false },
+    { "id": "rect-boundary", "polygonId": "rect-ccw", "point": [4, 1.5], "inside": true },
+    { "id": "rect-vertex", "polygonId": "rect-ccw", "point": [0, 0], "inside": true },
+    { "id": "l-inside-lower-arm", "polygonId": "l-shape-ccw", "point": [1, 1], "inside": true },
+    { "id": "l-inside-upper-arm", "polygonId": "l-shape-ccw", "point": [1, 3], "inside": true },
+    { "id": "l-notch-outside", "polygonId": "l-shape-ccw", "point": [3, 3], "inside": false },
+    { "id": "triangle-inside", "polygonId": "triangle-ccw", "point": [0.5, 0.5], "inside": true },
+    { "id": "triangle-outside", "polygonId": "triangle-ccw", "point": [3, 3], "inside": false },
+    { "id": "square-near-edge", "polygonId": "square-10", "point": [9.99, 5], "inside": true }
+  ],
+  "wallCases": [
+    {
+      "id": "rect-bottom",
+      "polygonId": "rect-ccw",
+      "edgeIndex": 0,
+      "length": 4,
+      "normal": [0, 1]
+    },
+    {
+      "id": "rect-right",
+      "polygonId": "rect-ccw",
+      "edgeIndex": 1,
+      "length": 3,
+      "normal": [-1, 0]
+    },
+    {
+      "id": "rect-top",
+      "polygonId": "rect-ccw",
+      "edgeIndex": 2,
+      "length": 4,
+      "normal": [0, -1]
+    },
+    {
+      "id": "rect-left",
+      "polygonId": "rect-ccw",
+      "edgeIndex": 3,
+      "length": 3,
+      "normal": [1, 0]
+    },
+    {
+      "id": "l-notch-horizontal",
+      "polygonId": "l-shape-ccw",
+      "edgeIndex": 2,
+      "length": 2,
+      "normal": [0, -1]
+    },
+    {
+      "id": "l-notch-vertical",
+      "polygonId": "l-shape-ccw",
+      "edgeIndex": 3,
+      "length": 2,
+      "normal": [-1, 0]
+    }
+  ],
+  "obbCases": [
+    {
+      "id": "centered-overlap",
+      "a": { "center": [0, 0], "size": [2, 2], "yaw": 0 },
+      "b": { "center": [1.5, 0], "size": [2, 2], "yaw": 0 },
+      "overlap": true
+    },
+    {
+      "id": "separated",
+      "a": { "center": [0, 0], "size": [2, 2], "yaw": 0 },
+      "b": { "center": [3, 0], "size": [2, 2], "yaw": 0 },
+      "overlap": false
+    },
+    {
+      "id": "touching-edge",
+      "a": { "center": [0, 0], "size": [2, 2], "yaw": 0 },
+      "b": { "center": [2, 0], "size": [2, 2], "yaw": 0 },
+      "overlap": true
+    },
+    {
+      "id": "rotated-45-overlap",
+      "a": { "center": [0, 0], "size": [2, 2], "yaw": 0 },
+      "b": { "center": [1.8, 0], "size": [2, 2], "yaw": 0.7853981633974483 },
+      "overlap": true
+    },
+    {
+      "id": "rotated-45-separated",
+      "a": { "center": [0, 0], "size": [2, 2], "yaw": 0 },
+      "b": { "center": [3, 0], "size": [2, 2], "yaw": 0.7853981633974483 },
+      "overlap": false
+    },
+    {
+      "id": "contained",
+      "a": { "center": [0, 0], "size": [4, 4], "yaw": 0 },
+      "b": { "center": [0, 0], "size": [0.5, 0.5], "yaw": 0 },
+      "overlap": true
+    },
+    {
+      "id": "same-center-rotated-90",
+      "a": { "center": [0, 0], "size": [4, 2], "yaw": 0 },
+      "b": { "center": [0, 0], "size": [2, 4], "yaw": 1.5707963267948966 },
+      "overlap": true
+    },
+    {
+      "id": "parallel-clearance",
+      "a": { "center": [0, 0], "size": [4, 1], "yaw": 0 },
+      "b": { "center": [0, 2], "size": [4, 1], "yaw": 0 },
+      "overlap": false
+    },
+    {
+      "id": "far-rotated",
+      "a": { "center": [0, 0], "size": [2, 4], "yaw": 0.5235987755982988 },
+      "b": { "center": [5, 5], "size": [2, 4], "yaw": -0.3490658503988659 },
+      "overlap": false
+    }
+  ],
+  "insetCases": [
+    { "id": "rect-inset-02", "polygonId": "rect-ccw", "distance": 0.2, "expectedArea": 9.36 },
+    { "id": "square-inset-10", "polygonId": "square-10", "distance": 1.0, "expectedArea": 64.0 },
+    { "id": "l-inset-03", "polygonId": "l-shape-ccw", "distance": 0.3, "expectedArea": 7.56 }
+  ]
+}

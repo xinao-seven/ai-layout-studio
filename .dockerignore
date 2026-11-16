@@ -28,7 +28,6 @@ apps/server/data/
 .github/
 docs/
 eval/
-fixtures/
 e2e/
 assets/models/
 assets/thumbnails/

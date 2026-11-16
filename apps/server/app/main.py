@@ -9,9 +9,19 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.errors import install_error_handlers
 from app.api.routes import api_router
+from app.api.routes.ws import router as ws_router
+from app.catalog.service import CatalogService
 from app.core.config import Settings, ensure_single_worker, get_settings
 from app.core.logging import configure_logging
+from app.db import models  # noqa: F401 - register ORM tables on Base.metadata
+from app.db.base import Base
+from app.db.repository import SceneRepository
+from app.db.session import create_engine, create_session_factory
+from app.scene.fixtures import FixtureService
+from app.scene.registry import SceneRegistry
+from app.sync.gateway import SyncGateway
 
 logger = structlog.get_logger(__name__)
 
@@ -30,16 +40,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         app_settings.data_dir.mkdir(parents=True, exist_ok=True)
+        engine = create_engine(settings=app_settings)
+        if app_settings.environment != "production":
+            # Convenience for `pnpm dev` and tests. Production applies the
+            # Alembic migration chain explicitly (Docker CMD / python -m app).
+            async with engine.begin() as connection:
+                await connection.run_sync(Base.metadata.create_all)
+        session_factory = create_session_factory(engine)
+        repository = SceneRepository(session_factory)
+        catalog = CatalogService()
+        fixtures = FixtureService()
+        registry = SceneRegistry(repository, catalog=catalog.by_kind)
+        gateway = SyncGateway(registry)
+
+        application.state.engine = engine
+        application.state.repository = repository
+        application.state.catalog = catalog
+        application.state.fixtures = fixtures
+        application.state.registry = registry
+        application.state.gateway = gateway
+
         logger.info(
             "server.startup",
             version=app_settings.app_version,
             environment=app_settings.environment,
             data_dir=str(app_settings.data_dir),
+            catalog_entries=len(catalog.entries),
         )
-        yield
-        logger.info("server.shutdown")
+        try:
+            yield
+        finally:
+            await engine.dispose()
+            logger.info("server.shutdown")
 
     app = FastAPI(
         title=app_settings.app_name,
@@ -56,7 +90,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    install_error_handlers(app)
     app.include_router(api_router, prefix="/api")
+    app.include_router(ws_router)
 
     @app.get("/", include_in_schema=False)
     async def root() -> dict[str, str]:

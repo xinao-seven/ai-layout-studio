@@ -1,0 +1,94 @@
+"""REST request/response contracts."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any
+
+from pydantic import Field
+
+from app.contracts.base import CamelModel
+from app.contracts.catalog import CatalogEntry
+from app.contracts.patch import PatchOp, ScenePatch
+from app.contracts.scene import SceneDocument, Vec2, Vec3
+
+
+class SceneSummary(CamelModel):
+    id: str
+    name: str
+    version: int = Field(ge=1)
+    room_count: int = Field(ge=0)
+    area_m2: float = Field(ge=0)
+    updated_at: datetime
+
+
+class SceneListResponse(CamelModel):
+    scenes: list[SceneSummary]
+
+
+class CreateSceneRequest(CamelModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    fixture_id: str | None = None
+
+
+class FixtureSummary(CamelModel):
+    id: str
+    name: str
+    description: str = ""
+    room_count: int = Field(ge=0)
+    area_m2: float = Field(ge=0)
+
+
+class FixtureListResponse(CamelModel):
+    fixtures: list[FixtureSummary]
+
+
+class CommitRequest(CamelModel):
+    base_version: int = Field(ge=1)
+    ops: list[PatchOp]
+    client_mutation_id: str | None = None
+
+
+class UndoRedoRequest(CamelModel):
+    expected_version: int = Field(ge=1)
+
+
+class SceneResult(CamelModel):
+    scene: SceneDocument
+    patch: ScenePatch
+
+
+class AddItemRequest(CamelModel):
+    """Manual add: the server mints the item id and resolves the variant."""
+
+    kind_id: str = Field(min_length=1)
+    variant_id: str | None = None
+    room_id: str | None = None
+    position: Vec2 | None = Field(
+        default=None, description="Floor position [x, z]; defaults to the room centroid."
+    )
+    rotation_y: float = 0.0
+
+
+class UpdateItemRequest(CamelModel):
+    position: Vec3 | None = None
+    rotation_y: float | None = None
+
+
+class ImportRequest(CamelModel):
+    document: SceneDocument
+
+
+class CatalogResponse(CamelModel):
+    entries: list[CatalogEntry]
+
+
+class ErrorBody(CamelModel):
+    code: str = Field(min_length=1)
+    message: str = Field(min_length=1)
+    suggest: str | None = None
+    details: dict[str, Any] | None = None
+
+
+class ErrorEnvelope(CamelModel):
+    error: ErrorBody

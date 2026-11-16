@@ -1,0 +1,278 @@
+{
+  "entries": [
+    {
+      "kindId": "sofa",
+      "name": "双人沙发",
+      "category": "sofa",
+      "tags": ["sofa", "沙发", "living"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [2.0, 0.9, 0.85],
+          "modelPath": "models/sofa.glb",
+          "thumbnailPath": "thumbnails/sofa.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.1, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "preferredWall": "south",
+        "groupWith": ["coffee_table", "tv_stand"],
+        "anchorPriority": 8,
+        "roomTypes": ["living"]
+      }
+    },
+    {
+      "kindId": "coffee_table",
+      "name": "茶几",
+      "category": "table",
+      "tags": ["coffee table", "茶几"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.1, 0.6, 0.42],
+          "modelPath": "models/coffee_table.glb",
+          "thumbnailPath": "thumbnails/coffee_table.png"
+        }
+      ],
+      "clearance": { "front": 0.3, "sides": 0.2, "back": 0.3 },
+      "rules": {
+        "groupWith": ["sofa"],
+        "anchorPriority": 4,
+        "roomTypes": ["living"]
+      }
+    },
+    {
+      "kindId": "bed_double",
+      "name": "双人床",
+      "category": "bed",
+      "tags": ["bed", "double bed", "双人床", "床"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.6, 2.0, 0.5],
+          "modelPath": "models/bed_double.glb",
+          "thumbnailPath": "thumbnails/bed_double.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": ["nightstand", "wardrobe"],
+        "anchorPriority": 10,
+        "roomTypes": ["bedroom"]
+      }
+    },
+    {
+      "kindId": "bed_single",
+      "name": "单人床",
+      "category": "bed",
+      "tags": ["bed", "single bed", "单人床"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.0, 2.0, 0.5],
+          "modelPath": "models/bed_single.glb",
+          "thumbnailPath": "thumbnails/bed_single.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": ["nightstand"],
+        "anchorPriority": 10,
+        "roomTypes": ["bedroom"]
+      }
+    },
+    {
+      "kindId": "wardrobe",
+      "name": "衣柜",
+      "category": "storage",
+      "tags": ["wardrobe", "closet", "衣柜"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.2, 0.6, 2.0],
+          "modelPath": "models/wardrobe.glb",
+          "thumbnailPath": "thumbnails/wardrobe.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.05, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": ["bed_double"],
+        "anchorPriority": 6,
+        "roomTypes": ["bedroom"]
+      }
+    },
+    {
+      "kindId": "nightstand",
+      "name": "床头柜",
+      "category": "storage",
+      "tags": ["nightstand", "bedside", "床头柜"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [0.45, 0.45, 0.55],
+          "modelPath": "models/nightstand.glb",
+          "thumbnailPath": "thumbnails/nightstand.png"
+        }
+      ],
+      "clearance": { "front": 0.3, "sides": 0.05, "back": 0.02 },
+      "rules": {
+        "groupWith": ["bed_double", "bed_single"],
+        "anchorPriority": 5,
+        "roomTypes": ["bedroom"]
+      }
+    },
+    {
+      "kindId": "tv_stand",
+      "name": "电视柜",
+      "category": "storage",
+      "tags": ["tv stand", "电视柜", "media"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.8, 0.4, 0.5],
+          "modelPath": "models/tv_stand.glb",
+          "thumbnailPath": "thumbnails/tv_stand.png"
+        }
+      ],
+      "clearance": { "front": 0.5, "sides": 0.1, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "preferredWall": "north",
+        "groupWith": ["sofa"],
+        "anchorPriority": 7,
+        "roomTypes": ["living"]
+      }
+    },
+    {
+      "kindId": "rug",
+      "name": "地毯",
+      "category": "decor",
+      "tags": ["rug", "carpet", "地毯"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [2.0, 3.0, 0.02],
+          "modelPath": "models/rug.glb",
+          "thumbnailPath": "thumbnails/rug.png"
+        }
+      ],
+      "clearance": {},
+      "rules": { "anchorPriority": 1, "roomTypes": ["living", "bedroom"] }
+    },
+    {
+      "kindId": "dining_table",
+      "name": "餐桌",
+      "category": "table",
+      "tags": ["dining table", "餐桌"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.4, 0.9, 0.75],
+          "modelPath": "models/dining_table.glb",
+          "thumbnailPath": "thumbnails/dining_table.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.6, "back": 0.6 },
+      "rules": {
+        "groupWith": ["chair"],
+        "anchorPriority": 6,
+        "roomTypes": ["living", "kitchen"]
+      }
+    },
+    {
+      "kindId": "desk",
+      "name": "书桌",
+      "category": "table",
+      "tags": ["desk", "书桌", "study"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [1.2, 0.6, 0.75],
+          "modelPath": "models/desk.glb",
+          "thumbnailPath": "thumbnails/desk.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": ["chair", "bookshelf"],
+        "anchorPriority": 7,
+        "roomTypes": ["study", "bedroom"]
+      }
+    },
+    {
+      "kindId": "bookshelf",
+      "name": "书架",
+      "category": "storage",
+      "tags": ["bookshelf", "书架", "storage"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [0.9, 0.35, 1.8],
+          "modelPath": "models/bookshelf.glb",
+          "thumbnailPath": "thumbnails/bookshelf.png"
+        }
+      ],
+      "clearance": { "front": 0.6, "sides": 0.05, "back": 0.02 },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": ["desk"],
+        "anchorPriority": 5,
+        "roomTypes": ["study", "living", "bedroom"]
+      }
+    },
+    {
+      "kindId": "chair",
+      "name": "椅子",
+      "category": "other",
+      "tags": ["chair", "椅子"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [0.5, 0.5, 0.9],
+          "modelPath": "models/chair.glb",
+          "thumbnailPath": "thumbnails/chair.png"
+        }
+      ],
+      "clearance": { "front": 0.45, "sides": 0.1, "back": 0.1 },
+      "rules": {
+        "groupWith": ["dining_table", "desk"],
+        "anchorPriority": 3,
+        "roomTypes": ["living", "study", "kitchen"]
+      }
+    },
+    {
+      "kindId": "plant",
+      "name": "绿植",
+      "category": "decor",
+      "tags": ["plant", "绿植", "decor"],
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [0.5, 0.5, 1.2],
+          "modelPath": "models/plant.glb",
+          "thumbnailPath": "thumbnails/plant.png"
+        }
+      ],
+      "clearance": { "front": 0.2, "sides": 0.2, "back": 0.2 },
+      "rules": { "anchorPriority": 1, "roomTypes": ["living", "bedroom", "balcony"] }
+    }
+  ]
+}

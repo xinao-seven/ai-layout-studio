@@ -1,0 +1,630 @@
+{
+  "schemaVersion": 1,
+  "id": "scene_fixture_two_bedroom",
+  "name": "两室一厅 · 81㎡",
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    -1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "rooms": [
+    {
+      "id": "room_tb_living",
+      "name": "客厅",
+      "type": "living",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙",
+        "1": "东墙",
+        "2": "南墙",
+        "3": "入户墙"
+      },
+      "floorMaterial": "oak"
+    },
+    {
+      "id": "room_tb_bedroom",
+      "name": "主卧",
+      "type": "bedroom",
+      "polygon": [
+        [
+          7,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙",
+        "1": "东墙"
+      },
+      "floorMaterial": "oak"
+    },
+    {
+      "id": "room_tb_study",
+      "name": "次卧 · 书房",
+      "type": "study",
+      "polygon": [
+        [
+          7,
+          4
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          7,
+          8
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙",
+        "1": "东墙"
+      },
+      "floorMaterial": "oak"
+    },
+    {
+      "id": "room_tb_bath",
+      "name": "卫生间",
+      "type": "bathroom",
+      "polygon": [
+        [
+          0,
+          5
+        ],
+        [
+          2.5,
+          5
+        ],
+        [
+          2.5,
+          7.5
+        ],
+        [
+          0,
+          7.5
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙"
+      },
+      "floorMaterial": "tile"
+    },
+    {
+      "id": "room_tb_kitchen",
+      "name": "厨房",
+      "type": "kitchen",
+      "polygon": [
+        [
+          2.5,
+          5
+        ],
+        [
+          5.5,
+          5
+        ],
+        [
+          5.5,
+          7.5
+        ],
+        [
+          2.5,
+          7.5
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙",
+        "2": "南墙"
+      },
+      "floorMaterial": "tile"
+    }
+  ],
+  "openings": [
+    {
+      "id": "op_tb_entry",
+      "type": "door",
+      "roomId": "room_tb_living",
+      "edgeIndex": 3,
+      "offsetFrom": "start",
+      "offset": 2.5,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      },
+      "style": "entry"
+    },
+    {
+      "id": "op_tb_living_window",
+      "type": "window",
+      "roomId": "room_tb_living",
+      "edgeIndex": 0,
+      "offsetFrom": "start",
+      "offset": 3.5,
+      "width": 2.4,
+      "height": 1.5,
+      "sillHeight": 0.9,
+      "style": "picture"
+    },
+    {
+      "id": "op_tb_bath_door",
+      "type": "door",
+      "roomId": "room_tb_living",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 5.75,
+      "width": 0.8,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "end",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_tb_kitchen_door",
+      "type": "door",
+      "roomId": "room_tb_living",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 3.0,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_tb_bed_door",
+      "type": "door",
+      "roomId": "room_tb_living",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_tb_bed_window",
+      "type": "window",
+      "roomId": "room_tb_bedroom",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 1.6,
+      "height": 1.4,
+      "sillHeight": 0.9
+    },
+    {
+      "id": "op_tb_study_door",
+      "type": "door",
+      "roomId": "room_tb_study",
+      "edgeIndex": 0,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "end",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_tb_study_window",
+      "type": "window",
+      "roomId": "room_tb_study",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 2.0,
+      "width": 1.6,
+      "height": 1.4,
+      "sillHeight": 0.9
+    },
+    {
+      "id": "op_tb_kitchen_window",
+      "type": "window",
+      "roomId": "room_tb_kitchen",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 1.5,
+      "width": 1.0,
+      "height": 1.2,
+      "sillHeight": 0.9
+    },
+    {
+      "id": "op_tb_bath_window",
+      "type": "window",
+      "roomId": "room_tb_bath",
+      "edgeIndex": 3,
+      "offsetFrom": "start",
+      "offset": 1.25,
+      "width": 0.6,
+      "height": 0.7,
+      "sillHeight": 1.4
+    }
+  ],
+  "items": [
+    {
+      "id": "it_tb_sofa",
+      "kindId": "sofa",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          4.2
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_living:e2"
+        },
+        "facing": "north"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_tv",
+      "kindId": "tv_stand",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          0.25
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_living:e0"
+        },
+        "facing": "south"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_coffee",
+      "kindId": "coffee_table",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          3.25
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "near": {
+          "itemId": "it_tb_sofa",
+          "distance": 0.55
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_rug",
+      "kindId": "rug",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          3.4
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "group": "living"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_dining",
+      "kindId": "dining_table",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          5.2,
+          0,
+          2.4
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "group": "dining"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_chair_a",
+      "kindId": "chair",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          4.8,
+          0,
+          3.35
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "near": {
+          "itemId": "it_tb_dining",
+          "distance": 0.5
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_chair_b",
+      "kindId": "chair",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          5.6,
+          0,
+          3.35
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_living",
+        "near": {
+          "itemId": "it_tb_dining",
+          "distance": 0.5
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_bed",
+      "kindId": "bed_double",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          9.0,
+          0,
+          1.2
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_bedroom",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_bedroom:e0"
+        },
+        "facing": "south"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_nightstand",
+      "kindId": "nightstand",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          10.3,
+          0,
+          0.35
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_bedroom",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_bedroom:e0"
+        },
+        "near": {
+          "itemId": "it_tb_bed",
+          "distance": 0.5
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_wardrobe",
+      "kindId": "wardrobe",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          9.0,
+          0,
+          3.65
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_bedroom",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_bedroom:e2"
+        },
+        "facing": "north"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_desk",
+      "kindId": "desk",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          9.0,
+          0,
+          7.65
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_study",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_study:e2"
+        },
+        "facing": "north"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_bookshelf",
+      "kindId": "bookshelf",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          7.6,
+          0,
+          7.8
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_tb_study",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_tb_study:e2"
+        },
+        "facing": "north"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_chair",
+      "kindId": "chair",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          9.0,
+          0,
+          6.9
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_study",
+        "near": {
+          "itemId": "it_tb_desk",
+          "distance": 0.55
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_kitchen_table",
+      "kindId": "dining_table",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          4.0,
+          0,
+          6.3
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_kitchen",
+        "group": "dining"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_kitchen_chair",
+      "kindId": "chair",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          4.0,
+          0,
+          5.55
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_kitchen",
+        "near": {
+          "itemId": "it_tb_kitchen_table",
+          "distance": 0.45
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_tb_plant",
+      "kindId": "plant",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          0.7,
+          0,
+          6.8
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_tb_bath"
+      },
+      "source": "manual"
+    }
+  ],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z"
+}

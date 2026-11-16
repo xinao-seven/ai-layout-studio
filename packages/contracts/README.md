@@ -25,7 +25,8 @@ pnpm contracts:check   # regenerate and fail on git diff
 ```
 
 - `openapi.json` — FastAPI OpenAPI 3.1 document (REST)
-- `ws.schema.json` — JSON Schema bundle for WebSocket messages
+- `ws.schema.json` — JSON Schema bundle for WebSocket messages and payloads
+- `tools.schema.json` — tool contract bundle (registry populated in M3)
 
 The only editable source is the Pydantic models in
 `apps/server/app/contracts/`. Never hand-edit files in `generated/`.

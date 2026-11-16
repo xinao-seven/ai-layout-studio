@@ -1,6 +1,676 @@
 {
   "components": {
     "schemas": {
+      "Actor": {
+        "enum": [
+          "user",
+          "agent",
+          "system"
+        ],
+        "title": "Actor",
+        "type": "string"
+      },
+      "AddItemRequest": {
+        "additionalProperties": false,
+        "description": "Manual add: the server mints the item id and resolves the variant.",
+        "properties": {
+          "kindId": {
+            "minLength": 1,
+            "title": "Kindid",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Floor position [x, z]; defaults to the room centroid.",
+            "title": "Position"
+          },
+          "roomId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roomid"
+          },
+          "rotationY": {
+            "default": 0.0,
+            "title": "Rotationy",
+            "type": "number"
+          },
+          "variantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variantid"
+          }
+        },
+        "required": [
+          "kindId"
+        ],
+        "title": "AddItemRequest",
+        "type": "object"
+      },
+      "Anchor": {
+        "additionalProperties": false,
+        "properties": {
+          "openingId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Openingid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AnchorType"
+          },
+          "wallId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallid"
+          },
+          "wallLabel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Walllabel"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Anchor",
+        "type": "object"
+      },
+      "AnchorType": {
+        "enum": [
+          "wall",
+          "corner",
+          "window",
+          "door",
+          "center"
+        ],
+        "title": "AnchorType",
+        "type": "string"
+      },
+      "CatalogCategory": {
+        "enum": [
+          "sofa",
+          "bed",
+          "table",
+          "storage",
+          "lighting",
+          "decor",
+          "other"
+        ],
+        "title": "CatalogCategory",
+        "type": "string"
+      },
+      "CatalogCollision": {
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "const": "obb",
+            "default": "obb",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "title": "CatalogCollision",
+        "type": "object"
+      },
+      "CatalogEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedRotations": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Allowedrotations",
+            "type": "array"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CatalogCategory",
+            "default": "other"
+          },
+          "clearance": {
+            "$ref": "#/components/schemas/Clearance"
+          },
+          "collision": {
+            "$ref": "#/components/schemas/CatalogCollision"
+          },
+          "defaultVariantId": {
+            "title": "Defaultvariantid",
+            "type": "string"
+          },
+          "frontAxis": {
+            "const": "+Z",
+            "default": "+Z",
+            "title": "Frontaxis",
+            "type": "string"
+          },
+          "kindId": {
+            "minLength": 1,
+            "title": "Kindid",
+            "type": "string"
+          },
+          "license": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CatalogLicense"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "pivot": {
+            "const": "bottom-center",
+            "default": "bottom-center",
+            "title": "Pivot",
+            "type": "string"
+          },
+          "placement": {
+            "const": "floor",
+            "default": "floor",
+            "title": "Placement",
+            "type": "string"
+          },
+          "rules": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CatalogRules"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogVariant"
+            },
+            "minItems": 1,
+            "title": "Variants",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kindId",
+          "name",
+          "defaultVariantId",
+          "variants"
+        ],
+        "title": "CatalogEntry",
+        "type": "object"
+      },
+      "CatalogLicense": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ],
+        "title": "CatalogLicense",
+        "type": "object"
+      },
+      "CatalogResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entries"
+        ],
+        "title": "CatalogResponse",
+        "type": "object"
+      },
+      "CatalogRules": {
+        "additionalProperties": false,
+        "properties": {
+          "anchorPriority": {
+            "default": 0,
+            "title": "Anchorpriority",
+            "type": "integer"
+          },
+          "groupWith": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Groupwith",
+            "type": "array"
+          },
+          "mustAgainstWall": {
+            "default": false,
+            "title": "Mustagainstwall",
+            "type": "boolean"
+          },
+          "preferredWall": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FacingDirection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "roomTypes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roomtypes",
+            "type": "array"
+          }
+        },
+        "title": "CatalogRules",
+        "type": "object"
+      },
+      "CatalogVariant": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "modelPath": {
+            "title": "Modelpath",
+            "type": "string"
+          },
+          "sizeM": {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Sizem",
+            "type": "array"
+          },
+          "thumbnailPath": {
+            "title": "Thumbnailpath",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sizeM",
+          "modelPath",
+          "thumbnailPath"
+        ],
+        "title": "CatalogVariant",
+        "type": "object"
+      },
+      "Clearance": {
+        "additionalProperties": false,
+        "properties": {
+          "back": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Back"
+          },
+          "front": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Front"
+          },
+          "sides": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sides"
+          }
+        },
+        "title": "Clearance",
+        "type": "object"
+      },
+      "CommitRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "baseVersion": {
+            "minimum": 1.0,
+            "title": "Baseversion",
+            "type": "integer"
+          },
+          "clientMutationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clientmutationid"
+          },
+          "ops": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "item.add": "#/components/schemas/ItemAddOp",
+                  "item.remove": "#/components/schemas/ItemRemoveOp",
+                  "item.update": "#/components/schemas/ItemUpdateOp",
+                  "opening.add": "#/components/schemas/OpeningAddOp",
+                  "opening.remove": "#/components/schemas/OpeningRemoveOp",
+                  "opening.update": "#/components/schemas/OpeningUpdateOp",
+                  "room.add": "#/components/schemas/RoomAddOp",
+                  "room.remove": "#/components/schemas/RoomRemoveOp",
+                  "room.update": "#/components/schemas/RoomUpdateOp"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ItemAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningUpdateOp"
+                }
+              ]
+            },
+            "title": "Ops",
+            "type": "array"
+          }
+        },
+        "required": [
+          "baseVersion",
+          "ops"
+        ],
+        "title": "CommitRequest",
+        "type": "object"
+      },
+      "CreateSceneRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "fixtureId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixtureid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "CreateSceneRequest",
+        "type": "object"
+      },
+      "DoorHinge": {
+        "enum": [
+          "start",
+          "end"
+        ],
+        "title": "DoorHinge",
+        "type": "string"
+      },
+      "DoorSpec": {
+        "additionalProperties": false,
+        "description": "Door geometry and swing metadata (PRD §5.1).",
+        "properties": {
+          "hinge": {
+            "$ref": "#/components/schemas/DoorHinge",
+            "default": "start"
+          },
+          "opensTo": {
+            "$ref": "#/components/schemas/OpensTo",
+            "default": "in"
+          },
+          "swing": {
+            "$ref": "#/components/schemas/DoorSwing",
+            "default": "single"
+          }
+        },
+        "title": "DoorSpec",
+        "type": "object"
+      },
+      "DoorSwing": {
+        "enum": [
+          "single",
+          "double",
+          "sliding"
+        ],
+        "title": "DoorSwing",
+        "type": "string"
+      },
+      "FacingDirection": {
+        "enum": [
+          "north",
+          "east",
+          "south",
+          "west"
+        ],
+        "title": "FacingDirection",
+        "type": "string"
+      },
+      "FacingToward": {
+        "enum": [
+          "door",
+          "window",
+          "item"
+        ],
+        "title": "FacingToward",
+        "type": "string"
+      },
+      "FacingTowardSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "toward": {
+            "$ref": "#/components/schemas/FacingToward"
+          }
+        },
+        "required": [
+          "toward"
+        ],
+        "title": "FacingTowardSpec",
+        "type": "object"
+      },
+      "FixtureListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "fixtures": {
+            "items": {
+              "$ref": "#/components/schemas/FixtureSummary"
+            },
+            "title": "Fixtures",
+            "type": "array"
+          }
+        },
+        "required": [
+          "fixtures"
+        ],
+        "title": "FixtureListResponse",
+        "type": "object"
+      },
+      "FixtureSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "areaM2": {
+            "minimum": 0.0,
+            "title": "Aream2",
+            "type": "number"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "roomCount": {
+            "minimum": 0.0,
+            "title": "Roomcount",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "roomCount",
+          "areaM2"
+        ],
+        "title": "FixtureSummary",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "additionalProperties": false,
         "description": "Response body for ``GET /api/health`` (PRD §6.7).",
@@ -28,6 +698,1143 @@
         ],
         "title": "HealthResponse",
         "type": "object"
+      },
+      "ImportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/SceneDocument"
+          }
+        },
+        "required": [
+          "document"
+        ],
+        "title": "ImportRequest",
+        "type": "object"
+      },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "constraint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemConstraint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "kindId": {
+            "minLength": 1,
+            "title": "Kindid",
+            "type": "string"
+          },
+          "materialOverrides": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialoverrides"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ItemSource",
+            "default": "manual"
+          },
+          "transform": {
+            "$ref": "#/components/schemas/Transform"
+          },
+          "variantId": {
+            "minLength": 1,
+            "title": "Variantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kindId",
+          "variantId",
+          "transform"
+        ],
+        "title": "Item",
+        "type": "object"
+      },
+      "ItemAddOp": {
+        "additionalProperties": false,
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/Item"
+          },
+          "op": {
+            "const": "item.add",
+            "title": "Op",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "item"
+        ],
+        "title": "ItemAddOp",
+        "type": "object"
+      },
+      "ItemConstraint": {
+        "additionalProperties": false,
+        "description": "Preserved agent intent so placements stay explainable and re-solvable.",
+        "properties": {
+          "anchor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Anchor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clearance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Clearance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "facing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FacingDirection"
+              },
+              {
+                "$ref": "#/components/schemas/FacingTowardSpec"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Facing"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "near": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Near"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "roomId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roomid"
+          }
+        },
+        "title": "ItemConstraint",
+        "type": "object"
+      },
+      "ItemRemoveOp": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Item"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "itemId": {
+            "minLength": 1,
+            "title": "Itemid",
+            "type": "string"
+          },
+          "op": {
+            "const": "item.remove",
+            "title": "Op",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "itemId"
+        ],
+        "title": "ItemRemoveOp",
+        "type": "object"
+      },
+      "ItemSource": {
+        "enum": [
+          "manual",
+          "agent"
+        ],
+        "title": "ItemSource",
+        "type": "string"
+      },
+      "ItemUpdateOp": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "itemId": {
+            "minLength": 1,
+            "title": "Itemid",
+            "type": "string"
+          },
+          "op": {
+            "const": "item.update",
+            "title": "Op",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "itemId"
+        ],
+        "title": "ItemUpdateOp",
+        "type": "object"
+      },
+      "Near": {
+        "additionalProperties": false,
+        "properties": {
+          "distance": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance"
+          },
+          "itemId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itemid"
+          },
+          "openingId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Openingid"
+          }
+        },
+        "title": "Near",
+        "type": "object"
+      },
+      "Opening": {
+        "additionalProperties": false,
+        "description": "Door or window anchored to a room polygon edge.",
+        "properties": {
+          "door": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DoorSpec"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "edgeIndex": {
+            "minimum": 0.0,
+            "title": "Edgeindex",
+            "type": "integer"
+          },
+          "height": {
+            "exclusiveMinimum": 0.0,
+            "title": "Height",
+            "type": "number"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "offset": {
+            "minimum": 0.0,
+            "title": "Offset",
+            "type": "number"
+          },
+          "offsetFrom": {
+            "const": "start",
+            "default": "start",
+            "title": "Offsetfrom",
+            "type": "string"
+          },
+          "roomId": {
+            "minLength": 1,
+            "title": "Roomid",
+            "type": "string"
+          },
+          "sillHeight": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sillheight"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style"
+          },
+          "type": {
+            "$ref": "#/components/schemas/OpeningType"
+          },
+          "width": {
+            "exclusiveMinimum": 0.0,
+            "title": "Width",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "roomId",
+          "edgeIndex",
+          "offset",
+          "width",
+          "height"
+        ],
+        "title": "Opening",
+        "type": "object"
+      },
+      "OpeningAddOp": {
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "const": "opening.add",
+            "title": "Op",
+            "type": "string"
+          },
+          "opening": {
+            "$ref": "#/components/schemas/Opening"
+          }
+        },
+        "required": [
+          "op",
+          "opening"
+        ],
+        "title": "OpeningAddOp",
+        "type": "object"
+      },
+      "OpeningRemoveOp": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Opening"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "op": {
+            "const": "opening.remove",
+            "title": "Op",
+            "type": "string"
+          },
+          "openingId": {
+            "minLength": 1,
+            "title": "Openingid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "openingId"
+        ],
+        "title": "OpeningRemoveOp",
+        "type": "object"
+      },
+      "OpeningType": {
+        "enum": [
+          "door",
+          "window"
+        ],
+        "title": "OpeningType",
+        "type": "string"
+      },
+      "OpeningUpdateOp": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "op": {
+            "const": "opening.update",
+            "title": "Op",
+            "type": "string"
+          },
+          "openingId": {
+            "minLength": 1,
+            "title": "Openingid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "openingId"
+        ],
+        "title": "OpeningUpdateOp",
+        "type": "object"
+      },
+      "OpensTo": {
+        "enum": [
+          "in",
+          "out"
+        ],
+        "title": "OpensTo",
+        "type": "string"
+      },
+      "Room": {
+        "additionalProperties": false,
+        "description": "Room whose polygon is the wall centerline (CCW).",
+        "properties": {
+          "floorMaterial": {
+            "default": "default",
+            "title": "Floormaterial",
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "polygon": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "minItems": 3,
+            "title": "Polygon",
+            "type": "array"
+          },
+          "type": {
+            "$ref": "#/components/schemas/RoomType",
+            "default": "other"
+          },
+          "wallHeight": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallheight"
+          },
+          "wallLabels": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Walllabels"
+          },
+          "wallThickness": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallthickness"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "polygon"
+        ],
+        "title": "Room",
+        "type": "object"
+      },
+      "RoomAddOp": {
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "const": "room.add",
+            "title": "Op",
+            "type": "string"
+          },
+          "room": {
+            "$ref": "#/components/schemas/Room"
+          }
+        },
+        "required": [
+          "op",
+          "room"
+        ],
+        "title": "RoomAddOp",
+        "type": "object"
+      },
+      "RoomRemoveOp": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Room"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "op": {
+            "const": "room.remove",
+            "title": "Op",
+            "type": "string"
+          },
+          "roomId": {
+            "minLength": 1,
+            "title": "Roomid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "roomId"
+        ],
+        "title": "RoomRemoveOp",
+        "type": "object"
+      },
+      "RoomType": {
+        "enum": [
+          "living",
+          "bedroom",
+          "kitchen",
+          "bathroom",
+          "study",
+          "balcony",
+          "other"
+        ],
+        "title": "RoomType",
+        "type": "string"
+      },
+      "RoomUpdateOp": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "op": {
+            "const": "room.update",
+            "title": "Op",
+            "type": "string"
+          },
+          "roomId": {
+            "minLength": 1,
+            "title": "Roomid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "op",
+          "roomId"
+        ],
+        "title": "RoomUpdateOp",
+        "type": "object"
+      },
+      "SceneDefaults": {
+        "additionalProperties": false,
+        "description": "Default structural values for a scene.",
+        "properties": {
+          "wallHeight": {
+            "default": 2.8,
+            "exclusiveMinimum": 0.0,
+            "title": "Wallheight",
+            "type": "number"
+          },
+          "wallMaterial": {
+            "default": "default",
+            "title": "Wallmaterial",
+            "type": "string"
+          },
+          "wallThickness": {
+            "default": 0.12,
+            "exclusiveMinimum": 0.0,
+            "title": "Wallthickness",
+            "type": "number"
+          }
+        },
+        "title": "SceneDefaults",
+        "type": "object"
+      },
+      "SceneDocument": {
+        "additionalProperties": false,
+        "description": "Confirmed scene document; the single source of truth on the server.",
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "defaults": {
+            "$ref": "#/components/schemas/SceneDefaults"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "north": {
+            "default": [
+              0.0,
+              -1.0
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "North",
+            "type": "array"
+          },
+          "openings": {
+            "items": {
+              "$ref": "#/components/schemas/Opening"
+            },
+            "title": "Openings",
+            "type": "array"
+          },
+          "rooms": {
+            "items": {
+              "$ref": "#/components/schemas/Room"
+            },
+            "title": "Rooms",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": 1,
+            "default": 1,
+            "title": "Schemaversion",
+            "type": "integer"
+          },
+          "units": {
+            "const": "metric",
+            "default": "metric",
+            "title": "Units",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "version",
+          "defaults",
+          "rooms",
+          "openings",
+          "items",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "SceneDocument",
+        "type": "object"
+      },
+      "SceneListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "scenes": {
+            "items": {
+              "$ref": "#/components/schemas/SceneSummary"
+            },
+            "title": "Scenes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scenes"
+        ],
+        "title": "SceneListResponse",
+        "type": "object"
+      },
+      "ScenePatch": {
+        "additionalProperties": false,
+        "description": "A validated change set between two scene versions.",
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor",
+            "default": "user"
+          },
+          "clientMutationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clientmutationid"
+          },
+          "fromVersion": {
+            "minimum": 1.0,
+            "title": "Fromversion",
+            "type": "integer"
+          },
+          "ops": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "item.add": "#/components/schemas/ItemAddOp",
+                  "item.remove": "#/components/schemas/ItemRemoveOp",
+                  "item.update": "#/components/schemas/ItemUpdateOp",
+                  "opening.add": "#/components/schemas/OpeningAddOp",
+                  "opening.remove": "#/components/schemas/OpeningRemoveOp",
+                  "opening.update": "#/components/schemas/OpeningUpdateOp",
+                  "room.add": "#/components/schemas/RoomAddOp",
+                  "room.remove": "#/components/schemas/RoomRemoveOp",
+                  "room.update": "#/components/schemas/RoomUpdateOp"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ItemAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningUpdateOp"
+                }
+              ]
+            },
+            "title": "Ops",
+            "type": "array"
+          },
+          "proposalId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposalid"
+          },
+          "sceneId": {
+            "minLength": 1,
+            "title": "Sceneid",
+            "type": "string"
+          },
+          "toVersion": {
+            "minimum": 1.0,
+            "title": "Toversion",
+            "type": "integer"
+          },
+          "turnId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turnid"
+          }
+        },
+        "required": [
+          "sceneId",
+          "fromVersion",
+          "toVersion",
+          "ops"
+        ],
+        "title": "ScenePatch",
+        "type": "object"
+      },
+      "SceneResult": {
+        "additionalProperties": false,
+        "properties": {
+          "patch": {
+            "$ref": "#/components/schemas/ScenePatch"
+          },
+          "scene": {
+            "$ref": "#/components/schemas/SceneDocument"
+          }
+        },
+        "required": [
+          "scene",
+          "patch"
+        ],
+        "title": "SceneResult",
+        "type": "object"
+      },
+      "SceneSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "areaM2": {
+            "minimum": 0.0,
+            "title": "Aream2",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "roomCount": {
+            "minimum": 0.0,
+            "title": "Roomcount",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "version",
+          "roomCount",
+          "areaM2",
+          "updatedAt"
+        ],
+        "title": "SceneSummary",
+        "type": "object"
+      },
+      "Transform": {
+        "additionalProperties": false,
+        "description": "Item placement. Rotation is radians around +Y; front axis is +Z.",
+        "properties": {
+          "position": {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Position",
+            "type": "array"
+          },
+          "rotationY": {
+            "title": "Rotationy",
+            "type": "number"
+          },
+          "scale": {
+            "default": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Scale",
+            "type": "number"
+          }
+        },
+        "required": [
+          "position",
+          "rotationY"
+        ],
+        "title": "Transform",
+        "type": "object"
+      },
+      "UndoRedoRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "minimum": 1.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedVersion"
+        ],
+        "title": "UndoRedoRequest",
+        "type": "object"
+      },
+      "UpdateItemRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "anyOf": [
+              {
+                "maxItems": 3,
+                "minItems": 3,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "rotationY": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rotationy"
+          }
+        },
+        "title": "UpdateItemRequest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
       }
     }
   },
@@ -37,6 +1844,48 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/catalog": {
+      "get": {
+        "operationId": "list_catalog_api_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Catalog",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/fixtures": {
+      "get": {
+        "operationId": "list_fixtures_api_fixtures_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FixtureListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Fixtures",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "description": "Liveness probe used by the dev loop, Docker healthcheck and CI.",
@@ -56,6 +1905,507 @@
         "summary": "Service health",
         "tags": [
           "system"
+        ]
+      }
+    },
+    "/api/scenes": {
+      "get": {
+        "operationId": "list_scenes_api_scenes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Scenes",
+        "tags": [
+          "scenes"
+        ]
+      },
+      "post": {
+        "operationId": "create_scene_api_scenes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSceneRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneDocument"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/import": {
+      "post": {
+        "operationId": "import_scene_api_scenes_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneDocument"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}": {
+      "get": {
+        "operationId": "get_scene_api_scenes__scene_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneDocument"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/commit": {
+      "post": {
+        "operationId": "commit_scene_api_scenes__scene_id__commit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Commit Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/export": {
+      "get": {
+        "operationId": "export_scene_api_scenes__scene_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/items": {
+      "post": {
+        "operationId": "add_scene_item_api_scenes__scene_id__items_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Scene Item",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/items/{item_id}": {
+      "delete": {
+        "operationId": "delete_scene_item_api_scenes__scene_id__items__item_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Scene Item",
+        "tags": [
+          "scenes"
+        ]
+      },
+      "patch": {
+        "operationId": "update_scene_item_api_scenes__scene_id__items__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Scene Item",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/redo": {
+      "post": {
+        "operationId": "redo_scene_api_scenes__scene_id__redo_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UndoRedoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Redo Scene",
+        "tags": [
+          "scenes"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/undo": {
+      "post": {
+        "operationId": "undo_scene_api_scenes__scene_id__undo_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UndoRedoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SceneResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Undo Scene",
+        "tags": [
+          "scenes"
         ]
       }
     }

@@ -1,0 +1,57 @@
+{
+  "$id": "https://ai-layout.local/contracts/tools.schema.json",
+  "$ref": "#/definitions/ToolBundle",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ToolBundle": {
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "items": {
+            "$ref": "#/definitions/ToolDefinition"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "version": {
+          "const": 1,
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "title": "ToolBundle",
+      "type": "object"
+    },
+    "ToolDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "description": "JSON Schema for the tool input.",
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "parameters"
+      ],
+      "title": "ToolDefinition",
+      "type": "object"
+    }
+  },
+  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is populated in M3; M1 fixes the export pipeline.",
+  "title": "Agent tool contracts"
+}

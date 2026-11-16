@@ -37,6 +37,12 @@ types-jsonschema (Apache-2.0).
 | Zustand | Client state | MIT |
 | zod | Generated schema runtime | MIT |
 | Vite | Build/dev server | MIT |
+| Tailwind CSS | utility styling | MIT |
+| Radix UI primitives | accessible tooltip/separator/slot | MIT |
+| class-variance-authority / clsx / tailwind-merge | component variants + class merging | MIT |
+| lucide-react | icon set | ISC |
+| Zundo | undo/redo temporal middleware | MIT |
+| @fontsource/barlow | Barlow UI typeface | OFL-1.1 |
 | Vitest | Unit tests | MIT |
 | TypeScript | Type checking | Apache-2.0 |
 | Biome | Lint/format | MIT |

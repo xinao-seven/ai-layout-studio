@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 1,
+  "id": "scene_fixture_studio",
+  "name": "开间 · 47.5㎡",
+  "version": 1,
+  "units": "metric",
+  "north": [
+    0,
+    -1
+  ],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "rooms": [
+    {
+      "id": "room_studio_main",
+      "name": "起居卧室",
+      "type": "living",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙",
+        "2": "南墙",
+        "3": "入户墙"
+      },
+      "floorMaterial": "oak"
+    },
+    {
+      "id": "room_studio_bath",
+      "name": "卫生间",
+      "type": "bathroom",
+      "polygon": [
+        [
+          8,
+          0
+        ],
+        [
+          10.5,
+          0
+        ],
+        [
+          10.5,
+          3
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "wallLabels": {
+        "0": "北墙"
+      },
+      "floorMaterial": "tile"
+    }
+  ],
+  "openings": [
+    {
+      "id": "op_studio_entry",
+      "type": "door",
+      "roomId": "room_studio_main",
+      "edgeIndex": 3,
+      "offsetFrom": "start",
+      "offset": 2.5,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      },
+      "style": "entry"
+    },
+    {
+      "id": "op_studio_window",
+      "type": "window",
+      "roomId": "room_studio_main",
+      "edgeIndex": 2,
+      "offsetFrom": "start",
+      "offset": 4.0,
+      "width": 2.4,
+      "height": 1.5,
+      "sillHeight": 0.9,
+      "style": "picture"
+    },
+    {
+      "id": "op_studio_bath_door",
+      "type": "door",
+      "roomId": "room_studio_main",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 1.5,
+      "width": 0.8,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "end",
+        "opensTo": "in"
+      }
+    },
+    {
+      "id": "op_studio_bath_window",
+      "type": "window",
+      "roomId": "room_studio_bath",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 1.5,
+      "width": 0.9,
+      "height": 0.8,
+      "sillHeight": 1.3
+    }
+  ],
+  "items": [
+    {
+      "id": "it_studio_bed",
+      "kindId": "bed_double",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          1.2
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_studio_main:e0"
+        },
+        "facing": "south"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_nightstand",
+      "kindId": "nightstand",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          3.2,
+          0,
+          0.35
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_studio_main:e0"
+        },
+        "near": {
+          "itemId": "it_studio_bed",
+          "distance": 0.5
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_tv",
+      "kindId": "tv_stand",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          6.2,
+          0,
+          0.28
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_studio_main:e0"
+        },
+        "facing": "south"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_sofa",
+      "kindId": "sofa",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          6.2,
+          0,
+          4.2
+        ],
+        "rotationY": 3.141592653589793
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "anchor": {
+          "type": "wall",
+          "wallId": "room_studio_main:e2"
+        },
+        "facing": "north"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_coffee",
+      "kindId": "coffee_table",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          6.2,
+          0,
+          3.1
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "near": {
+          "itemId": "it_studio_sofa",
+          "distance": 0.55
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_rug",
+      "kindId": "rug",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          6.2,
+          0,
+          3.3
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "group": "living"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_dining",
+      "kindId": "dining_table",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          4.1
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "group": "dining"
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_chair",
+      "kindId": "chair",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          2.0,
+          0,
+          3.35
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main",
+        "near": {
+          "itemId": "it_studio_dining",
+          "distance": 0.45
+        }
+      },
+      "source": "manual"
+    },
+    {
+      "id": "it_studio_plant",
+      "kindId": "plant",
+      "variantId": "default",
+      "transform": {
+        "position": [
+          0.6,
+          0,
+          4.3
+        ],
+        "rotationY": 0
+      },
+      "constraint": {
+        "roomId": "room_studio_main"
+      },
+      "source": "manual"
+    }
+  ],
+  "createdAt": "2026-11-16T00:00:00Z",
+  "updatedAt": "2026-11-16T00:00:00Z"
+}

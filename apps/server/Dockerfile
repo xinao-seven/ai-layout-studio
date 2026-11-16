@@ -20,6 +20,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY apps/server/app ./app
 COPY apps/server/alembic ./alembic
 COPY apps/server/alembic.ini ./
+COPY fixtures/catalog.json ./fixtures/catalog.json
+COPY fixtures/fixtures.json ./fixtures/fixtures.json
+COPY fixtures/scenes ./fixtures/scenes
+COPY packages/contracts/rules.json ./packages/contracts/rules.json
 
 # ---- runtime stage: no compiler/uv toolchain, non-root --------------------
 FROM python:3.12-slim AS runtime
@@ -47,4 +51,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # One worker is a correctness requirement for the single-writer SQLite store
 # and per-scene asyncio locks (PRD §5.5, D12); app/__main__.py also guards it.
-CMD ["sh", "-c", "alembic upgrade head && python -m app"]
+CMD ["python", "-m", "app"]

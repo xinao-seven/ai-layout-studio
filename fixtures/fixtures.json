@@ -1,0 +1,19 @@
+{
+  "fixtures": [
+    {
+      "id": "studio",
+      "file": "studio.json",
+      "description": "47.5㎡ 开间：起居与睡眠一体，独立卫生间。"
+    },
+    {
+      "id": "one-bedroom",
+      "file": "one-bedroom.json",
+      "description": "46㎡ 一室一厅：客餐厅、独立卧室与卫生间。"
+    },
+    {
+      "id": "two-bedroom",
+      "file": "two-bedroom.json",
+      "description": "81㎡ 两室一厅：主卧、书房、厨房与卫生间。"
+    }
+  ]
+}

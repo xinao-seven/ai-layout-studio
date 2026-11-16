@@ -3,8 +3,9 @@
 对话式 AI 室内布局工作台：上传/绘制户型，用自然语言和直接操作完成家具布置。
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
-> 当前状态：**M0 脚手架完成**（2026-11-16）。仓库、服务端、前端、数据库骨架、
-> 契约生成流水线、CI、Docker 与 ADR 已就绪；M1 起进入场景内核与渲染。
+> 当前状态：**M1 场景内核已实现**（2026-11-16）。内置户型加载、3D/俯视渲染、
+> 手动家具编辑、服务端版本/undo、REST/WS 同步与断线 resume 已打通；等待审查与验收。
+> 界面视觉参照 aedifex / Pascal Editor 的编辑器风格（MIT），代码为独立实现。
 >
 > 项目为独立自研实现；aedifex 等开源项目仅作**架构思想参考**，不复制源码。
 
@@ -12,7 +13,7 @@ AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认�
 
 | 层 | 选择 |
 |---|---|
-| 前端 | React 19 · Vite · R3F 9 · three · Zustand/Zundo · TypeScript |
+| 前端 | React 19 · Vite 7 · R3F 9 · three · Zustand/Zundo · Tailwind 4 · shadcn 风格组件 · TypeScript |
 | 服务端 | Python 3.12 · FastAPI · Pydantic v2 · SQLAlchemy 2 async · SQLite |
 | 几何/求解 | Shapely 2 · NumPy（服务端权威），客户端轻量 OBB 预检 |
 | 契约 | Pydantic → OpenAPI 3.1 / JSON Schema → orval + json-schema-to-typescript |
@@ -28,11 +29,11 @@ apps/
   server/     FastAPI 服务端（REST/WS、Agent、几何、求解、VLM、评测）
   web/        React + R3F 客户端
 packages/
-  contracts/  生成的 OpenAPI/WS schema、rules.json
+  contracts/  生成的 OpenAPI/WS/tools schema、rules.json、geometry-fixtures.json
 e2e/          Playwright（后续里程碑）
 assets/       GLB 模型与缩略图（后续）
 fixtures/     内置户型、评测用例、录制响应（后续）
-docs/         ADR、CONVENTIONS、DEPENDENCIES
+docs/         ADR、PROTOCOL、CONVENTIONS、DEPENDENCIES
 eval/reports/ 评测报告（指标唯一来源）
 scripts/      export_contracts.py、smoke.mjs
 ```
@@ -46,7 +47,7 @@ scripts/      export_contracts.py、smoke.mjs
 uv sync --directory apps/server
 pnpm install
 
-# 2. 起前后端（web:5173，server:8000）
+# 2. 起前后端（web:5173，server:8000；server 启动时自动执行 Alembic 迁移）
 pnpm dev
 
 # 3. 冒烟（另开终端）
@@ -57,6 +58,8 @@ SMOKE_WEB=1 pnpm smoke   # 同时检查前端
 - API 文档：<http://127.0.0.1:8000/api/docs>
 - Web：<http://127.0.0.1:5173>
 - 健康检查：`GET /api/health` → `{ "ok": true, "version": "0.1.0", "model": "" }`
+- 首页会列出 3 个内置户型；打开后可 3D/俯视切换、点选家具、用方向键面板微调、
+  删除、undo/redo。带 `?perf=200` 时渲染 200 个代理盒并显示 FPS。
 
 ## 常用命令
 
@@ -68,7 +71,7 @@ SMOKE_WEB=1 pnpm smoke   # 同时检查前端
 | `pnpm lint` | Biome + Ruff |
 | `pnpm build` | 前端 production build |
 | `pnpm contracts:gen` | 重新导出 schema 并生成 TS |
-| `pnpm contracts:check` | 重新生成并检查 git diff（CI 用） |
+| `pnpm contracts:check` | 重新生成并检查改动/新增（CI 用） |
 | `pnpm smoke` | 健康检查冒烟 |
 | `uv run --directory apps/server alembic upgrade head` | 应用数据库迁移 |
 
@@ -118,7 +121,7 @@ docker compose up --build
 | 阶段 | 内容 | 状态 |
 |---|---|---|
 | M0 | 脚手架、契约流水线、CI、Docker、ADR | ✅ 2026-11-16 |
-| M1 | 场景内核、几何、REST/WS、渲染、undo、协议冻结 | ⏳ 下一步 |
+| M1 | 场景内核、几何、REST/WS、渲染、undo、协议冻结 | 🟡 实现完成，待审查 |
 | M2 | 目录、拖放、手绘、门窗、服务端复核 | 计划中 |
 | M3 | Agent 循环、9 工具、proposal 链、G1 | 计划中 |
 | M4 | 求解器、VLM、30 例评测、G2/G3 | 计划中 |
@@ -131,6 +134,8 @@ docker compose up --build
 - [ADR-0002 三层工具范式](docs/adr/0002-three-layer-tools.md)
 - [ADR-0003 Python/FastAPI 选型](docs/adr/0003-python-fastapi.md)
 - [ADR-0004 契约生成](docs/adr/0004-contract-generation.md)
+- [ADR-0005 前端视觉语言](docs/adr/0005-frontend-visual-language.md)
+- [PROTOCOL（M1 冻结）](docs/PROTOCOL.md)
 - [CONVENTIONS](docs/CONVENTIONS.md) · [DEPENDENCIES](docs/DEPENDENCIES.md)
 
 ## License
