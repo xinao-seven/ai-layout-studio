@@ -84,6 +84,7 @@ export const FacingDirection = {
 } as const;
 
 export interface CatalogRules {
+  allowOverlap?: boolean;
   anchorPriority?: number;
   groupWith?: string[];
   mustAgainstWall?: boolean;
@@ -420,6 +421,21 @@ export interface CreateSceneRequest {
   name?: string | null;
 }
 
+export type CreateTurnRequestPointContext = { [key: string]: unknown } | null;
+
+/**
+ * User message that starts an agent turn (PRD §6.2).
+ */
+export interface CreateTurnRequest {
+  clientTurnId?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 4000
+     */
+  message: string;
+  pointContext?: CreateTurnRequestPointContext;
+}
+
 export interface FixtureSummary {
   /** @minimum 0 */
   areaM2: number;
@@ -500,6 +516,46 @@ export interface ImportRequest {
   document: SceneDocument;
 }
 
+export type MessageRole = typeof MessageRole[keyof typeof MessageRole];
+
+
+export const MessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+  tool: 'tool',
+} as const;
+
+export type ProposalStatus = typeof ProposalStatus[keyof typeof ProposalStatus];
+
+
+export const ProposalStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  rejected: 'rejected',
+  expired: 'expired',
+} as const;
+
+export interface Proposal {
+  /** @minimum 1 */
+  baseVersion: number;
+  createdAt: string;
+  dependsOn?: string[];
+  /** @minLength 1 */
+  id: string;
+  ops: (ItemAddOp | ItemRemoveOp | ItemUpdateOp | RoomAddOp | RoomRemoveOp | RoomUpdateOp | OpeningAddOp | OpeningRemoveOp | OpeningUpdateOp)[];
+  reason?: string | null;
+  resolvedAt?: string | null;
+  /** @minLength 1 */
+  sceneId: string;
+  status?: ProposalStatus;
+  /** @minLength 1 */
+  turnId: string;
+}
+
+export interface ProposalListResponse {
+  proposals: Proposal[];
+}
+
 export interface SceneSummary {
   /** @minimum 0 */
   areaM2: number;
@@ -533,9 +589,81 @@ export interface ScenePatch {
   turnId?: string | null;
 }
 
+export type SceneWarningDetails = { [key: string]: unknown } | null;
+
+/**
+ * A non-fatal change made by the server while applying a patch.
+ */
+export interface SceneWarning {
+  /** @minLength 1 */
+  code: string;
+  details?: SceneWarningDetails;
+  /** @minLength 1 */
+  message: string;
+}
+
 export interface SceneResult {
   patch: ScenePatch;
   scene: SceneDocument;
+  warnings?: SceneWarning[];
+}
+
+export type TurnMessageToolCalls = { [key: string]: unknown }[] | null;
+
+export type TurnMessageToolResult = { [key: string]: unknown } | null;
+
+export interface TurnMessage {
+  content?: string;
+  role: MessageRole;
+  screenshotAfter?: string | null;
+  screenshotBefore?: string | null;
+  toolCalls?: TurnMessageToolCalls;
+  toolResult?: TurnMessageToolResult;
+}
+
+export type TurnStatus = typeof TurnStatus[keyof typeof TurnStatus];
+
+
+export const TurnStatus = {
+  queued: 'queued',
+  running: 'running',
+  waiting_user: 'waiting_user',
+  done: 'done',
+  failed: 'failed',
+  cancelled: 'cancelled',
+} as const;
+
+export interface TurnUsage {
+  iterations?: number;
+  refusals?: string[];
+  tokensIn?: number;
+  tokensOut?: number;
+  wallClockMs?: number;
+}
+
+export interface Turn {
+  createdAt: string;
+  endedAt?: string | null;
+  /** @minLength 1 */
+  id: string;
+  messages?: TurnMessage[];
+  /** @minLength 1 */
+  sceneId: string;
+  status?: TurnStatus;
+  usage?: TurnUsage;
+}
+
+export interface TurnCancelResponse {
+  ok?: boolean;
+  status: TurnStatus;
+}
+
+export interface TurnListResponse {
+  turns: Turn[];
+}
+
+export interface TurnResponse {
+  turn: Turn;
 }
 
 export interface UndoRedoRequest {
@@ -547,6 +675,10 @@ export interface UpdateItemRequest {
   position?: [number, number, number] | null;
   rotationY?: number | null;
 }
+
+export type ListProposalsApiScenesSceneIdProposalsGetParams = {
+  status?: ProposalStatus | null;
+};
 
 const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string | undefined>)[]) => {
   const seen = new Set<string>();
@@ -607,6 +739,53 @@ export const listCatalogApiCatalogGet = async ( options?: RequestInit): Promise<
 
   const data: listCatalogApiCatalogGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as listCatalogApiCatalogGetResponse
+}
+
+
+
+export type reloadCatalogApiCatalogReloadPostResponse200 = {
+  data: CatalogResponse
+  status: 200
+}
+
+export type reloadCatalogApiCatalogReloadPostResponseSuccess = (reloadCatalogApiCatalogReloadPostResponse200) & {
+  headers: Headers;
+};
+;
+
+export type reloadCatalogApiCatalogReloadPostResponse = (reloadCatalogApiCatalogReloadPostResponseSuccess)
+
+export const getReloadCatalogApiCatalogReloadPostUrl = () => {
+
+
+
+
+  return `/api/catalog/reload`
+}
+
+/**
+ * Hot-reload ``fixtures/catalog.json`` and refresh live scene validators.
+ *
+ * The new catalog is validated against every live scene before it is applied,
+ * so a reload that removes an in-use kind cannot silently break editing.
+ * @summary Reload Catalog
+ */
+export const reloadCatalogApiCatalogReloadPost = async ( options?: RequestInit): Promise<reloadCatalogApiCatalogReloadPostResponse> => {
+
+  const res = await fetch(getReloadCatalogApiCatalogReloadPostUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: reloadCatalogApiCatalogReloadPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as reloadCatalogApiCatalogReloadPostResponse
 }
 
 
@@ -1148,6 +1327,65 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatch = async (sceneId: s
 
 
 
+export type listProposalsApiScenesSceneIdProposalsGetResponse200 = {
+  data: ProposalListResponse
+  status: 200
+}
+
+export type listProposalsApiScenesSceneIdProposalsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type listProposalsApiScenesSceneIdProposalsGetResponseSuccess = (listProposalsApiScenesSceneIdProposalsGetResponse200) & {
+  headers: Headers;
+};
+export type listProposalsApiScenesSceneIdProposalsGetResponseError = (listProposalsApiScenesSceneIdProposalsGetResponse422) & {
+  headers: Headers;
+};
+
+export type listProposalsApiScenesSceneIdProposalsGetResponse = (listProposalsApiScenesSceneIdProposalsGetResponseSuccess | listProposalsApiScenesSceneIdProposalsGetResponseError)
+
+export const getListProposalsApiScenesSceneIdProposalsGetUrl = (sceneId: string,
+    params?: ListProposalsApiScenesSceneIdProposalsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/scenes/${sceneId}/proposals?${stringifiedParams}` : `/api/scenes/${sceneId}/proposals`
+}
+
+/**
+ * @summary List Proposals
+ */
+export const listProposalsApiScenesSceneIdProposalsGet = async (sceneId: string,
+    params?: ListProposalsApiScenesSceneIdProposalsGetParams, options?: RequestInit): Promise<listProposalsApiScenesSceneIdProposalsGetResponse> => {
+
+  const res = await fetch(getListProposalsApiScenesSceneIdProposalsGetUrl(sceneId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listProposalsApiScenesSceneIdProposalsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listProposalsApiScenesSceneIdProposalsGetResponse
+}
+
+
+
 export type redoSceneApiScenesSceneIdRedoPostResponse200 = {
   data: SceneResult
   status: 200
@@ -1199,6 +1437,159 @@ export const redoSceneApiScenesSceneIdRedoPost = async (sceneId: string,
 
 
 
+export type listTurnsApiScenesSceneIdTurnsGetResponse200 = {
+  data: TurnListResponse
+  status: 200
+}
+
+export type listTurnsApiScenesSceneIdTurnsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type listTurnsApiScenesSceneIdTurnsGetResponseSuccess = (listTurnsApiScenesSceneIdTurnsGetResponse200) & {
+  headers: Headers;
+};
+export type listTurnsApiScenesSceneIdTurnsGetResponseError = (listTurnsApiScenesSceneIdTurnsGetResponse422) & {
+  headers: Headers;
+};
+
+export type listTurnsApiScenesSceneIdTurnsGetResponse = (listTurnsApiScenesSceneIdTurnsGetResponseSuccess | listTurnsApiScenesSceneIdTurnsGetResponseError)
+
+export const getListTurnsApiScenesSceneIdTurnsGetUrl = (sceneId: string,) => {
+
+
+
+
+  return `/api/scenes/${sceneId}/turns`
+}
+
+/**
+ * @summary List Turns
+ */
+export const listTurnsApiScenesSceneIdTurnsGet = async (sceneId: string, options?: RequestInit): Promise<listTurnsApiScenesSceneIdTurnsGetResponse> => {
+
+  const res = await fetch(getListTurnsApiScenesSceneIdTurnsGetUrl(sceneId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listTurnsApiScenesSceneIdTurnsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listTurnsApiScenesSceneIdTurnsGetResponse
+}
+
+
+
+export type createTurnApiScenesSceneIdTurnsPostResponse201 = {
+  data: TurnResponse
+  status: 201
+}
+
+export type createTurnApiScenesSceneIdTurnsPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type createTurnApiScenesSceneIdTurnsPostResponseSuccess = (createTurnApiScenesSceneIdTurnsPostResponse201) & {
+  headers: Headers;
+};
+export type createTurnApiScenesSceneIdTurnsPostResponseError = (createTurnApiScenesSceneIdTurnsPostResponse422) & {
+  headers: Headers;
+};
+
+export type createTurnApiScenesSceneIdTurnsPostResponse = (createTurnApiScenesSceneIdTurnsPostResponseSuccess | createTurnApiScenesSceneIdTurnsPostResponseError)
+
+export const getCreateTurnApiScenesSceneIdTurnsPostUrl = (sceneId: string,) => {
+
+
+
+
+  return `/api/scenes/${sceneId}/turns`
+}
+
+/**
+ * @summary Create Turn
+ */
+export const createTurnApiScenesSceneIdTurnsPost = async (sceneId: string,
+    createTurnRequest: CreateTurnRequest, options?: RequestInit): Promise<createTurnApiScenesSceneIdTurnsPostResponse> => {
+
+  const res = await fetch(getCreateTurnApiScenesSceneIdTurnsPostUrl(sceneId),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(createTurnRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: createTurnApiScenesSceneIdTurnsPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createTurnApiScenesSceneIdTurnsPostResponse
+}
+
+
+
+export type getTurnApiScenesSceneIdTurnsTurnIdGetResponse200 = {
+  data: TurnResponse
+  status: 200
+}
+
+export type getTurnApiScenesSceneIdTurnsTurnIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type getTurnApiScenesSceneIdTurnsTurnIdGetResponseSuccess = (getTurnApiScenesSceneIdTurnsTurnIdGetResponse200) & {
+  headers: Headers;
+};
+export type getTurnApiScenesSceneIdTurnsTurnIdGetResponseError = (getTurnApiScenesSceneIdTurnsTurnIdGetResponse422) & {
+  headers: Headers;
+};
+
+export type getTurnApiScenesSceneIdTurnsTurnIdGetResponse = (getTurnApiScenesSceneIdTurnsTurnIdGetResponseSuccess | getTurnApiScenesSceneIdTurnsTurnIdGetResponseError)
+
+export const getGetTurnApiScenesSceneIdTurnsTurnIdGetUrl = (sceneId: string,
+    turnId: string,) => {
+
+
+
+
+  return `/api/scenes/${sceneId}/turns/${turnId}`
+}
+
+/**
+ * @summary Get Turn
+ */
+export const getTurnApiScenesSceneIdTurnsTurnIdGet = async (sceneId: string,
+    turnId: string, options?: RequestInit): Promise<getTurnApiScenesSceneIdTurnsTurnIdGetResponse> => {
+
+  const res = await fetch(getGetTurnApiScenesSceneIdTurnsTurnIdGetUrl(sceneId,turnId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getTurnApiScenesSceneIdTurnsTurnIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getTurnApiScenesSceneIdTurnsTurnIdGetResponse
+}
+
+
+
 export type undoSceneApiScenesSceneIdUndoPostResponse200 = {
   data: SceneResult
   status: 200
@@ -1246,4 +1637,54 @@ export const undoSceneApiScenesSceneIdUndoPost = async (sceneId: string,
 
   const data: undoSceneApiScenesSceneIdUndoPostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as undoSceneApiScenesSceneIdUndoPostResponse
+}
+
+
+
+export type cancelTurnApiTurnsTurnIdCancelPostResponse200 = {
+  data: TurnCancelResponse
+  status: 200
+}
+
+export type cancelTurnApiTurnsTurnIdCancelPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+
+export type cancelTurnApiTurnsTurnIdCancelPostResponseSuccess = (cancelTurnApiTurnsTurnIdCancelPostResponse200) & {
+  headers: Headers;
+};
+export type cancelTurnApiTurnsTurnIdCancelPostResponseError = (cancelTurnApiTurnsTurnIdCancelPostResponse422) & {
+  headers: Headers;
+};
+
+export type cancelTurnApiTurnsTurnIdCancelPostResponse = (cancelTurnApiTurnsTurnIdCancelPostResponseSuccess | cancelTurnApiTurnsTurnIdCancelPostResponseError)
+
+export const getCancelTurnApiTurnsTurnIdCancelPostUrl = (turnId: string,) => {
+
+
+
+
+  return `/api/turns/${turnId}/cancel`
+}
+
+/**
+ * @summary Cancel Turn
+ */
+export const cancelTurnApiTurnsTurnIdCancelPost = async (turnId: string, options?: RequestInit): Promise<cancelTurnApiTurnsTurnIdCancelPostResponse> => {
+
+  const res = await fetch(getCancelTurnApiTurnsTurnIdCancelPostUrl(turnId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: cancelTurnApiTurnsTurnIdCancelPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as cancelTurnApiTurnsTurnIdCancelPostResponse
 }

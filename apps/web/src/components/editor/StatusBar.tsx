@@ -39,7 +39,7 @@ export function StatusBar({ perfMode }: { perfMode: boolean }) {
         ) : null}
       </div>
       <span className="hidden rounded-full border border-white/10 bg-black/40 px-2 py-1 text-[10px] text-white/40 backdrop-blur sm:block">
-        Tab 切换俯视 · 点击家具查看详情
+        Tab 俯视 · 拖拽家具 · R 旋转 · 方向键微调 · 拖入目录放置
       </span>
     </div>
   )

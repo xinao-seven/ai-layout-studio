@@ -130,7 +130,7 @@ async def test_undo_redo_round_trip_through_repository(repository: SceneReposito
         id="it_stack",
         kind_id="plant",
         variant_id="default",
-        transform=Transform(position=(3.0, 0.0, 2.0), rotation_y=0.0),
+        transform=Transform(position=(3.6, 0.0, 2.0), rotation_y=0.0),
     )
     await registry.commit(document.id, [ItemAddOp(op="item.add", item=item)], base_version=1)
 
@@ -151,8 +151,13 @@ async def test_undo_redo_round_trip_through_repository(repository: SceneReposito
 def test_fixture_service_lists_and_instantiates() -> None:
     service = FixtureService()
     fixtures = service.list_fixtures()
-    assert len(fixtures) == 3
-    assert {fixture.id for fixture in fixtures} == {"studio", "one-bedroom", "two-bedroom"}
+    assert len(fixtures) == 4
+    assert {fixture.id for fixture in fixtures} == {
+        "studio",
+        "one-bedroom",
+        "two-bedroom",
+        "living-room",
+    }
     assert all(fixture.room_count > 0 for fixture in fixtures)
     assert all(fixture.area_m2 > 20 for fixture in fixtures)
 
@@ -229,7 +234,7 @@ async def test_save_failure_does_not_advance_memory(repository: SceneRepository)
         id="it_unpersisted",
         kind_id="plant",
         variant_id="default",
-        transform=Transform(position=(3.0, 0.0, 2.0), rotation_y=0.0),
+        transform=Transform(position=(3.6, 0.0, 2.0), rotation_y=0.0),
     )
 
     async def fail_save(outcome):  # noqa: ANN001, ANN202
@@ -254,7 +259,7 @@ async def test_idempotent_commit_does_not_write_twice(
         id="it_idem",
         kind_id="plant",
         variant_id="default",
-        transform=Transform(position=(3.0, 0.0, 2.0), rotation_y=0.0),
+        transform=Transform(position=(3.6, 0.0, 2.0), rotation_y=0.0),
     )
     ops = [ItemAddOp(op="item.add", item=item)]
 

@@ -1,0 +1,4 @@
+{"text":"我先看一下客厅的房间和可用沙发。","toolCalls":[{"id":"g1-call-1","name":"query_scene","arguments":{"includePending":true}},{"id":"g1-call-2","name":"search_catalog","arguments":{"query":"sofa","category":"sofa","limit":5}}]}
+{"text":"找到双人沙发，放到电视墙。","toolCalls":[{"id":"g1-call-3","name":"add_item","arguments":{"kindId":"sofa","roomId":"$lastRoomId","relation":{"type":"against_wall","wallLabel":"电视墙"}}}]}
+{"text":"再配一个茶几。","toolCalls":[{"id":"g1-call-4","name":"add_item","arguments":{"kindId":"coffee_table","roomId":"$lastRoomId","relation":{"type":"near_item","itemId":"$lastItemId","distance":0.45}}}]}
+{"text":"已创建两个提案：双人沙发靠电视墙，茶几放在沙发前 0.45m。请在对话面板逐个确认，确认后可用撤销回退。"}

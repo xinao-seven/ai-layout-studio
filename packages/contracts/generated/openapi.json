@@ -294,6 +294,11 @@
       "CatalogRules": {
         "additionalProperties": false,
         "properties": {
+          "allowOverlap": {
+            "default": false,
+            "title": "Allowoverlap",
+            "type": "boolean"
+          },
           "anchorPriority": {
             "default": 0,
             "title": "Anchorpriority",
@@ -523,6 +528,46 @@
           }
         },
         "title": "CreateSceneRequest",
+        "type": "object"
+      },
+      "CreateTurnRequest": {
+        "additionalProperties": false,
+        "description": "User message that starts an agent turn (PRD §6.2).",
+        "properties": {
+          "clientTurnId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clientturnid"
+          },
+          "message": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "pointContext": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pointcontext"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "CreateTurnRequest",
         "type": "object"
       },
       "DoorHinge": {
@@ -1014,6 +1059,15 @@
         "title": "ItemUpdateOp",
         "type": "object"
       },
+      "MessageRole": {
+        "enum": [
+          "user",
+          "assistant",
+          "tool"
+        ],
+        "title": "MessageRole",
+        "type": "string"
+      },
       "Near": {
         "additionalProperties": false,
         "properties": {
@@ -1366,6 +1420,156 @@
           "out"
         ],
         "title": "OpensTo",
+        "type": "string"
+      },
+      "Proposal": {
+        "additionalProperties": false,
+        "properties": {
+          "baseVersion": {
+            "minimum": 1.0,
+            "title": "Baseversion",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "dependsOn": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dependson",
+            "type": "array"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "ops": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "item.add": "#/components/schemas/ItemAddOp",
+                  "item.remove": "#/components/schemas/ItemRemoveOp",
+                  "item.update": "#/components/schemas/ItemUpdateOp",
+                  "opening.add": "#/components/schemas/OpeningAddOp",
+                  "opening.remove": "#/components/schemas/OpeningRemoveOp",
+                  "opening.update": "#/components/schemas/OpeningUpdateOp",
+                  "room.add": "#/components/schemas/RoomAddOp",
+                  "room.remove": "#/components/schemas/RoomRemoveOp",
+                  "room.update": "#/components/schemas/RoomUpdateOp"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ItemAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/RoomUpdateOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningAddOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningRemoveOp"
+                },
+                {
+                  "$ref": "#/components/schemas/OpeningUpdateOp"
+                }
+              ]
+            },
+            "title": "Ops",
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "resolvedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolvedat"
+          },
+          "sceneId": {
+            "minLength": 1,
+            "title": "Sceneid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProposalStatus",
+            "default": "pending"
+          },
+          "turnId": {
+            "minLength": 1,
+            "title": "Turnid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sceneId",
+          "turnId",
+          "baseVersion",
+          "ops",
+          "createdAt"
+        ],
+        "title": "Proposal",
+        "type": "object"
+      },
+      "ProposalListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            },
+            "title": "Proposals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "proposals"
+        ],
+        "title": "ProposalListResponse",
+        "type": "object"
+      },
+      "ProposalStatus": {
+        "enum": [
+          "pending",
+          "confirmed",
+          "rejected",
+          "expired"
+        ],
+        "title": "ProposalStatus",
         "type": "string"
       },
       "Room": {
@@ -1921,6 +2125,13 @@
           },
           "scene": {
             "$ref": "#/components/schemas/SceneDocument"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/SceneWarning"
+            },
+            "title": "Warnings",
+            "type": "array"
           }
         },
         "required": [
@@ -1971,6 +2182,40 @@
           "updatedAt"
         ],
         "title": "SceneSummary",
+        "type": "object"
+      },
+      "SceneWarning": {
+        "additionalProperties": false,
+        "description": "A non-fatal change made by the server while applying a patch.",
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "SceneWarning",
         "type": "object"
       },
       "Transform": {
@@ -2064,6 +2309,220 @@
           }
         },
         "title": "TransformUpdate",
+        "type": "object"
+      },
+      "Turn": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "endedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endedat"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/TurnMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "sceneId": {
+            "minLength": 1,
+            "title": "Sceneid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TurnStatus",
+            "default": "queued"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/TurnUsage"
+          }
+        },
+        "required": [
+          "id",
+          "sceneId",
+          "createdAt"
+        ],
+        "title": "Turn",
+        "type": "object"
+      },
+      "TurnCancelResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "default": true,
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TurnStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "TurnCancelResponse",
+        "type": "object"
+      },
+      "TurnListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/Turn"
+            },
+            "title": "Turns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "turns"
+        ],
+        "title": "TurnListResponse",
+        "type": "object"
+      },
+      "TurnMessage": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "default": "",
+            "title": "Content",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MessageRole"
+          },
+          "screenshotAfter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshotafter"
+          },
+          "screenshotBefore": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenshotbefore"
+          },
+          "toolCalls": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toolcalls"
+          },
+          "toolResult": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toolresult"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "title": "TurnMessage",
+        "type": "object"
+      },
+      "TurnResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "turn": {
+            "$ref": "#/components/schemas/Turn"
+          }
+        },
+        "required": [
+          "turn"
+        ],
+        "title": "TurnResponse",
+        "type": "object"
+      },
+      "TurnStatus": {
+        "enum": [
+          "queued",
+          "running",
+          "waiting_user",
+          "done",
+          "failed",
+          "cancelled"
+        ],
+        "title": "TurnStatus",
+        "type": "string"
+      },
+      "TurnUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "iterations": {
+            "default": 0,
+            "title": "Iterations",
+            "type": "integer"
+          },
+          "refusals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Refusals",
+            "type": "array"
+          },
+          "tokensIn": {
+            "default": 0,
+            "title": "Tokensin",
+            "type": "integer"
+          },
+          "tokensOut": {
+            "default": 0,
+            "title": "Tokensout",
+            "type": "integer"
+          },
+          "wallClockMs": {
+            "default": 0,
+            "title": "Wallclockms",
+            "type": "integer"
+          }
+        },
+        "title": "TurnUsage",
         "type": "object"
       },
       "UndoRedoRequest": {
@@ -2187,6 +2646,28 @@
           }
         },
         "summary": "List Catalog",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/catalog/reload": {
+      "post": {
+        "description": "Hot-reload ``fixtures/catalog.json`` and refresh live scene validators.\n\nThe new catalog is validated against every live scene before it is applied,\nso a reload that removes an in-use kind cannot silently break editing.",
+        "operationId": "reload_catalog_api_catalog_reload_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Reload Catalog",
         "tags": [
           "meta"
         ]
@@ -2632,6 +3113,64 @@
         ]
       }
     },
+    "/api/scenes/{scene_id}/proposals": {
+      "get": {
+        "operationId": "list_proposals_api_scenes__scene_id__proposals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ProposalStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Proposals",
+        "tags": [
+          "turns"
+        ]
+      }
+    },
     "/api/scenes/{scene_id}/redo": {
       "post": {
         "operationId": "redo_scene_api_scenes__scene_id__redo_post",
@@ -2684,6 +3223,149 @@
         ]
       }
     },
+    "/api/scenes/{scene_id}/turns": {
+      "get": {
+        "operationId": "list_turns_api_scenes__scene_id__turns_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Turns",
+        "tags": [
+          "turns"
+        ]
+      },
+      "post": {
+        "operationId": "create_turn_api_scenes__scene_id__turns_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTurnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Turn",
+        "tags": [
+          "turns"
+        ]
+      }
+    },
+    "/api/scenes/{scene_id}/turns/{turn_id}": {
+      "get": {
+        "operationId": "get_turn_api_scenes__scene_id__turns__turn_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scene_id",
+            "required": true,
+            "schema": {
+              "title": "Scene Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn_id",
+            "required": true,
+            "schema": {
+              "title": "Turn Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Turn",
+        "tags": [
+          "turns"
+        ]
+      }
+    },
     "/api/scenes/{scene_id}/undo": {
       "post": {
         "operationId": "undo_scene_api_scenes__scene_id__undo_post",
@@ -2733,6 +3415,48 @@
         "summary": "Undo Scene",
         "tags": [
           "scenes"
+        ]
+      }
+    },
+    "/api/turns/{turn_id}/cancel": {
+      "post": {
+        "operationId": "cancel_turn_api_turns__turn_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "turn_id",
+            "required": true,
+            "schema": {
+              "title": "Turn Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnCancelResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Turn",
+        "tags": [
+          "turns"
         ]
       }
     }

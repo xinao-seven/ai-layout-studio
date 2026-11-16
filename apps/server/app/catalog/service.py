@@ -62,10 +62,17 @@ class CatalogService:
     def get(self, kind_id: str) -> CatalogEntry | None:
         return self._by_kind.get(kind_id)
 
-    def reload(self, path: Path | None = None) -> list[CatalogEntry]:
-        new_path = path or self._path
-        entries = self._load(new_path)
-        self._path = new_path
+    def preview(self, path: Path | None = None) -> list[CatalogEntry]:
+        """Load a catalog without mutating the live service."""
+        return self._load(path or self._path)
+
+    def apply(self, entries: list[CatalogEntry], path: Path | None = None) -> list[CatalogEntry]:
+        self._path = path or self._path
         self._entries = entries
         self._by_kind = {entry.kind_id: entry for entry in entries}
         return list(entries)
+
+    def reload(self, path: Path | None = None) -> list[CatalogEntry]:
+        new_path = path or self._path
+        entries = self._load(new_path)
+        return self.apply(entries, new_path)

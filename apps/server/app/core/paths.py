@@ -24,3 +24,12 @@ def project_roots() -> list[Path]:
         if candidate not in unique:
             unique.append(candidate)
     return unique
+
+
+def find_assets_root() -> Path | None:
+    """Locate the repository's ``assets/`` directory for static serving."""
+    for root in project_roots():
+        candidate = root / "assets"
+        if candidate.is_dir():
+            return candidate
+    return None

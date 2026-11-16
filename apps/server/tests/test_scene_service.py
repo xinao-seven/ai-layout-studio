@@ -508,6 +508,7 @@ def test_proposal_ttl_expires_stale_pending() -> None:
     stale = stale.model_copy(update={"created_at": datetime.now(UTC) - timedelta(minutes=16)})
     service.add_pending(stale)
 
+    assert service.expire_due() == ["prop_stale"]
     assert service.pending_proposals == []
     with pytest.raises(SceneError) as error:
         service.confirm_proposal("prop_stale")

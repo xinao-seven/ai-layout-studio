@@ -1,278 +1,3142 @@
 {
+  "schemaVersion": 1,
+  "source": {
+    "pack": "Kenney Furniture Kit",
+    "author": "Kenney",
+    "url": "https://kenney.nl/assets/furniture-kit",
+    "archive": "kenney_furniture-kit.zip",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "downloadHint": "curl -L -A \"Mozilla/5.0\" -e \"https://kenney.nl/assets/furniture-kit\" -o furniture-kit.zip \"https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip\"",
+    "note": "Models are metric, Y-up and authored with front +Z. The build pipeline bakes a uniform scale to realistic dimensions and re-centers the pivot to bottom-center."
+  },
   "entries": [
     {
       "kindId": "sofa",
       "name": "双人沙发",
       "category": "sofa",
-      "tags": ["sofa", "沙发", "living"],
+      "tags": [
+        "sofa",
+        "沙发",
+        "双人沙发",
+        "living"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [2.0, 0.9, 0.85],
-          "modelPath": "models/sofa.glb",
-          "thumbnailPath": "thumbnails/sofa.png"
+          "sizeM": [
+            1.811,
+            0.758,
+            0.85
+          ],
+          "modelPath": "/assets/models/sofa.glb",
+          "thumbnailPath": "/assets/thumbnails/sofa.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.1, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
         "preferredWall": "south",
-        "groupWith": ["coffee_table", "tv_stand"],
+        "groupWith": [
+          "coffee_table",
+          "tv_stand"
+        ],
         "anchorPriority": 8,
-        "roomTypes": ["living"]
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "coffee_table",
       "name": "茶几",
       "category": "table",
-      "tags": ["coffee table", "茶几"],
+      "tags": [
+        "coffee table",
+        "茶几",
+        "living"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.1, 0.6, 0.42],
-          "modelPath": "models/coffee_table.glb",
-          "thumbnailPath": "thumbnails/coffee_table.png"
+          "sizeM": [
+            1.265,
+            0.765,
+            0.44
+          ],
+          "modelPath": "/assets/models/coffee_table.glb",
+          "thumbnailPath": "/assets/thumbnails/coffee_table.png"
         }
       ],
-      "clearance": { "front": 0.3, "sides": 0.2, "back": 0.3 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
-        "groupWith": ["sofa"],
+        "groupWith": [
+          "sofa"
+        ],
         "anchorPriority": 4,
-        "roomTypes": ["living"]
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "bed_double",
       "name": "双人床",
       "category": "bed",
-      "tags": ["bed", "double bed", "双人床", "床"],
+      "tags": [
+        "bed",
+        "double bed",
+        "双人床",
+        "床"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.6, 2.0, 0.5],
-          "modelPath": "models/bed_double.glb",
-          "thumbnailPath": "thumbnails/bed_double.png"
+          "sizeM": [
+            1.7,
+            2.0,
+            0.667
+          ],
+          "modelPath": "/assets/models/bed_double.glb",
+          "thumbnailPath": "/assets/thumbnails/bed_double.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "groupWith": ["nightstand", "wardrobe"],
+        "groupWith": [
+          "nightstand",
+          "wardrobe"
+        ],
         "anchorPriority": 10,
-        "roomTypes": ["bedroom"]
+        "roomTypes": [
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "bed_single",
       "name": "单人床",
       "category": "bed",
-      "tags": ["bed", "single bed", "单人床"],
+      "tags": [
+        "bed",
+        "single bed",
+        "单人床"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.0, 2.0, 0.5],
-          "modelPath": "models/bed_single.glb",
-          "thumbnailPath": "thumbnails/bed_single.png"
+          "sizeM": [
+            1.015,
+            2.0,
+            0.667
+          ],
+          "modelPath": "/assets/models/bed_single.glb",
+          "thumbnailPath": "/assets/thumbnails/bed_single.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "groupWith": ["nightstand"],
+        "groupWith": [
+          "nightstand"
+        ],
         "anchorPriority": 10,
-        "roomTypes": ["bedroom"]
+        "roomTypes": [
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bed_bunk",
+      "name": "双层床",
+      "category": "bed",
+      "tags": [
+        "bunk bed",
+        "双层床",
+        "儿童床"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.043,
+            2.0,
+            1.553
+          ],
+          "modelPath": "/assets/models/bed_bunk.glb",
+          "thumbnailPath": "/assets/thumbnails/bed_bunk.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 10,
+        "roomTypes": [
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "wardrobe",
       "name": "衣柜",
       "category": "storage",
-      "tags": ["wardrobe", "closet", "衣柜"],
+      "tags": [
+        "wardrobe",
+        "closet",
+        "衣柜"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.2, 0.6, 2.0],
-          "modelPath": "models/wardrobe.glb",
-          "thumbnailPath": "thumbnails/wardrobe.png"
+          "sizeM": [
+            2.025,
+            0.633,
+            2.0
+          ],
+          "modelPath": "/assets/models/wardrobe.glb",
+          "thumbnailPath": "/assets/thumbnails/wardrobe.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.05, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "groupWith": ["bed_double"],
-        "anchorPriority": 6,
-        "roomTypes": ["bedroom"]
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "nightstand",
       "name": "床头柜",
       "category": "storage",
-      "tags": ["nightstand", "bedside", "床头柜"],
+      "tags": [
+        "nightstand",
+        "side table",
+        "床头柜"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [0.45, 0.45, 0.55],
-          "modelPath": "models/nightstand.glb",
-          "thumbnailPath": "thumbnails/nightstand.png"
+          "sizeM": [
+            0.765,
+            0.315,
+            0.55
+          ],
+          "modelPath": "/assets/models/nightstand.glb",
+          "thumbnailPath": "/assets/thumbnails/nightstand.png"
         }
       ],
-      "clearance": { "front": 0.3, "sides": 0.05, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
-        "groupWith": ["bed_double", "bed_single"],
-        "anchorPriority": 5,
-        "roomTypes": ["bedroom"]
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "tv_stand",
       "name": "电视柜",
       "category": "storage",
-      "tags": ["tv stand", "电视柜", "media"],
+      "tags": [
+        "tv stand",
+        "media console",
+        "电视柜"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.8, 0.4, 0.5],
-          "modelPath": "models/tv_stand.glb",
-          "thumbnailPath": "thumbnails/tv_stand.png"
+          "sizeM": [
+            1.29,
+            0.403,
+            0.5
+          ],
+          "modelPath": "/assets/models/tv_stand.glb",
+          "thumbnailPath": "/assets/thumbnails/tv_stand.png"
         }
       ],
-      "clearance": { "front": 0.5, "sides": 0.1, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.46,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "preferredWall": "north",
-        "groupWith": ["sofa"],
-        "anchorPriority": 7,
-        "roomTypes": ["living"]
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "tv_stand_doors",
+      "name": "带门电视柜",
+      "category": "storage",
+      "tags": [
+        "tv stand",
+        "cabinet",
+        "电视柜",
+        "储物柜"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.29,
+            0.419,
+            0.5
+          ],
+          "modelPath": "/assets/models/tv_stand_doors.glb",
+          "thumbnailPath": "/assets/thumbnails/tv_stand_doors.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.46,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "rug",
       "name": "地毯",
       "category": "decor",
-      "tags": ["rug", "carpet", "地毯"],
+      "tags": [
+        "rug",
+        "carpet",
+        "地毯"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [2.0, 3.0, 0.02],
-          "modelPath": "models/rug.glb",
-          "thumbnailPath": "thumbnails/rug.png"
+          "sizeM": [
+            2.389,
+            1.4,
+            0.015
+          ],
+          "modelPath": "/assets/models/rug.glb",
+          "thumbnailPath": "/assets/thumbnails/rug.png"
         }
       ],
-      "clearance": {},
-      "rules": { "anchorPriority": 1, "roomTypes": ["living", "bedroom"] }
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
     },
     {
       "kindId": "dining_table",
       "name": "餐桌",
       "category": "table",
-      "tags": ["dining table", "餐桌"],
+      "tags": [
+        "dining table",
+        "餐桌"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.4, 0.9, 0.75],
-          "modelPath": "models/dining_table.glb",
-          "thumbnailPath": "thumbnails/dining_table.png"
+          "sizeM": [
+            1.932,
+            1.027,
+            0.75
+          ],
+          "modelPath": "/assets/models/dining_table.glb",
+          "thumbnailPath": "/assets/thumbnails/dining_table.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.6, "back": 0.6 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
-        "groupWith": ["chair"],
+        "groupWith": [
+          "chair"
+        ],
         "anchorPriority": 6,
-        "roomTypes": ["living", "kitchen"]
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "desk",
       "name": "书桌",
       "category": "table",
-      "tags": ["desk", "书桌", "study"],
+      "tags": [
+        "desk",
+        "书桌",
+        "工作台"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [1.2, 0.6, 0.75],
-          "modelPath": "models/desk.glb",
-          "thumbnailPath": "thumbnails/desk.png"
+          "sizeM": [
+            1.433,
+            0.765,
+            0.75
+          ],
+          "modelPath": "/assets/models/desk.glb",
+          "thumbnailPath": "/assets/thumbnails/desk.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.3, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.2,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "groupWith": ["chair", "bookshelf"],
-        "anchorPriority": 7,
-        "roomTypes": ["study", "bedroom"]
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "bookshelf",
       "name": "书架",
       "category": "storage",
-      "tags": ["bookshelf", "书架", "storage"],
+      "tags": [
+        "bookshelf",
+        "bookcase",
+        "书架"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [0.9, 0.35, 1.8],
-          "modelPath": "models/bookshelf.glb",
-          "thumbnailPath": "thumbnails/bookshelf.png"
+          "sizeM": [
+            0.864,
+            0.54,
+            1.9
+          ],
+          "modelPath": "/assets/models/bookshelf.glb",
+          "thumbnailPath": "/assets/thumbnails/bookshelf.png"
         }
       ],
-      "clearance": { "front": 0.6, "sides": 0.05, "back": 0.02 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
         "mustAgainstWall": true,
-        "groupWith": ["desk"],
         "anchorPriority": 5,
-        "roomTypes": ["study", "living", "bedroom"]
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "chair",
-      "name": "椅子",
+      "name": "餐椅",
       "category": "other",
-      "tags": ["chair", "椅子"],
+      "tags": [
+        "chair",
+        "dining chair",
+        "餐椅"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [0.5, 0.5, 0.9],
-          "modelPath": "models/chair.glb",
-          "thumbnailPath": "thumbnails/chair.png"
+          "sizeM": [
+            0.383,
+            0.383,
+            0.9
+          ],
+          "modelPath": "/assets/models/chair.glb",
+          "thumbnailPath": "/assets/thumbnails/chair.png"
         }
       ],
-      "clearance": { "front": 0.45, "sides": 0.1, "back": 0.1 },
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
       "rules": {
-        "groupWith": ["dining_table", "desk"],
+        "groupWith": [
+          "dining_table"
+        ],
         "anchorPriority": 3,
-        "roomTypes": ["living", "study", "kitchen"]
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
       }
     },
     {
       "kindId": "plant",
-      "name": "绿植",
+      "name": "盆栽",
       "category": "decor",
-      "tags": ["plant", "绿植", "decor"],
+      "tags": [
+        "plant",
+        "盆栽",
+        "绿植"
+      ],
+      "placement": "floor",
       "defaultVariantId": "default",
       "variants": [
         {
           "id": "default",
-          "sizeM": [0.5, 0.5, 1.2],
-          "modelPath": "models/plant.glb",
-          "thumbnailPath": "thumbnails/plant.png"
+          "sizeM": [
+            0.389,
+            0.443,
+            1.2
+          ],
+          "modelPath": "/assets/models/plant.glb",
+          "thumbnailPath": "/assets/thumbnails/plant.png"
         }
       ],
-      "clearance": { "front": 0.2, "sides": 0.2, "back": 0.2 },
-      "rules": { "anchorPriority": 1, "roomTypes": ["living", "bedroom", "balcony"] }
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study",
+          "balcony"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "sofa_long",
+      "name": "三人沙发",
+      "category": "sofa",
+      "tags": [
+        "sofa",
+        "three seat",
+        "三人沙发"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.811,
+            1.515,
+            0.85
+          ],
+          "modelPath": "/assets/models/sofa_long.glb",
+          "thumbnailPath": "/assets/thumbnails/sofa_long.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table",
+          "tv_stand"
+        ],
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "sofa_corner",
+      "name": "转角沙发",
+      "category": "sofa",
+      "tags": [
+        "sofa",
+        "corner sofa",
+        "转角沙发"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.811,
+            1.811,
+            0.85
+          ],
+          "modelPath": "/assets/models/sofa_corner.glb",
+          "thumbnailPath": "/assets/thumbnails/sofa_corner.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 9,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "armchair",
+      "name": "扶手椅",
+      "category": "sofa",
+      "tags": [
+        "armchair",
+        "lounge chair",
+        "扶手椅"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.959,
+            0.802,
+            0.9
+          ],
+          "modelPath": "/assets/models/armchair.glb",
+          "thumbnailPath": "/assets/thumbnails/armchair.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.15,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "lounge_chair",
+      "name": "休闲躺椅",
+      "category": "sofa",
+      "tags": [
+        "recliner",
+        "lounge chair",
+        "躺椅"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.739,
+            1.017,
+            0.95
+          ],
+          "modelPath": "/assets/models/lounge_chair.glb",
+          "thumbnailPath": "/assets/thumbnails/lounge_chair.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "balcony"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "sofa_design",
+      "name": "现代沙发",
+      "category": "sofa",
+      "tags": [
+        "design sofa",
+        "现代沙发",
+        "loveseat"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            2.24,
+            0.82,
+            0.8
+          ],
+          "modelPath": "/assets/models/sofa_design.glb",
+          "thumbnailPath": "/assets/thumbnails/sofa_design.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 7,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "ottoman",
+      "name": "脚凳",
+      "category": "sofa",
+      "tags": [
+        "ottoman",
+        "footstool",
+        "脚凳"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.861,
+            0.88,
+            0.45
+          ],
+          "modelPath": "/assets/models/ottoman.glb",
+          "thumbnailPath": "/assets/thumbnails/ottoman.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "design_chair",
+      "name": "设计单椅",
+      "category": "other",
+      "tags": [
+        "design chair",
+        "单椅",
+        "accent chair"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.55,
+            0.871,
+            0.85
+          ],
+          "modelPath": "/assets/models/design_chair.glb",
+          "thumbnailPath": "/assets/thumbnails/design_chair.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.08
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "coffee_table_glass",
+      "name": "玻璃茶几",
+      "category": "table",
+      "tags": [
+        "glass coffee table",
+        "玻璃茶几"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.265,
+            0.765,
+            0.44
+          ],
+          "modelPath": "/assets/models/coffee_table_glass.glb",
+          "thumbnailPath": "/assets/thumbnails/coffee_table_glass.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "coffee_table_square",
+      "name": "方形茶几",
+      "category": "table",
+      "tags": [
+        "square coffee table",
+        "方形茶几"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.765,
+            0.765,
+            0.44
+          ],
+          "modelPath": "/assets/models/coffee_table_square.glb",
+          "thumbnailPath": "/assets/thumbnails/coffee_table_square.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "side_table",
+      "name": "抽屉边几",
+      "category": "table",
+      "tags": [
+        "side table",
+        "边几",
+        "抽屉"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.765,
+            0.318,
+            0.55
+          ],
+          "modelPath": "/assets/models/side_table.glb",
+          "thumbnailPath": "/assets/thumbnails/side_table.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "round_table",
+      "name": "圆餐桌",
+      "category": "table",
+      "tags": [
+        "round table",
+        "圆桌",
+        "dining"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.417,
+            1.636,
+            0.75
+          ],
+          "modelPath": "/assets/models/round_table.glb",
+          "thumbnailPath": "/assets/thumbnails/round_table.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "glass_table",
+      "name": "玻璃餐桌",
+      "category": "table",
+      "tags": [
+        "glass table",
+        "玻璃餐桌"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.932,
+            1.027,
+            0.75
+          ],
+          "modelPath": "/assets/models/glass_table.glb",
+          "thumbnailPath": "/assets/thumbnails/glass_table.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "corner_desk",
+      "name": "转角书桌",
+      "category": "table",
+      "tags": [
+        "corner desk",
+        "转角书桌",
+        "工作台"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.901,
+            1.901,
+            0.75
+          ],
+          "modelPath": "/assets/models/corner_desk.glb",
+          "thumbnailPath": "/assets/thumbnails/corner_desk.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.2,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "stool_bar",
+      "name": "吧台凳",
+      "category": "other",
+      "tags": [
+        "bar stool",
+        "吧台凳"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.458,
+            0.396,
+            0.75
+          ],
+          "modelPath": "/assets/models/stool_bar.glb",
+          "thumbnailPath": "/assets/thumbnails/stool_bar.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "stool_square",
+      "name": "方凳",
+      "category": "other",
+      "tags": [
+        "stool",
+        "方凳",
+        "seat"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.246,
+            0.237,
+            0.65
+          ],
+          "modelPath": "/assets/models/stool_square.glb",
+          "thumbnailPath": "/assets/thumbnails/stool_square.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "kitchen",
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bench",
+      "name": "软垫长凳",
+      "category": "other",
+      "tags": [
+        "bench",
+        "长凳",
+        "软凳"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.435,
+            0.217,
+            0.5
+          ],
+          "modelPath": "/assets/models/bench.glb",
+          "thumbnailPath": "/assets/thumbnails/bench.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 3,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "balcony"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "chair_desk",
+      "name": "办公椅",
+      "category": "other",
+      "tags": [
+        "office chair",
+        "desk chair",
+        "办公椅"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.496,
+            0.466,
+            0.9
+          ],
+          "modelPath": "/assets/models/chair_desk.glb",
+          "thumbnailPath": "/assets/thumbnails/chair_desk.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.15,
+        "back": 0.15
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "desk"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "chair_cushion",
+      "name": "软垫餐椅",
+      "category": "other",
+      "tags": [
+        "cushioned chair",
+        "软垫餐椅"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.391,
+            0.391,
+            0.9
+          ],
+          "modelPath": "/assets/models/chair_cushion.glb",
+          "thumbnailPath": "/assets/thumbnails/chair_cushion.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "dining_table"
+        ],
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "chair_rounded",
+      "name": "圆背椅",
+      "category": "other",
+      "tags": [
+        "rounded chair",
+        "圆背椅"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.396,
+            0.396,
+            0.9
+          ],
+          "modelPath": "/assets/models/chair_rounded.glb",
+          "thumbnailPath": "/assets/thumbnails/chair_rounded.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "groupWith": [
+          "dining_table"
+        ],
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bookcase_low",
+      "name": "矮书架",
+      "category": "storage",
+      "tags": [
+        "low bookcase",
+        "矮书架"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.8,
+            0.5,
+            0.8
+          ],
+          "modelPath": "/assets/models/bookcase_low.glb",
+          "thumbnailPath": "/assets/thumbnails/bookcase_low.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 4,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bookcase_closed",
+      "name": "封闭书架",
+      "category": "storage",
+      "tags": [
+        "closed bookcase",
+        "封闭书架"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.847,
+            0.529,
+            1.8
+          ],
+          "modelPath": "/assets/models/bookcase_closed.glb",
+          "thumbnailPath": "/assets/thumbnails/bookcase_closed.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bookcase_doors",
+      "name": "带门书架",
+      "category": "storage",
+      "tags": [
+        "bookcase doors",
+        "带门书架"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.847,
+            0.529,
+            1.8
+          ],
+          "modelPath": "/assets/models/bookcase_doors.glb",
+          "thumbnailPath": "/assets/thumbnails/bookcase_doors.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "kitchen_cabinet",
+      "name": "厨房地柜",
+      "category": "storage",
+      "tags": [
+        "kitchen cabinet",
+        "厨房地柜",
+        "橱柜"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.86,
+            0.9,
+            0.9
+          ],
+          "modelPath": "/assets/models/kitchen_cabinet.glb",
+          "thumbnailPath": "/assets/thumbnails/kitchen_cabinet.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "kitchen_cabinet_drawer",
+      "name": "厨房抽屉柜",
+      "category": "storage",
+      "tags": [
+        "kitchen drawer",
+        "抽屉柜",
+        "橱柜"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.86,
+            0.9,
+            0.9
+          ],
+          "modelPath": "/assets/models/kitchen_cabinet_drawer.glb",
+          "thumbnailPath": "/assets/thumbnails/kitchen_cabinet_drawer.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "fridge",
+      "name": "双门冰箱",
+      "category": "storage",
+      "tags": [
+        "fridge",
+        "refrigerator",
+        "冰箱"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.074,
+            0.838,
+            1.9
+          ],
+          "modelPath": "/assets/models/fridge.glb",
+          "thumbnailPath": "/assets/thumbnails/fridge.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 8,
+        "roomTypes": [
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "stove",
+      "name": "灶台",
+      "category": "storage",
+      "tags": [
+        "stove",
+        "cooktop",
+        "灶台"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.86,
+            0.9,
+            0.9
+          ],
+          "modelPath": "/assets/models/stove.glb",
+          "thumbnailPath": "/assets/thumbnails/stove.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "kitchen_sink",
+      "name": "厨房水槽",
+      "category": "storage",
+      "tags": [
+        "sink",
+        "水槽",
+        "厨房"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.79,
+            0.827,
+            0.9
+          ],
+          "modelPath": "/assets/models/kitchen_sink.glb",
+          "thumbnailPath": "/assets/thumbnails/kitchen_sink.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bathroom_cabinet",
+      "name": "浴室柜",
+      "category": "storage",
+      "tags": [
+        "bathroom cabinet",
+        "浴室柜"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.775,
+            0.577,
+            0.85
+          ],
+          "modelPath": "/assets/models/bathroom_cabinet.glb",
+          "thumbnailPath": "/assets/thumbnails/bathroom_cabinet.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bathroom_sink",
+      "name": "洗手盆",
+      "category": "storage",
+      "tags": [
+        "bathroom sink",
+        "洗手盆"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.63,
+            0.44,
+            0.85
+          ],
+          "modelPath": "/assets/models/bathroom_sink.glb",
+          "thumbnailPath": "/assets/thumbnails/bathroom_sink.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "bathtub",
+      "name": "浴缸",
+      "category": "other",
+      "tags": [
+        "bathtub",
+        "浴缸"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.558,
+            0.733,
+            0.55
+          ],
+          "modelPath": "/assets/models/bathtub.glb",
+          "thumbnailPath": "/assets/thumbnails/bathtub.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "shower",
+      "name": "淋浴间",
+      "category": "other",
+      "tags": [
+        "shower",
+        "淋浴间"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.027,
+            1.027,
+            2.0
+          ],
+          "modelPath": "/assets/models/shower.glb",
+          "thumbnailPath": "/assets/thumbnails/shower.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "toilet",
+      "name": "马桶",
+      "category": "other",
+      "tags": [
+        "toilet",
+        "wc",
+        "马桶"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.505,
+            0.644,
+            0.75
+          ],
+          "modelPath": "/assets/models/toilet.glb",
+          "thumbnailPath": "/assets/thumbnails/toilet.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "washer",
+      "name": "洗衣机",
+      "category": "storage",
+      "tags": [
+        "washer",
+        "washing machine",
+        "洗衣机"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.705,
+            0.705,
+            0.85
+          ],
+          "modelPath": "/assets/models/washer.glb",
+          "thumbnailPath": "/assets/thumbnails/washer.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.7,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom",
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "dryer",
+      "name": "烘干机",
+      "category": "storage",
+      "tags": [
+        "dryer",
+        "烘干机"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.705,
+            0.687,
+            0.85
+          ],
+          "modelPath": "/assets/models/dryer.glb",
+          "thumbnailPath": "/assets/thumbnails/dryer.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.7,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom",
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "floor_lamp",
+      "name": "落地灯",
+      "category": "lighting",
+      "tags": [
+        "floor lamp",
+        "落地灯",
+        "灯"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.283,
+            0.327,
+            1.6
+          ],
+          "modelPath": "/assets/models/floor_lamp.glb",
+          "thumbnailPath": "/assets/thumbnails/floor_lamp.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.2,
+        "back": 0.2
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "floor_lamp_square",
+      "name": "方形落地灯",
+      "category": "lighting",
+      "tags": [
+        "floor lamp",
+        "方形落地灯"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.223,
+            0.223,
+            1.6
+          ],
+          "modelPath": "/assets/models/floor_lamp_square.glb",
+          "thumbnailPath": "/assets/thumbnails/floor_lamp_square.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.2,
+        "back": 0.2
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "table_lamp",
+      "name": "台灯",
+      "category": "lighting",
+      "tags": [
+        "table lamp",
+        "台灯"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.242,
+            0.279,
+            0.5
+          ],
+          "modelPath": "/assets/models/table_lamp.glb",
+          "thumbnailPath": "/assets/thumbnails/table_lamp.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "rug_round",
+      "name": "圆形地毯",
+      "category": "decor",
+      "tags": [
+        "round rug",
+        "圆形地毯"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            2.0,
+            2.0,
+            0.022
+          ],
+          "modelPath": "/assets/models/rug_round.glb",
+          "thumbnailPath": "/assets/thumbnails/rug_round.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "rug_square",
+      "name": "方形地毯",
+      "category": "decor",
+      "tags": [
+        "square rug",
+        "方形地毯"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            1.966,
+            2.0,
+            0.022
+          ],
+          "modelPath": "/assets/models/rug_square.glb",
+          "thumbnailPath": "/assets/thumbnails/rug_square.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "plant_small",
+      "name": "小盆栽",
+      "category": "decor",
+      "tags": [
+        "small plant",
+        "小盆栽",
+        "绿植"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.406,
+            0.406,
+            0.6
+          ],
+          "modelPath": "/assets/models/plant_small.glb",
+          "thumbnailPath": "/assets/thumbnails/plant_small.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.05,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study",
+          "kitchen"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "television",
+      "name": "复古电视",
+      "category": "decor",
+      "tags": [
+        "television",
+        "tv",
+        "复古电视"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.911,
+            0.6,
+            0.6
+          ],
+          "modelPath": "/assets/models/television.glb",
+          "thumbnailPath": "/assets/thumbnails/television.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "speaker",
+      "name": "落地音箱",
+      "category": "decor",
+      "tags": [
+        "speaker",
+        "音箱"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.209,
+            0.209,
+            0.9
+          ],
+          "modelPath": "/assets/models/speaker.glb",
+          "thumbnailPath": "/assets/thumbnails/speaker.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "speaker_small",
+      "name": "桌面音箱",
+      "category": "decor",
+      "tags": [
+        "small speaker",
+        "桌面音箱"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.174,
+            0.156,
+            0.35
+          ],
+          "modelPath": "/assets/models/speaker_small.glb",
+          "thumbnailPath": "/assets/thumbnails/speaker_small.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 1,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "coat_rack",
+      "name": "衣帽架",
+      "category": "storage",
+      "tags": [
+        "coat rack",
+        "衣帽架"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.638,
+            0.638,
+            1.8
+          ],
+          "modelPath": "/assets/models/coat_rack.glb",
+          "thumbnailPath": "/assets/thumbnails/coat_rack.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.15,
+        "back": 0.15
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "bedroom",
+          "living"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    },
+    {
+      "kindId": "trashcan",
+      "name": "垃圾桶",
+      "category": "decor",
+      "tags": [
+        "trash can",
+        "垃圾桶"
+      ],
+      "placement": "floor",
+      "defaultVariantId": "default",
+      "variants": [
+        {
+          "id": "default",
+          "sizeM": [
+            0.364,
+            0.41,
+            0.75
+          ],
+          "modelPath": "/assets/models/trashcan.glb",
+          "thumbnailPath": "/assets/thumbnails/trashcan.png"
+        }
+      ],
+      "frontAxis": "+Z",
+      "pivot": "bottom-center",
+      "collision": {
+        "type": "obb"
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "allowedRotations": [
+        0.0,
+        90.0,
+        180.0,
+        270.0
+      ],
+      "rules": {
+        "anchorPriority": 1,
+        "roomTypes": [
+          "kitchen",
+          "bathroom",
+          "study"
+        ]
+      },
+      "license": {
+        "name": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
     }
   ]
 }

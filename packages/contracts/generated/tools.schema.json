@@ -2,6 +2,800 @@
   "$id": "https://ai-layout.local/contracts/tools.schema.json",
   "$ref": "#/definitions/ToolBundle",
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "default": {
+    "tools": [
+      {
+        "description": "Read the current scene, including pending proposal items. Returns rooms, wall segments with labels, openings, items (pending=true when unconfirmed) and pending proposals. Call this before writing to learn ids and labels.",
+        "name": "query_scene",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "includePending": {
+              "default": true,
+              "description": "Include pending proposal items marked pending=true.",
+              "title": "Includepending",
+              "type": "boolean"
+            },
+            "itemIds": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Only return these item ids (plus room context).",
+              "title": "Itemids"
+            },
+            "roomId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Limit rooms/items/openings to one room.",
+              "title": "Roomid"
+            }
+          },
+          "type": "object"
+        }
+      },
+      {
+        "description": "Search the furniture catalog by keyword, category and size range. Returns kindId, defaultVariantId, variants with metric sizes and placement rules.",
+        "name": "search_catalog",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "sofa",
+                    "bed",
+                    "table",
+                    "storage",
+                    "lighting",
+                    "decor",
+                    "other"
+                  ],
+                  "title": "CatalogCategory",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "limit": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "maxDepthM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Maxdepthm"
+            },
+            "maxHeightM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Maxheightm"
+            },
+            "maxWidthM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Maxwidthm"
+            },
+            "minDepthM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Mindepthm"
+            },
+            "minHeightM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Minheightm"
+            },
+            "minWidthM": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Minwidthm"
+            },
+            "query": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Free-text match on kind id, name or tags.",
+              "title": "Query"
+            }
+          },
+          "type": "object"
+        }
+      },
+      {
+        "description": "Propose adding one furniture item to a room. Always use a semantic relation (against_wall/near_window/near_item/corner/center); never output raw coordinates. The proposal is shown as a ghost until the user confirms it. If validation fails, the tool returns every refusal so you can self-correct.",
+        "name": "add_item",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "clearance": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "back": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Back"
+                    },
+                    "front": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Front"
+                    },
+                    "sides": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Sides"
+                    }
+                  },
+                  "title": "Clearance",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "facing": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "north",
+                    "east",
+                    "south",
+                    "west"
+                  ],
+                  "title": "FacingDirection",
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Front (+Z) points at a door, window or item.",
+                  "properties": {
+                    "id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Id"
+                    },
+                    "toward": {
+                      "enum": [
+                        "door",
+                        "window",
+                        "item"
+                      ],
+                      "title": "Toward",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "toward"
+                  ],
+                  "title": "FacingTowardInput",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Facing"
+            },
+            "kindId": {
+              "minLength": 1,
+              "title": "Kindid",
+              "type": "string"
+            },
+            "relation": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item's back against a wall (optionally a labelled wall).",
+                  "properties": {
+                    "type": {
+                      "const": "against_wall",
+                      "default": "against_wall",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "wallId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Derived wall id from query_scene, e.g. room_x:e0.",
+                      "title": "Wallid"
+                    },
+                    "wallLabel": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Human wall label from the scene, e.g. 电视墙.",
+                      "title": "Walllabel"
+                    }
+                  },
+                  "title": "AgainstWallRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item near a window opening.",
+                  "properties": {
+                    "openingId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Openingid"
+                    },
+                    "type": {
+                      "const": "near_window",
+                      "default": "near_window",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "NearWindowRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item beside another item (may reference a pending item).",
+                  "properties": {
+                    "distance": {
+                      "anyOf": [
+                        {
+                          "maximum": 2.0,
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Gap in meters between the two footprints; defaults to 0.45.",
+                      "title": "Distance"
+                    },
+                    "itemId": {
+                      "minLength": 1,
+                      "title": "Itemid",
+                      "type": "string"
+                    },
+                    "type": {
+                      "const": "near_item",
+                      "default": "near_item",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "itemId"
+                  ],
+                  "title": "NearItemRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item in a room corner.",
+                  "properties": {
+                    "type": {
+                      "const": "corner",
+                      "default": "corner",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "CornerRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item near the room centroid.",
+                  "properties": {
+                    "type": {
+                      "const": "center",
+                      "default": "center",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "CenterRelation",
+                  "type": "object"
+                }
+              ],
+              "title": "Relation"
+            },
+            "roomId": {
+              "minLength": 1,
+              "title": "Roomid",
+              "type": "string"
+            },
+            "variantId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Variantid"
+            }
+          },
+          "required": [
+            "kindId",
+            "roomId",
+            "relation"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Propose moving an existing item either to a new semantic relation or by a metric offset {dx,dz}. Pending items may be moved. The proposal needs user confirmation.",
+        "name": "move_item",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "facing": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "north",
+                    "east",
+                    "south",
+                    "west"
+                  ],
+                  "title": "FacingDirection",
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Front (+Z) points at a door, window or item.",
+                  "properties": {
+                    "id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Id"
+                    },
+                    "toward": {
+                      "enum": [
+                        "door",
+                        "window",
+                        "item"
+                      ],
+                      "title": "Toward",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "toward"
+                  ],
+                  "title": "FacingTowardInput",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Facing"
+            },
+            "itemId": {
+              "minLength": 1,
+              "title": "Itemid",
+              "type": "string"
+            },
+            "offset": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "dx": {
+                      "description": "Translation along world +X in meters.",
+                      "title": "Dx",
+                      "type": "number"
+                    },
+                    "dz": {
+                      "description": "Translation along world +Z in meters.",
+                      "title": "Dz",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "dx",
+                    "dz"
+                  ],
+                  "title": "MoveOffset",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "relation": {
+              "anyOf": [
+                {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "description": "Place the item's back against a wall (optionally a labelled wall).",
+                      "properties": {
+                        "type": {
+                          "const": "against_wall",
+                          "default": "against_wall",
+                          "title": "Type",
+                          "type": "string"
+                        },
+                        "wallId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "Derived wall id from query_scene, e.g. room_x:e0.",
+                          "title": "Wallid"
+                        },
+                        "wallLabel": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "Human wall label from the scene, e.g. 电视墙.",
+                          "title": "Walllabel"
+                        }
+                      },
+                      "title": "AgainstWallRelation",
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "description": "Place the item near a window opening.",
+                      "properties": {
+                        "openingId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Openingid"
+                        },
+                        "type": {
+                          "const": "near_window",
+                          "default": "near_window",
+                          "title": "Type",
+                          "type": "string"
+                        }
+                      },
+                      "title": "NearWindowRelation",
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "description": "Place the item beside another item (may reference a pending item).",
+                      "properties": {
+                        "distance": {
+                          "anyOf": [
+                            {
+                              "maximum": 2.0,
+                              "minimum": 0,
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "Gap in meters between the two footprints; defaults to 0.45.",
+                          "title": "Distance"
+                        },
+                        "itemId": {
+                          "minLength": 1,
+                          "title": "Itemid",
+                          "type": "string"
+                        },
+                        "type": {
+                          "const": "near_item",
+                          "default": "near_item",
+                          "title": "Type",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "itemId"
+                      ],
+                      "title": "NearItemRelation",
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "description": "Place the item in a room corner.",
+                      "properties": {
+                        "type": {
+                          "const": "corner",
+                          "default": "corner",
+                          "title": "Type",
+                          "type": "string"
+                        }
+                      },
+                      "title": "CornerRelation",
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "description": "Place the item near the room centroid.",
+                      "properties": {
+                        "type": {
+                          "const": "center",
+                          "default": "center",
+                          "title": "Type",
+                          "type": "string"
+                        }
+                      },
+                      "title": "CenterRelation",
+                      "type": "object"
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Relation"
+            }
+          },
+          "required": [
+            "itemId"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Propose removing an item. Pending items may be removed. Needs confirmation.",
+        "name": "remove_item",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "itemId": {
+              "minLength": 1,
+              "title": "Itemid",
+              "type": "string"
+            }
+          },
+          "required": [
+            "itemId"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Propose changing an existing item's variant or material overrides. Needs confirmation.",
+        "name": "update_item",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "itemId": {
+              "minLength": 1,
+              "title": "Itemid",
+              "type": "string"
+            },
+            "materialOverrides": {
+              "anyOf": [
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Materialoverrides"
+            },
+            "variantId": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Variantid"
+            }
+          },
+          "required": [
+            "itemId"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Ask the user a clarifying question and pause the turn until they answer. Use sparingly; prefer reasonable defaults when the intent is clear.",
+        "name": "ask_user",
+        "parameters": {
+          "additionalProperties": false,
+          "properties": {
+            "allowMultiple": {
+              "default": false,
+              "title": "Allowmultiple",
+              "type": "boolean"
+            },
+            "options": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "title": "Options",
+              "type": "array"
+            },
+            "question": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "title": "Question",
+              "type": "string"
+            }
+          },
+          "required": [
+            "question"
+          ],
+          "type": "object"
+        }
+      }
+    ],
+    "version": 1
+  },
   "definitions": {
     "ToolBundle": {
       "additionalProperties": false,
@@ -52,6 +846,6 @@
       "type": "object"
     }
   },
-  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is populated in M3; M1 fixes the export pipeline.",
+  "description": "Tool names, descriptions and Pydantic-derived parameter schemas. The registry is the single source; the default value pins the seven M3 tools for contract drift checks.",
   "title": "Agent tool contracts"
 }

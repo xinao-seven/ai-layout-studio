@@ -1,0 +1,846 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/build_catalog_assets.py",
+  "assets": [
+    {
+      "kindId": "sofa",
+      "sourceModel": "loungeSofa",
+      "scale": 1.847826,
+      "sizeM": [
+        1.811,
+        0.758,
+        0.85
+      ],
+      "triangles": 128,
+      "bytes": 9820,
+      "sha256": "37fc474e1a2532b2b5d56c8fe9c74d05d71b563ee959e9a1579e2bf89b7ca096",
+      "thumbnail": "sofa.png"
+    },
+    {
+      "kindId": "coffee_table",
+      "sourceModel": "tableCoffee",
+      "scale": 1.913043,
+      "sizeM": [
+        1.265,
+        0.765,
+        0.44
+      ],
+      "triangles": 124,
+      "bytes": 8444,
+      "sha256": "0da987058737d408cd12261d2d4b0aecb5cce2e0cb532f306d4fff62c54b993e",
+      "thumbnail": "coffee_table.png"
+    },
+    {
+      "kindId": "bed_double",
+      "sourceModel": "bedDouble",
+      "scale": 1.777778,
+      "sizeM": [
+        1.7,
+        2.0,
+        0.667
+      ],
+      "triangles": 264,
+      "bytes": 23524,
+      "sha256": "c1f43433e35035fc5c1ee70f2506b6f397ff5dad9253f9c418c9832dff37b45a",
+      "thumbnail": "bed_double.png"
+    },
+    {
+      "kindId": "bed_single",
+      "sourceModel": "bedSingle",
+      "scale": 1.777778,
+      "sizeM": [
+        1.015,
+        2.0,
+        0.667
+      ],
+      "triangles": 214,
+      "bytes": 18812,
+      "sha256": "0a119a561c13b4007627824acd175465d7edb4c2715a2f1993f522282954594b",
+      "thumbnail": "bed_single.png"
+    },
+    {
+      "kindId": "bed_bunk",
+      "sourceModel": "bedBunk",
+      "scale": 1.826484,
+      "sizeM": [
+        1.043,
+        2.0,
+        1.553
+      ],
+      "triangles": 580,
+      "bytes": 40940,
+      "sha256": "a36a9f7f85d3bee5047e5d4b283a9fe54ad17cd6099bcee0b9ac34eee1023aaf",
+      "thumbnail": "bed_bunk.png"
+    },
+    {
+      "kindId": "wardrobe",
+      "sourceModel": "bookcaseClosedWide",
+      "scale": 2.531646,
+      "sizeM": [
+        2.025,
+        0.633,
+        2.0
+      ],
+      "triangles": 372,
+      "bytes": 23312,
+      "sha256": "cad8ccc670ecff25f77206491a986c7d21681e632558d77e63703701fd853b20",
+      "thumbnail": "wardrobe.png"
+    },
+    {
+      "kindId": "nightstand",
+      "sourceModel": "sideTable",
+      "scale": 1.430773,
+      "sizeM": [
+        0.765,
+        0.315,
+        0.55
+      ],
+      "triangles": 118,
+      "bytes": 8976,
+      "sha256": "6dfa5545cd1f0344ce53e04d52c3c1849e3a451be61134285db1915bafcfbd10",
+      "thumbnail": "nightstand.png"
+    },
+    {
+      "kindId": "tv_stand",
+      "sourceModel": "cabinetTelevision",
+      "scale": 1.612903,
+      "sizeM": [
+        1.29,
+        0.403,
+        0.5
+      ],
+      "triangles": 154,
+      "bytes": 10700,
+      "sha256": "e10d7b9f0a62182324960ec5565eeb70a184700dfcb1922a2a042faedaafabaf",
+      "thumbnail": "tv_stand.png"
+    },
+    {
+      "kindId": "tv_stand_doors",
+      "sourceModel": "cabinetTelevisionDoors",
+      "scale": 1.612903,
+      "sizeM": [
+        1.29,
+        0.419,
+        0.5
+      ],
+      "triangles": 210,
+      "bytes": 17052,
+      "sha256": "03dadf2fac5bdc2df2f8dd890315ed84a551c085949d21983b28d9dd5a3d3d71",
+      "thumbnail": "tv_stand_doors.png"
+    },
+    {
+      "kindId": "rug",
+      "sourceModel": "rugRectangle",
+      "scale": 1.521739,
+      "sizeM": [
+        2.389,
+        1.4,
+        0.015
+      ],
+      "triangles": 28,
+      "bytes": 3348,
+      "sha256": "83a966eb48800859becd113d964406de22fab72f32f274c61379490cf394dccc",
+      "thumbnail": "rug.png"
+    },
+    {
+      "kindId": "dining_table",
+      "sourceModel": "table",
+      "scale": 2.295445,
+      "sizeM": [
+        1.932,
+        1.027,
+        0.75
+      ],
+      "triangles": 120,
+      "bytes": 8364,
+      "sha256": "c194074553f6250541fb83abc17b33e27f5d172dfa3ec52bd1d6f3c3350abe78",
+      "thumbnail": "dining_table.png"
+    },
+    {
+      "kindId": "desk",
+      "sourceModel": "desk",
+      "scale": 1.951054,
+      "sizeM": [
+        1.433,
+        0.765,
+        0.75
+      ],
+      "triangles": 198,
+      "bytes": 15220,
+      "sha256": "df6f69250bbe58b08fc0f2c66a0e9b6894c3cc4e1300533049aa3275fb7cd6d8",
+      "thumbnail": "desk.png"
+    },
+    {
+      "kindId": "bookshelf",
+      "sourceModel": "bookcaseOpen",
+      "scale": 2.159091,
+      "sizeM": [
+        0.864,
+        0.54,
+        1.9
+      ],
+      "triangles": 320,
+      "bytes": 18192,
+      "sha256": "e315234edec32a70f2a59e1fc9ac6b2e86ac0baf701191353ca8e3730698bad0",
+      "thumbnail": "bookshelf.png"
+    },
+    {
+      "kindId": "chair",
+      "sourceModel": "chair",
+      "scale": 1.914894,
+      "sizeM": [
+        0.383,
+        0.383,
+        0.9
+      ],
+      "triangles": 170,
+      "bytes": 10928,
+      "sha256": "c1c59f40c3f8b0f9595b29a050f3f5927c86a85629ab6e5c668df9b3f75f31c3",
+      "thumbnail": "chair.png"
+    },
+    {
+      "kindId": "plant",
+      "sourceModel": "pottedPlant",
+      "scale": 1.834815,
+      "sizeM": [
+        0.389,
+        0.443,
+        1.2
+      ],
+      "triangles": 60,
+      "bytes": 7756,
+      "sha256": "b5372c554342eb931d74c39bfdaba984822d8dc17aa84ef336cea72fa44538be",
+      "thumbnail": "plant.png"
+    },
+    {
+      "kindId": "sofa_long",
+      "sourceModel": "loungeSofaLong",
+      "scale": 1.847826,
+      "sizeM": [
+        1.811,
+        1.515,
+        0.85
+      ],
+      "triangles": 186,
+      "bytes": 13272,
+      "sha256": "2fa0353a2f846c6df45662d71ca4680f3a00c3175b4f90015ea5bf9922c9030a",
+      "thumbnail": "sofa_long.png"
+    },
+    {
+      "kindId": "sofa_corner",
+      "sourceModel": "loungeSofaCorner",
+      "scale": 1.847826,
+      "sizeM": [
+        1.811,
+        1.811,
+        0.85
+      ],
+      "triangles": 190,
+      "bytes": 13584,
+      "sha256": "52910e3d87261d943f367ce4279c0928e61df7b99927ef97acec4250e1d54cab",
+      "thumbnail": "sofa_corner.png"
+    },
+    {
+      "kindId": "armchair",
+      "sourceModel": "loungeChair",
+      "scale": 1.956522,
+      "sizeM": [
+        0.959,
+        0.802,
+        0.9
+      ],
+      "triangles": 128,
+      "bytes": 9820,
+      "sha256": "37c369a18ef4600c8062352d3d3ea4b8197374e72660469d332b218abfcb4d3a",
+      "thumbnail": "armchair.png"
+    },
+    {
+      "kindId": "lounge_chair",
+      "sourceModel": "loungeChairRelax",
+      "scale": 1.507937,
+      "sizeM": [
+        0.739,
+        1.017,
+        0.95
+      ],
+      "triangles": 188,
+      "bytes": 14072,
+      "sha256": "44ec206536ad4102421066ac6d3c897e6af4b99e42e9fc595e8242cd92dd91d3",
+      "thumbnail": "lounge_chair.png"
+    },
+    {
+      "kindId": "sofa_design",
+      "sourceModel": "loungeDesignSofa",
+      "scale": 2.0,
+      "sizeM": [
+        2.24,
+        0.82,
+        0.8
+      ],
+      "triangles": 116,
+      "bytes": 9236,
+      "sha256": "98f1224fbd1f98e4dd57539042e4b337786a2aa2da68a9043db30991cdd53a28",
+      "thumbnail": "sofa_design.png"
+    },
+    {
+      "kindId": "ottoman",
+      "sourceModel": "loungeSofaOttoman",
+      "scale": 1.956522,
+      "sizeM": [
+        0.861,
+        0.88,
+        0.45
+      ],
+      "triangles": 84,
+      "bytes": 7132,
+      "sha256": "ab941b95de09438d8767e2ccdef1d46b37af0413430900c433a0dc02d771ec1f",
+      "thumbnail": "ottoman.png"
+    },
+    {
+      "kindId": "design_chair",
+      "sourceModel": "loungeDesignChair",
+      "scale": 2.125,
+      "sizeM": [
+        1.55,
+        0.871,
+        0.85
+      ],
+      "triangles": 116,
+      "bytes": 9264,
+      "sha256": "f29319efe8c641fccc9499f631aeaf13c3aa51d6aea72b24a61d9771ed928698",
+      "thumbnail": "design_chair.png"
+    },
+    {
+      "kindId": "coffee_table_glass",
+      "sourceModel": "tableCoffeeGlass",
+      "scale": 1.913043,
+      "sizeM": [
+        1.265,
+        0.765,
+        0.44
+      ],
+      "triangles": 140,
+      "bytes": 9616,
+      "sha256": "f871491bd5ce0fa14d2573be0368f02277dd8d500dde9589fc8ea2e7f1bcafea",
+      "thumbnail": "coffee_table_glass.png"
+    },
+    {
+      "kindId": "coffee_table_square",
+      "sourceModel": "tableCoffeeSquare",
+      "scale": 1.913043,
+      "sizeM": [
+        0.765,
+        0.765,
+        0.44
+      ],
+      "triangles": 124,
+      "bytes": 8464,
+      "sha256": "d58ec1e8f532e031903c94afa8dbe7925eaa1c3d9ea244d33657db4c8ed9de19",
+      "thumbnail": "coffee_table_square.png"
+    },
+    {
+      "kindId": "side_table",
+      "sourceModel": "sideTableDrawers",
+      "scale": 1.430773,
+      "sizeM": [
+        0.765,
+        0.318,
+        0.55
+      ],
+      "triangles": 238,
+      "bytes": 19248,
+      "sha256": "f988d49518cdca401bab25ed9660910911e04e5a4becb0052a72db85889357a9",
+      "thumbnail": "side_table.png"
+    },
+    {
+      "kindId": "round_table",
+      "sourceModel": "tableRound",
+      "scale": 2.045079,
+      "sizeM": [
+        1.417,
+        1.636,
+        0.75
+      ],
+      "triangles": 80,
+      "bytes": 6632,
+      "sha256": "3a2110e28a5d007f7033a89c17ea6eb47183dce990daea72c69ae5749afa6994",
+      "thumbnail": "round_table.png"
+    },
+    {
+      "kindId": "glass_table",
+      "sourceModel": "tableGlass",
+      "scale": 2.295445,
+      "sizeM": [
+        1.932,
+        1.027,
+        0.75
+      ],
+      "triangles": 144,
+      "bytes": 10016,
+      "sha256": "fce5291c1071fc0f431ead8ad515b98b417da5abc1f95648502aaafdf048885a",
+      "thumbnail": "glass_table.png"
+    },
+    {
+      "kindId": "corner_desk",
+      "sourceModel": "deskCorner",
+      "scale": 1.951054,
+      "sizeM": [
+        1.901,
+        1.901,
+        0.75
+      ],
+      "triangles": 250,
+      "bytes": 18156,
+      "sha256": "d205ad28b6355bd1795755855899c79c83aaeb7695934e3c00c4c8c0eb4cd8dd",
+      "thumbnail": "corner_desk.png"
+    },
+    {
+      "kindId": "stool_bar",
+      "sourceModel": "stoolBar",
+      "scale": 1.724138,
+      "sizeM": [
+        0.458,
+        0.396,
+        0.75
+      ],
+      "triangles": 176,
+      "bytes": 11988,
+      "sha256": "b4c88699264633751d21cac2425d88829280172209b6ec50d52ae1aa82c9c850",
+      "thumbnail": "stool_bar.png"
+    },
+    {
+      "kindId": "stool_square",
+      "sourceModel": "stoolBarSquare",
+      "scale": 1.604938,
+      "sizeM": [
+        0.246,
+        0.237,
+        0.65
+      ],
+      "triangles": 142,
+      "bytes": 9960,
+      "sha256": "2f2ade41a36d7a6ca9e141ffc8ef168c69442fb2d09b2587fe4d2497619a662b",
+      "thumbnail": "stool_square.png"
+    },
+    {
+      "kindId": "bench",
+      "sourceModel": "benchCushion",
+      "scale": 1.086957,
+      "sizeM": [
+        0.435,
+        0.217,
+        0.5
+      ],
+      "triangles": 196,
+      "bytes": 12672,
+      "sha256": "a8fa72b9a99fcb5f44490ba007b2f09aea71f28a5c490d856a5767d4d1dc99ec",
+      "thumbnail": "bench.png"
+    },
+    {
+      "kindId": "chair_desk",
+      "sourceModel": "chairDesk",
+      "scale": 1.481238,
+      "sizeM": [
+        0.496,
+        0.466,
+        0.9
+      ],
+      "triangles": 588,
+      "bytes": 39188,
+      "sha256": "efba03c8f40ca2c2dd14480bce9f3d6497adf7181ed1b151ec34dd986ea0e71b",
+      "thumbnail": "chair_desk.png"
+    },
+    {
+      "kindId": "chair_cushion",
+      "sourceModel": "chairCushion",
+      "scale": 1.956522,
+      "sizeM": [
+        0.391,
+        0.391,
+        0.9
+      ],
+      "triangles": 198,
+      "bytes": 12760,
+      "sha256": "7f20ae88bc55d52b7fd6edc61162cb173f1a4cbbdf79f1ca3df815880697bc74",
+      "thumbnail": "chair_cushion.png"
+    },
+    {
+      "kindId": "chair_rounded",
+      "sourceModel": "chairRounded",
+      "scale": 1.978022,
+      "sizeM": [
+        0.396,
+        0.396,
+        0.9
+      ],
+      "triangles": 280,
+      "bytes": 17332,
+      "sha256": "860254cae6299992cfcaf72e3984ef776328d559578592d827f80e21adf0e8b3",
+      "thumbnail": "chair_rounded.png"
+    },
+    {
+      "kindId": "bookcase_low",
+      "sourceModel": "bookcaseOpenLow",
+      "scale": 2.0,
+      "sizeM": [
+        0.8,
+        0.5,
+        0.8
+      ],
+      "triangles": 184,
+      "bytes": 11620,
+      "sha256": "eb9788d4fb1d017c57f4148428ec35979e4399471b6e74f19a3081fad392a444",
+      "thumbnail": "bookcase_low.png"
+    },
+    {
+      "kindId": "bookcase_closed",
+      "sourceModel": "bookcaseClosed",
+      "scale": 2.117647,
+      "sizeM": [
+        0.847,
+        0.529,
+        1.8
+      ],
+      "triangles": 372,
+      "bytes": 23304,
+      "sha256": "ccfd10806938ffabb8f18126167942d1da92f974a6b992ba0e2a5ddd112103f7",
+      "thumbnail": "bookcase_closed.png"
+    },
+    {
+      "kindId": "bookcase_doors",
+      "sourceModel": "bookcaseClosedDoors",
+      "scale": 2.117647,
+      "sizeM": [
+        0.847,
+        0.529,
+        1.8
+      ],
+      "triangles": 296,
+      "bytes": 22820,
+      "sha256": "50abde3a20f8fe0477f02b1aac6ef4e570a89c01425d4d0d13d8f0d0cc2e2ca8",
+      "thumbnail": "bookcase_doors.png"
+    },
+    {
+      "kindId": "kitchen_cabinet",
+      "sourceModel": "kitchenCabinet",
+      "scale": 2.0,
+      "sizeM": [
+        0.86,
+        0.9,
+        0.9
+      ],
+      "triangles": 114,
+      "bytes": 10544,
+      "sha256": "ea43f34516c3fa86ae01534511acecd9f7c1ddba44813c4b3a9eedbbeda0b33a",
+      "thumbnail": "kitchen_cabinet.png"
+    },
+    {
+      "kindId": "kitchen_cabinet_drawer",
+      "sourceModel": "kitchenCabinetDrawer",
+      "scale": 2.0,
+      "sizeM": [
+        0.86,
+        0.9,
+        0.9
+      ],
+      "triangles": 174,
+      "bytes": 15484,
+      "sha256": "00e3962773666fdfb1cd68669e2bd7285cee27ba234374060a44d72d7a58b3d8",
+      "thumbnail": "kitchen_cabinet_drawer.png"
+    },
+    {
+      "kindId": "fridge",
+      "sourceModel": "kitchenFridgeLarge",
+      "scale": 2.065217,
+      "sizeM": [
+        1.074,
+        0.838,
+        1.9
+      ],
+      "triangles": 436,
+      "bytes": 30820,
+      "sha256": "f0bc28eeabc4737ad7f4d49909d3b53f65ca24be980cc4767c6654a528885407",
+      "thumbnail": "fridge.png"
+    },
+    {
+      "kindId": "stove",
+      "sourceModel": "kitchenStove",
+      "scale": 2.0,
+      "sizeM": [
+        0.86,
+        0.9,
+        0.9
+      ],
+      "triangles": 830,
+      "bytes": 54424,
+      "sha256": "040e935fd6f497cb6009ccb9cfc90ad5ac431759e1b9928e8dae7dcb5061ac41",
+      "thumbnail": "stove.png"
+    },
+    {
+      "kindId": "kitchen_sink",
+      "sourceModel": "kitchenSink",
+      "scale": 1.836735,
+      "sizeM": [
+        0.79,
+        0.827,
+        0.9
+      ],
+      "triangles": 318,
+      "bytes": 23652,
+      "sha256": "a11a831ccc4d5f2f4a3576930beab2de6bef97ae0a27ff1ae3adc6c595035232",
+      "thumbnail": "kitchen_sink.png"
+    },
+    {
+      "kindId": "bathroom_cabinet",
+      "sourceModel": "bathroomCabinetDrawer",
+      "scale": 1.801771,
+      "sizeM": [
+        0.775,
+        0.577,
+        0.85
+      ],
+      "triangles": 508,
+      "bytes": 34936,
+      "sha256": "f09f8b5918624f302a59a2666569fb7e8c7e756b5e219e714e9f66b3002f15fd",
+      "thumbnail": "bathroom_cabinet.png"
+    },
+    {
+      "kindId": "bathroom_sink",
+      "sourceModel": "bathroomSinkSquare",
+      "scale": 1.465517,
+      "sizeM": [
+        0.63,
+        0.44,
+        0.85
+      ],
+      "triangles": 234,
+      "bytes": 15296,
+      "sha256": "2e43c33cb82d7e74b121d6568acc277983c8472eb576813e1bfd74d027e90a55",
+      "thumbnail": "bathroom_sink.png"
+    },
+    {
+      "kindId": "bathtub",
+      "sourceModel": "bathtub",
+      "scale": 1.309524,
+      "sizeM": [
+        1.558,
+        0.733,
+        0.55
+      ],
+      "triangles": 602,
+      "bytes": 35688,
+      "sha256": "1fe9336bf75f62fa25e1532e86e95f7418bc5d8c106df69f2c872e3121bbd77e",
+      "thumbnail": "bathtub.png"
+    },
+    {
+      "kindId": "shower",
+      "sourceModel": "showerRound",
+      "scale": 1.828098,
+      "sizeM": [
+        1.027,
+        1.027,
+        2.0
+      ],
+      "triangles": 960,
+      "bytes": 72220,
+      "sha256": "7363aa42d8fa60c9adadb272c476424317bca1eceb88a0345f87ab8b5d21e59f",
+      "thumbnail": "shower.png"
+    },
+    {
+      "kindId": "toilet",
+      "sourceModel": "toiletSquare",
+      "scale": 1.6631,
+      "sizeM": [
+        0.505,
+        0.644,
+        0.75
+      ],
+      "triangles": 228,
+      "bytes": 17720,
+      "sha256": "531a9e67efb11b161d5aa6ec7979fab30106c3900bbb9088afa9d40b399cf633",
+      "thumbnail": "toilet.png"
+    },
+    {
+      "kindId": "washer",
+      "sourceModel": "washer",
+      "scale": 1.808511,
+      "sizeM": [
+        0.705,
+        0.705,
+        0.85
+      ],
+      "triangles": 720,
+      "bytes": 48276,
+      "sha256": "40fe2f33011f7ab4d356bde66611d8361537d09a20952d6d4c57fd92399105fd",
+      "thumbnail": "washer.png"
+    },
+    {
+      "kindId": "dryer",
+      "sourceModel": "dryer",
+      "scale": 1.808511,
+      "sizeM": [
+        0.705,
+        0.687,
+        0.85
+      ],
+      "triangles": 262,
+      "bytes": 17936,
+      "sha256": "dd427f54842c5764e124a33850d334cfe166f359326459e7b8f5f113c9416484",
+      "thumbnail": "dryer.png"
+    },
+    {
+      "kindId": "floor_lamp",
+      "sourceModel": "lampRoundFloor",
+      "scale": 1.860465,
+      "sizeM": [
+        0.283,
+        0.327,
+        1.6
+      ],
+      "triangles": 76,
+      "bytes": 6772,
+      "sha256": "426cb52e636ac765ead1a4767c8dbbb69398c538fe1fe7156f05c9e51841e764",
+      "thumbnail": "floor_lamp.png"
+    },
+    {
+      "kindId": "floor_lamp_square",
+      "sourceModel": "lampSquareFloor",
+      "scale": 1.860465,
+      "sizeM": [
+        0.223,
+        0.223,
+        1.6
+      ],
+      "triangles": 60,
+      "bytes": 5788,
+      "sha256": "d6e23e591bd20eb17f68a2a00e9be57775869870761a7bb5a867c064a90578ed",
+      "thumbnail": "floor_lamp_square.png"
+    },
+    {
+      "kindId": "table_lamp",
+      "sourceModel": "lampRoundTable",
+      "scale": 1.59109,
+      "sizeM": [
+        0.242,
+        0.279,
+        0.5
+      ],
+      "triangles": 76,
+      "bytes": 6776,
+      "sha256": "d8eb151063b7f9f77f00462543d63444da5cf2c2016c98d388e01113802204dc",
+      "thumbnail": "table_lamp.png"
+    },
+    {
+      "kindId": "rug_round",
+      "sourceModel": "rugRound",
+      "scale": 2.173913,
+      "sizeM": [
+        2.0,
+        2.0,
+        0.022
+      ],
+      "triangles": 188,
+      "bytes": 10304,
+      "sha256": "e237645a99b3ba88319f636a7b1a6637cb1f6a08a234dee7039bc9ab6d3058e3",
+      "thumbnail": "rug_round.png"
+    },
+    {
+      "kindId": "rug_square",
+      "sourceModel": "rugSquare",
+      "scale": 2.173913,
+      "sizeM": [
+        1.966,
+        2.0,
+        0.022
+      ],
+      "triangles": 28,
+      "bytes": 3340,
+      "sha256": "763ba1b883f99cd823ccc3025dc792d7c3f292c7d5d77a86e39d0501a351831a",
+      "thumbnail": "rug_square.png"
+    },
+    {
+      "kindId": "plant_small",
+      "sourceModel": "plantSmall1",
+      "scale": 4.285714,
+      "sizeM": [
+        0.406,
+        0.406,
+        0.6
+      ],
+      "triangles": 102,
+      "bytes": 8368,
+      "sha256": "5c9f42eb76a16b5584a749d8f2ca61aa6fd6a1e90ace5c84b50f5aecabfeae1e",
+      "thumbnail": "plant_small.png"
+    },
+    {
+      "kindId": "television",
+      "sourceModel": "televisionVintage",
+      "scale": 2.222222,
+      "sizeM": [
+        0.911,
+        0.6,
+        0.6
+      ],
+      "triangles": 280,
+      "bytes": 19548,
+      "sha256": "f0b827ede8cbc39cdb49062247cf1ff3ae9333348be31c171247a5ffcfeffcd8",
+      "thumbnail": "television.png"
+    },
+    {
+      "kindId": "speaker",
+      "sourceModel": "speaker",
+      "scale": 1.414205,
+      "sizeM": [
+        0.209,
+        0.209,
+        0.9
+      ],
+      "triangles": 228,
+      "bytes": 15936,
+      "sha256": "8216bd04596cd42ad720fe4d733872ae5b060b8540aaff170869dbc0703edf49",
+      "thumbnail": "speaker.png"
+    },
+    {
+      "kindId": "speaker_small",
+      "sourceModel": "speakerSmall",
+      "scale": 1.174577,
+      "sizeM": [
+        0.174,
+        0.156,
+        0.35
+      ],
+      "triangles": 220,
+      "bytes": 15420,
+      "sha256": "050e21bc2b47bf8d0b5fdce0d2e66987629c4d6e42bda794552c2eed3c27f8b4",
+      "thumbnail": "speaker_small.png"
+    },
+    {
+      "kindId": "coat_rack",
+      "sourceModel": "coatRackStanding",
+      "scale": 2.337662,
+      "sizeM": [
+        0.638,
+        0.638,
+        1.8
+      ],
+      "triangles": 190,
+      "bytes": 13452,
+      "sha256": "093e7aa7c9413741b4572a37db9c36cd367f7e48d3901fcc0382ef7794a3d5f4",
+      "thumbnail": "coat_rack.png"
+    },
+    {
+      "kindId": "trashcan",
+      "sourceModel": "trashcan",
+      "scale": 1.752885,
+      "sizeM": [
+        0.364,
+        0.41,
+        0.75
+      ],
+      "triangles": 68,
+      "bytes": 6648,
+      "sha256": "194ee51c42ff86936aeffacf5fb23ceb13d49efce4f66e4a048edb2e303b89f5",
+      "thumbnail": "trashcan.png"
+    }
+  ]
+}

@@ -35,7 +35,7 @@ export function HomeScreen() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge tone="accent">M1 · 场景内核</Badge>
+            <Badge tone="accent">M3 · Agent 对话</Badge>
             <Button onClick={() => void createBlank()} size="sm" variant="outline">
               <Plus className="h-3.5 w-3.5" />
               空白场景
@@ -54,8 +54,8 @@ export function HomeScreen() {
             用一句话，布置你的家。
           </h1>
           <p className="mt-4 max-w-2xl text-[15px] text-muted-foreground leading-7">
-            选择一个内置户型进入三维工作台：检查房间、门窗与家具布局， 在 3D
-            与俯视之间切换，并把每一次手动调整保留在服务端版本历史里。
+            选择一个内置户型进入三维工作台：从 60 件目录拖放家具、绘制房间、 放置门窗，或用一句话让
+            AI 生成幽灵提案，确认后落库。
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Button
@@ -87,7 +87,7 @@ export function HomeScreen() {
             <div>
               <h2 className="font-medium text-lg">内置户型</h2>
               <p className="mt-1 text-muted-foreground text-sm">
-                3 个典型户型，含门窗与家具；渲染使用线框兜底资产。
+                4 个典型户型，含门窗与家具；目录资产缺失时自动退回线框盒。
               </p>
             </div>
             <Badge tone="neutral">{fixtures.length} 个</Badge>

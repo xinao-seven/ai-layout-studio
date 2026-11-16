@@ -29,6 +29,7 @@ if str(SERVER_ROOT) not in sys.path:
 
 from pydantic import TypeAdapter  # noqa: E402
 
+from app.agent.registry import tool_bundle  # noqa: E402
 from app.contracts.tools import ToolBundle  # noqa: E402
 from app.contracts.ws import WS_MODELS, WsEnvelope  # noqa: E402
 from app.main import create_app  # noqa: E402
@@ -110,7 +111,8 @@ def build_ws_schema() -> dict[str, Any]:
 
 
 def build_tools_schema() -> dict[str, Any]:
-    """Tool contract bundle; the registry populates it in M3."""
+    """Tool contract bundle populated from the M3 ToolRegistry."""
+    bundle_model = tool_bundle()
     schema, definitions = _model_schema(ToolBundle)
     bundle = {
         "$schema": DRAFT_07,
@@ -118,10 +120,12 @@ def build_tools_schema() -> dict[str, Any]:
         "title": "Agent tool contracts",
         "description": (
             "Tool names, descriptions and Pydantic-derived parameter schemas. "
-            "The registry is populated in M3; M1 fixes the export pipeline."
+            "The registry is the single source; the default value pins the "
+            "seven M3 tools for contract drift checks."
         ),
         "$ref": "#/definitions/ToolBundle",
         "definitions": {"ToolBundle": schema, **definitions},
+        "default": bundle_model.model_dump(mode="json", by_alias=True),
     }
     _downgrade_tuples(bundle)
     return bundle

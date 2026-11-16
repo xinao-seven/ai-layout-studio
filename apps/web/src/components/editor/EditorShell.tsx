@@ -2,11 +2,13 @@ import { Loader2 } from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
 import { Compass } from './Compass'
 import { FloatingToolbar } from './FloatingToolbar'
+import { PlacementHint } from './PlacementHint'
 import { SceneCanvas } from './SceneCanvas'
 import { SceneIconRail } from './SceneIconRail'
 import { Sidebar } from './Sidebar'
 import { StatusBar } from './StatusBar'
 import { TopBar } from './TopBar'
+import { WarningToast } from './WarningToast'
 
 export function EditorShell({ perfMode }: { perfMode: boolean }) {
   const scene = useSceneStore((state) => state.scene)
@@ -38,6 +40,7 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
                 viewMode={viewMode}
               />
               <FloatingToolbar perfMode={perfMode} />
+              <PlacementHint />
               <Compass north={scene.north as [number, number]} />
               <StatusBar perfMode={perfMode} />
             </>
@@ -57,6 +60,7 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
           ) : null}
         </main>
       </div>
+      <WarningToast />
     </div>
   )
 }

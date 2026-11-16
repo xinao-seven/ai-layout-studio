@@ -117,7 +117,7 @@ def test_reanchor_moves_opening_to_nearest_edge() -> None:
     new_room = Room(
         id="room_a",
         name="New",
-        polygon=[(0, 0), (6, 0), (6, 3), (0, 3)],
+        polygon=[(1, 0), (7, 0), (7, 3), (1, 3)],
     )
     opening = Opening(
         id="op_door",
@@ -131,7 +131,7 @@ def test_reanchor_moves_opening_to_nearest_edge() -> None:
     kept, warnings = reanchor_openings(old_room, new_room, [opening])
     assert len(kept) == 1
     assert kept[0].edge_index == 0
-    assert kept[0].offset == pytest.approx(2.0)
+    assert kept[0].offset == pytest.approx(1.0)
     assert warnings[0].code == "opening_reanchored"
 
 

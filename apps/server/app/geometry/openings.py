@@ -204,18 +204,24 @@ def reanchor_openings(
 
         updated = opening.model_copy(update={"edge_index": best_edge, "offset": best_offset})
         kept.append(updated)
-        warnings.append(
-            GeometryWarning(
-                "opening_reanchored",
-                f"Opening {opening.id} was re-anchored to edge {best_edge}.",
-                {
-                    "openingId": opening.id,
-                    "edgeIndex": best_edge,
-                    "offset": best_offset,
-                    "distance": best_distance,
-                },
-            )
+        changed = (
+            best_edge != opening.edge_index
+            or abs(best_offset - opening.offset) > EPSILON
+            or best_distance > EPSILON
         )
+        if changed:
+            warnings.append(
+                GeometryWarning(
+                    "opening_reanchored",
+                    f"Opening {opening.id} was re-anchored to edge {best_edge}.",
+                    {
+                        "openingId": opening.id,
+                        "edgeIndex": best_edge,
+                        "offset": best_offset,
+                        "distance": best_distance,
+                    },
+                )
+            )
     return kept, warnings
 
 

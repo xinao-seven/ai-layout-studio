@@ -15,7 +15,7 @@ from pydantic import Field
 from app.contracts.api import ErrorBody
 from app.contracts.base import CamelModel
 from app.contracts.patch import PatchOp, ScenePatch
-from app.contracts.proposal import Proposal
+from app.contracts.proposal import Proposal, Turn
 from app.contracts.scene import SceneDocument
 
 
@@ -42,6 +42,10 @@ class WsEnvelope(CamelModel):
 
 class SceneSnapshotPayload(CamelModel):
     scene: SceneDocument
+    server_epoch: str | None = Field(
+        default=None,
+        description="Server process id; clients reset turn sequence state when it changes.",
+    )
 
 
 class ScenePatchPayload(CamelModel):
@@ -50,6 +54,37 @@ class ScenePatchPayload(CamelModel):
 
 class ProposalUpdatedPayload(CamelModel):
     proposal: Proposal
+
+
+class TurnWaitingUserPayload(CamelModel):
+    question: str
+    options: list[str] = Field(default_factory=list)
+    allow_multiple: bool = False
+
+
+class TurnStatusPayload(CamelModel):
+    turn: Turn
+    waiting: TurnWaitingUserPayload | None = None
+
+
+class AssistantDeltaPayload(CamelModel):
+    text: str
+
+
+class AssistantMessagePayload(CamelModel):
+    content: str = ""
+    tool_calls: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ToolEventPayload(CamelModel):
+    tool_call_id: str
+    name: str
+    arguments: dict[str, Any] | None = None
+    result: Any | None = None
+
+
+class TurnFailedPayload(CamelModel):
+    error: ErrorBody
 
 
 class ServerErrorPayload(CamelModel):
@@ -72,6 +107,7 @@ class ResumePayload(CamelModel):
 
 class TurnSubscribePayload(CamelModel):
     turn_id: str
+    last_seq: int = Field(default=0, ge=0)
 
 
 class TurnCancelPayload(CamelModel):
@@ -203,6 +239,12 @@ WS_MODELS: tuple[type[CamelModel], ...] = (
     SceneSnapshotPayload,
     ScenePatchPayload,
     ProposalUpdatedPayload,
+    TurnStatusPayload,
+    AssistantDeltaPayload,
+    AssistantMessagePayload,
+    ToolEventPayload,
+    TurnWaitingUserPayload,
+    TurnFailedPayload,
     ServerErrorPayload,
     CommitPayload,
     UndoRedoPayload,

@@ -38,7 +38,7 @@ def test_fixtures_and_catalog_endpoints(client: TestClient) -> None:
     fixtures = client.get("/api/fixtures")
     assert fixtures.status_code == 200
     payload = fixtures.json()
-    assert len(payload["fixtures"]) == 3
+    assert len(payload["fixtures"]) == 4
     assert payload["fixtures"][0]["areaM2"] > 20
 
     catalog = client.get("/api/catalog")
@@ -213,13 +213,13 @@ def test_add_move_delete_item_endpoints_and_undo(client: TestClient) -> None:
 
     moved = client.patch(
         f"/api/scenes/{scene_id}/items/{new_item['id']}",
-        json={"position": [1.0, 0.0, 1.0], "rotationY": 1.5707963267948966},
+        json={"position": [0.7, 0.0, 1.0], "rotationY": 1.5707963267948966},
     )
     assert moved.status_code == 200, moved.text
     moved_item = next(
         item for item in moved.json()["scene"]["items"] if item["id"] == new_item["id"]
     )
-    assert moved_item["transform"]["position"] == [1.0, 0.0, 1.0]
+    assert moved_item["transform"]["position"] == [0.7, 0.0, 1.0]
     assert moved_item["transform"]["rotationY"] == pytest.approx(1.5707963267948966)
 
     deleted = client.delete(f"/api/scenes/{scene_id}/items/{new_item['id']}")
@@ -278,7 +278,7 @@ def test_invalid_partial_update_returns_invalid_input(client: TestClient) -> Non
 
     response = client.patch(
         f"/api/scenes/{scene_id}/items/{added['id']}",
-        json={"position": [1.0, 0.0, 1.0]},
+        json={"position": [0.7, 0.0, 1.0]},
     )
     assert response.status_code == 200
 
@@ -419,7 +419,7 @@ def test_move_item_updates_constraint_room(client: TestClient) -> None:
 
     moved = client.patch(
         f"/api/scenes/{scene_id}/items/{bedroom_item['id']}",
-        json={"position": [9.0, 0.0, 1.5]},
+        json={"position": [9.5, 0.0, 1.5]},
     )
 
     assert moved.status_code == 200, moved.text

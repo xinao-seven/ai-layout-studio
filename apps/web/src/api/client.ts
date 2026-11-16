@@ -3,23 +3,33 @@ import type {
   CatalogEntry,
   CommitRequest,
   CreateSceneRequest,
+  CreateTurnRequest,
   FixtureSummary,
+  Proposal,
+  ProposalStatus,
   SceneDocument,
   SceneResult,
   SceneSummary,
+  Turn,
+  TurnStatus,
   UpdateItemRequest,
 } from '../contracts/generated/client/rest'
 import {
   addSceneItemApiScenesSceneIdItemsPost,
+  cancelTurnApiTurnsTurnIdCancelPost,
   commitSceneApiScenesSceneIdCommitPost,
   createSceneApiScenesPost,
+  createTurnApiScenesSceneIdTurnsPost,
   deleteSceneItemApiScenesSceneIdItemsItemIdDelete,
   exportSceneApiScenesSceneIdExportGet,
   getSceneApiScenesSceneIdGet,
   listCatalogApiCatalogGet,
   listFixturesApiFixturesGet,
+  listProposalsApiScenesSceneIdProposalsGet,
   listScenesApiScenesGet,
+  listTurnsApiScenesSceneIdTurnsGet,
   redoSceneApiScenesSceneIdRedoPost,
+  reloadCatalogApiCatalogReloadPost,
   undoSceneApiScenesSceneIdUndoPost,
   updateSceneItemApiScenesSceneIdItemsItemIdPatch,
 } from '../contracts/generated/client/rest'
@@ -138,6 +148,39 @@ export async function listCatalog(): Promise<CatalogEntry[]> {
   return response.entries
 }
 
+export async function reloadCatalog(): Promise<CatalogEntry[]> {
+  const response = await call<{ entries: CatalogEntry[] }>(() =>
+    reloadCatalogApiCatalogReloadPost(),
+  )
+  return response.entries
+}
+
 export async function exportScene(sceneId: string): Promise<SceneDocument> {
   return call<SceneDocument>(() => exportSceneApiScenesSceneIdExportGet(sceneId))
+}
+
+export async function listTurns(sceneId: string): Promise<Turn[]> {
+  const response = await call<{ turns: Turn[] }>(() => listTurnsApiScenesSceneIdTurnsGet(sceneId))
+  return response.turns
+}
+
+export async function createTurn(sceneId: string, request: CreateTurnRequest): Promise<Turn> {
+  const response = await call<{ turn: Turn }>(() =>
+    createTurnApiScenesSceneIdTurnsPost(sceneId, request),
+  )
+  return response.turn
+}
+
+export async function cancelTurn(turnId: string): Promise<TurnStatus> {
+  const response = await call<{ status: TurnStatus }>(() =>
+    cancelTurnApiTurnsTurnIdCancelPost(turnId),
+  )
+  return response.status
+}
+
+export async function listProposals(sceneId: string, status?: ProposalStatus): Promise<Proposal[]> {
+  const response = await call<{ proposals: Proposal[] }>(() =>
+    listProposalsApiScenesSceneIdProposalsGet(sceneId, status ? { status } : undefined),
+  )
+  return response.proposals
 }

@@ -27,6 +27,7 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy app
+      - run: uv run python ../../scripts/build_catalog_assets.py --check
       - run: uv run pytest -q
 
   web:
@@ -46,6 +47,7 @@ jobs:
       - run: pnpm --filter @ai-layout/web lint
       - run: pnpm --filter @ai-layout/web test
       - run: pnpm --filter @ai-layout/web build
+      - run: node scripts/check_web_assets_proxy.mjs
 
   contracts:
     name: contracts (generated artifacts must not drift)

@@ -9,7 +9,9 @@ from pydantic import Field
 
 from app.contracts.base import CamelModel
 from app.contracts.catalog import CatalogEntry
+from app.contracts.enums import TurnStatus
 from app.contracts.patch import PatchOp, ScenePatch
+from app.contracts.proposal import Proposal, Turn
 from app.contracts.scene import SceneDocument, Vec2, Vec3
 
 
@@ -53,9 +55,18 @@ class UndoRedoRequest(CamelModel):
     expected_version: int = Field(ge=1)
 
 
+class SceneWarning(CamelModel):
+    """A non-fatal change made by the server while applying a patch."""
+
+    code: str = Field(min_length=1)
+    message: str = Field(min_length=1)
+    details: dict[str, Any] | None = None
+
+
 class SceneResult(CamelModel):
     scene: SceneDocument
     patch: ScenePatch
+    warnings: list[SceneWarning] = Field(default_factory=list)
 
 
 class AddItemRequest(CamelModel):
@@ -81,6 +92,31 @@ class ImportRequest(CamelModel):
 
 class CatalogResponse(CamelModel):
     entries: list[CatalogEntry]
+
+
+class CreateTurnRequest(CamelModel):
+    """User message that starts an agent turn (PRD §6.2)."""
+
+    message: str = Field(min_length=1, max_length=4000)
+    point_context: dict[str, Any] | None = None
+    client_turn_id: str | None = None
+
+
+class TurnListResponse(CamelModel):
+    turns: list[Turn]
+
+
+class TurnResponse(CamelModel):
+    turn: Turn
+
+
+class TurnCancelResponse(CamelModel):
+    ok: bool = True
+    status: TurnStatus
+
+
+class ProposalListResponse(CamelModel):
+    proposals: list[Proposal]
 
 
 class ErrorBody(CamelModel):

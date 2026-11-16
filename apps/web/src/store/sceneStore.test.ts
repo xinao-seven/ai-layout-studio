@@ -43,9 +43,20 @@ describe('scene store UI state', () => {
   })
 
   it('stores selection and sidebar tab', () => {
+    const scene = minimalScene()
+    scene.items = [
+      {
+        id: 'it_123',
+        kindId: 'plant',
+        variantId: 'default',
+        transform: { position: [0, 0, 0], rotationY: 0 },
+      },
+    ]
+    useSceneStore.setState({ scene })
     useSceneStore.getState().selectItem('it_123')
     useSceneStore.getState().setSidebarTab('items')
     expect(useSceneStore.getState().selectedItemId).toBe('it_123')
+    expect(useSceneStore.getState().pointContext?.itemId).toBe('it_123')
     expect(useSceneStore.getState().sidebarTab).toBe('items')
   })
 

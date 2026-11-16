@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
+from app.contracts.enums import FacingToward
 from app.contracts.patch import (
     ItemAddOp,
     ItemRemoveOp,
@@ -22,6 +23,7 @@ from app.contracts.patch import (
     RoomUpdateOp,
     TransformUpdate,
 )
+from app.contracts.rules import Rules, get_rules
 from app.contracts.scene import (
     Anchor,
     Clearance,
@@ -35,8 +37,11 @@ from app.contracts.scene import (
     SceneDocument,
     Transform,
 )
+from app.geometry.collision import validate_placement, validate_room_change
+from app.geometry.errors import GeometryError
+from app.geometry.openings import GeometryWarning, reanchor_openings
 from app.geometry.polygon import point_in_polygon
-from app.scene.document import validate_document
+from app.scene.document import CatalogMap, validate_document
 from app.scene.errors import SceneError
 
 NESTED_MODEL_BY_FIELD: dict[str, type[BaseModel]] = {
@@ -210,11 +215,106 @@ def _remove_room(document: SceneDocument, room: Room) -> None:
     document.rooms = [candidate for candidate in document.rooms if candidate.id != room.id]
 
 
+def _clear_opening_reference(item: Item, opening_id: str) -> Item | None:
+    """Drop references to a removed opening so constraints cannot dangle."""
+    constraint = item.constraint
+    if constraint is None:
+        return None
+    updates: dict[str, Any] = {}
+    if constraint.anchor is not None and constraint.anchor.opening_id == opening_id:
+        updates["anchor"] = constraint.anchor.model_copy(update={"opening_id": None})
+    if constraint.near is not None and constraint.near.opening_id == opening_id:
+        updates["near"] = constraint.near.model_copy(update={"opening_id": None})
+    if (
+        constraint.facing is not None
+        and not isinstance(constraint.facing, str)
+        and constraint.facing.id == opening_id
+    ):
+        updates["facing"] = constraint.facing.model_copy(update={"id": None})
+    if not updates:
+        return None
+    return item.model_copy(update={"constraint": constraint.model_copy(update=updates)})
+
+
+def _clear_removed_item_reference(item: Item, removed_item_id: str) -> Item | None:
+    """Drop near/facing references to an item that is being removed."""
+    constraint = item.constraint
+    if constraint is None:
+        return None
+    updates: dict[str, Any] = {}
+    near = constraint.near
+    if near is not None and near.item_id == removed_item_id:
+        if near.opening_id is None:
+            updates["near"] = None
+        else:
+            updates["near"] = near.model_copy(update={"item_id": None})
+    facing = constraint.facing
+    if (
+        facing is not None
+        and not isinstance(facing, str)
+        and facing.toward == FacingToward.ITEM
+        and facing.id == removed_item_id
+    ):
+        updates["facing"] = None
+    if not updates:
+        return None
+    return item.model_copy(update={"constraint": constraint.model_copy(update=updates)})
+
+
+def _clear_removed_item_references(
+    working: SceneDocument,
+    removed_item_id: str,
+    resolved: list[PatchOp],
+) -> None:
+    """Clear constraints that point at an item being removed."""
+    for item_index, item in enumerate(working.items):
+        if item.id == removed_item_id:
+            continue
+        cleared = _clear_removed_item_reference(item, removed_item_id)
+        if cleared is None:
+            continue
+        working.items[item_index] = cleared
+        resolved.append(
+            ItemUpdateOp(
+                op="item.update",
+                item_id=item.id,
+                before=_item_update_fields(item),
+                after=_item_update_fields(cleared),
+            )
+        )
+
+
+def _clear_item_references(
+    working: SceneDocument,
+    opening_id: str,
+    resolved: list[PatchOp],
+) -> None:
+    """Clear item constraints that point at an opening being removed."""
+    for item_index, item in enumerate(working.items):
+        cleared = _clear_opening_reference(item, opening_id)
+        if cleared is None:
+            continue
+        working.items[item_index] = cleared
+        resolved.append(
+            ItemUpdateOp(
+                op="item.update",
+                item_id=item.id,
+                before=_item_update_fields(item),
+                after=_item_update_fields(cleared),
+            )
+        )
+
+
 def apply_ops(
     document: SceneDocument,
     ops: list[PatchOp],
     *,
     validate: bool = True,
+    reanchor: bool = True,
+    check_placement: bool = True,
+    rules: Rules | None = None,
+    catalog: CatalogMap | None = None,
+    warnings: list[GeometryWarning] | None = None,
 ) -> tuple[SceneDocument, list[PatchOp]]:
     """Apply ``ops`` to a copy of ``document``.
 
@@ -223,6 +323,9 @@ def apply_ops(
     """
     working = document.model_copy(deep=True)
     resolved: list[PatchOp] = []
+    changed_item_ids: set[str] = set()
+    changed_opening_ids: set[str] = set()
+    room_changes: list[tuple[str, list[tuple[float, float]], list[tuple[float, float]]]] = []
 
     for op in ops:
         if isinstance(op, ItemAddOp):
@@ -234,9 +337,11 @@ def apply_ops(
                 )
             item = op.item.model_copy(deep=True)
             working.items.append(item)
+            changed_item_ids.add(item.id)
             resolved.append(ItemAddOp(op="item.add", item=item))
         elif isinstance(op, ItemRemoveOp):
             item = _find_item(working, op.item_id)
+            _clear_removed_item_references(working, item.id, resolved)
             working.items = [candidate for candidate in working.items if candidate.id != item.id]
             resolved.append(ItemRemoveOp(op="item.remove", item_id=item.id, before=item))
         elif isinstance(op, ItemUpdateOp):
@@ -248,7 +353,28 @@ def apply_ops(
             item_index = next(
                 index for index, candidate in enumerate(working.items) if candidate.id == op.item_id
             )
+            if (
+                updated_item.transform.position != current_item.transform.position
+                and updated_item.constraint is not None
+            ):
+                position = (
+                    updated_item.transform.position[0],
+                    updated_item.transform.position[2],
+                )
+                containing = next(
+                    (room for room in working.rooms if point_in_polygon(position, room.polygon)),
+                    None,
+                )
+                if containing is not None:
+                    updated_item = updated_item.model_copy(
+                        update={
+                            "constraint": updated_item.constraint.model_copy(
+                                update={"room_id": containing.id}
+                            )
+                        }
+                    )
             working.items[item_index] = updated_item
+            changed_item_ids.add(op.item_id)
             resolved.append(
                 ItemUpdateOp(
                     op="item.update",
@@ -289,6 +415,56 @@ def apply_ops(
                     after=_room_update_fields(updated_room),
                 )
             )
+            if updated_room.polygon != current_room.polygon:
+                room_changes.append(
+                    (op.room_id, list(current_room.polygon), list(updated_room.polygon))
+                )
+            if reanchor and updated_room.polygon != current_room.polygon:
+                room_openings = [
+                    opening for opening in working.openings if opening.room_id == op.room_id
+                ]
+                kept, room_warnings = reanchor_openings(current_room, updated_room, room_openings)
+                if warnings is not None:
+                    warnings.extend(room_warnings)
+                for warning in room_warnings:
+                    if warning.code == "opening_reanchored":
+                        opening_id = warning.details.get("openingId")
+                        if isinstance(opening_id, str):
+                            changed_opening_ids.add(opening_id)
+                kept_by_id = {opening.id: opening for opening in kept}
+                for previous in room_openings:
+                    replacement = kept_by_id.get(previous.id)
+                    if replacement is None:
+                        # Remove dangling item references before dropping the opening.
+                        _clear_item_references(working, previous.id, resolved)
+                        working.openings = [
+                            candidate
+                            for candidate in working.openings
+                            if candidate.id != previous.id
+                        ]
+                        resolved.append(
+                            OpeningRemoveOp(
+                                op="opening.remove",
+                                opening_id=previous.id,
+                                before=previous,
+                            )
+                        )
+                    elif replacement != previous:
+                        changed_opening_ids.add(previous.id)
+                        opening_index = next(
+                            index
+                            for index, candidate in enumerate(working.openings)
+                            if candidate.id == previous.id
+                        )
+                        working.openings[opening_index] = replacement
+                        resolved.append(
+                            OpeningUpdateOp(
+                                op="opening.update",
+                                opening_id=previous.id,
+                                before=_opening_update_fields(previous),
+                                after=_opening_update_fields(replacement),
+                            )
+                        )
         elif isinstance(op, OpeningAddOp):
             if any(candidate.id == op.opening.id for candidate in working.openings):
                 raise SceneError(
@@ -298,9 +474,11 @@ def apply_ops(
                 )
             opening = op.opening.model_copy(deep=True)
             working.openings.append(opening)
+            changed_opening_ids.add(opening.id)
             resolved.append(OpeningAddOp(op="opening.add", opening=opening))
         elif isinstance(op, OpeningRemoveOp):
             opening = _find_opening(working, op.opening_id)
+            _clear_item_references(working, opening.id, resolved)
             working.openings = [
                 candidate for candidate in working.openings if candidate.id != opening.id
             ]
@@ -319,6 +497,7 @@ def apply_ops(
                 if candidate.id == op.opening_id
             )
             working.openings[opening_index] = updated_opening
+            changed_opening_ids.add(op.opening_id)
             resolved.append(
                 OpeningUpdateOp(
                     op="opening.update",
@@ -329,7 +508,27 @@ def apply_ops(
             )
 
     if validate:
-        validate_document(working)
+        validate_document(working, rules=rules, catalog=catalog)
+        if catalog is not None and check_placement:
+            try:
+                validate_placement(
+                    working,
+                    item_ids=changed_item_ids,
+                    opening_ids=changed_opening_ids,
+                    catalog=catalog,
+                    rules=rules or get_rules(),
+                )
+                for room_id, old_polygon, new_polygon in room_changes:
+                    validate_room_change(
+                        working,
+                        room_id=room_id,
+                        old_polygon=old_polygon,
+                        new_polygon=new_polygon,
+                        catalog=catalog,
+                        rules=rules or get_rules(),
+                    )
+            except GeometryError as error:
+                raise SceneError(error.code, error.message, error.suggest, error.details) from error
     return working, resolved
 
 

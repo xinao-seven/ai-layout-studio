@@ -13,6 +13,11 @@ export type Ts = number;
 export type Turnid1 = string | null;
 export type Type = "ask_user.answer";
 export type V = 1;
+export type Text = string;
+export type Content = string;
+export type Toolcalls = {
+  [k: string]: unknown;
+}[];
 export type Ch1 = "host";
 export type Pngbase64 = string;
 export type Turnid2 = string;
@@ -241,12 +246,21 @@ export type Schemaversion = 1;
 export type Units = "metric";
 export type Updatedat = string;
 export type Version = number;
+/**
+ * Server process id; clients reset turn sequence state when it changes.
+ */
+export type Serverepoch = string | null;
 export type Code = string;
 export type Details = {
   [k: string]: unknown;
 } | null;
 export type Message = string;
 export type Suggest = string | null;
+export type Arguments = {
+  [k: string]: unknown;
+} | null;
+export type Name3 = string;
+export type Toolcallid = string;
 export type Ch9 = "host";
 export type Turnid13 = string;
 export type Requestid9 = string | null;
@@ -255,7 +269,34 @@ export type Ts9 = number;
 export type Turnid14 = string | null;
 export type Type9 = "turn.cancel";
 export type V9 = 1;
+export type Createdat2 = string;
+export type Endedat = string | null;
+export type Id6 = string;
+export type Content1 = string;
+export type MessageRole = "user" | "assistant" | "tool";
+export type Screenshotafter = string | null;
+export type Screenshotbefore = string | null;
+export type Toolcalls1 =
+  | {
+      [k: string]: unknown;
+    }[]
+  | null;
+export type Toolresult = {
+  [k: string]: unknown;
+} | null;
+export type Messages = TurnMessage[];
+export type Sceneid2 = string;
+export type TurnStatus = "queued" | "running" | "waiting_user" | "done" | "failed" | "cancelled";
+export type Iterations = number;
+export type Refusals = string[];
+export type Tokensin = number;
+export type Tokensout = number;
+export type Wallclockms = number;
+export type Allowmultiple = boolean;
+export type Options = string[];
+export type Question = string;
 export type Ch10 = "host";
+export type Lastseq = number;
 export type Turnid15 = string;
 export type Requestid10 = string | null;
 export type Seq10 = number;
@@ -299,6 +340,8 @@ export type V12 = 1;
 export interface WebSocketContracts {
   AskUserAnswerMessage?: AskUserAnswerMessage;
   AskUserAnswerPayload?: AskUserAnswerPayload;
+  AssistantDeltaPayload?: AssistantDeltaPayload;
+  AssistantMessagePayload?: AssistantMessagePayload;
   CaptureResultMessage?: CaptureResultMessage;
   CaptureResultPayload?: CaptureResultPayload;
   CommitMessage?: CommitMessage;
@@ -317,10 +360,14 @@ export interface WebSocketContracts {
   ScenePatchPayload?: ScenePatchPayload;
   SceneSnapshotPayload?: SceneSnapshotPayload;
   ServerErrorPayload?: ServerErrorPayload;
+  ToolEventPayload?: ToolEventPayload;
   TurnCancelMessage?: TurnCancelMessage;
   TurnCancelPayload?: TurnCancelPayload;
+  TurnFailedPayload?: TurnFailedPayload;
+  TurnStatusPayload?: TurnStatusPayload;
   TurnSubscribeMessage?: TurnSubscribeMessage;
   TurnSubscribePayload?: TurnSubscribePayload;
+  TurnWaitingUserPayload?: TurnWaitingUserPayload;
   UndoMessage?: UndoMessage;
   UndoRedoPayload?: UndoRedoPayload;
   WsEnvelope?: WsEnvelope;
@@ -341,6 +388,13 @@ export interface AskUserAnswerPayload {
 }
 export interface Answers {
   [k: string]: string[];
+}
+export interface AssistantDeltaPayload {
+  text: Text;
+}
+export interface AssistantMessagePayload {
+  content?: Content;
+  toolCalls?: Toolcalls;
 }
 export interface CaptureResultMessage {
   ch?: Ch1;
@@ -660,6 +714,7 @@ export interface ScenePatch {
 }
 export interface SceneSnapshotPayload {
   scene: SceneDocument;
+  serverEpoch?: Serverepoch;
 }
 /**
  * Confirmed scene document; the single source of truth on the server.
@@ -695,6 +750,12 @@ export interface ErrorBody {
   message: Message;
   suggest?: Suggest;
 }
+export interface ToolEventPayload {
+  arguments?: Arguments;
+  name: Name3;
+  result?: unknown;
+  toolCallId: Toolcallid;
+}
 export interface TurnCancelMessage {
   ch?: Ch9;
   payload: TurnCancelPayload;
@@ -708,6 +769,42 @@ export interface TurnCancelMessage {
 export interface TurnCancelPayload {
   turnId: Turnid13;
 }
+export interface TurnFailedPayload {
+  error: ErrorBody;
+}
+export interface TurnStatusPayload {
+  turn: Turn;
+  waiting?: TurnWaitingUserPayload | null;
+}
+export interface Turn {
+  createdAt: Createdat2;
+  endedAt?: Endedat;
+  id: Id6;
+  messages?: Messages;
+  sceneId: Sceneid2;
+  status?: TurnStatus;
+  usage?: TurnUsage;
+}
+export interface TurnMessage {
+  content?: Content1;
+  role: MessageRole;
+  screenshotAfter?: Screenshotafter;
+  screenshotBefore?: Screenshotbefore;
+  toolCalls?: Toolcalls1;
+  toolResult?: Toolresult;
+}
+export interface TurnUsage {
+  iterations?: Iterations;
+  refusals?: Refusals;
+  tokensIn?: Tokensin;
+  tokensOut?: Tokensout;
+  wallClockMs?: Wallclockms;
+}
+export interface TurnWaitingUserPayload {
+  allowMultiple?: Allowmultiple;
+  options?: Options;
+  question: Question;
+}
 export interface TurnSubscribeMessage {
   ch?: Ch10;
   payload: TurnSubscribePayload;
@@ -719,6 +816,7 @@ export interface TurnSubscribeMessage {
   v?: V10;
 }
 export interface TurnSubscribePayload {
+  lastSeq?: Lastseq;
   turnId: Turnid15;
 }
 export interface UndoMessage {

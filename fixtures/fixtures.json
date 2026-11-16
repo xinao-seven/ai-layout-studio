@@ -14,6 +14,11 @@
       "id": "two-bedroom",
       "file": "two-bedroom.json",
       "description": "81㎡ 两室一厅：主卧、书房、厨房与卫生间。"
+    },
+    {
+      "id": "living-room",
+      "file": "living-room.json",
+      "description": "22.5㎡ 客厅：电视墙、窗与入户门，用于 G1 Agent 布置。"
     }
   ]
 }

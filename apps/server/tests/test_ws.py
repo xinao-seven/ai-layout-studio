@@ -161,3 +161,37 @@ def test_ws_rejects_unknown_scene(client: TestClient) -> None:
         client.websocket_connect("/ws?sceneId=scene_missing") as websocket,
     ):
         websocket.receive_json()
+
+
+def test_ws_ack_includes_reanchor_warnings(client: TestClient) -> None:
+    document = create_studio(client)
+    scene_id = document["id"]
+    bath = next(room for room in document["rooms"] if room["type"] == "bathroom")
+
+    with client.websocket_connect(f"/ws?sceneId={scene_id}") as websocket:
+        websocket.receive_json()  # snapshot
+        websocket.send_json(
+            {
+                "v": 1,
+                "ch": "host",
+                "type": "commit",
+                "seq": 0,
+                "ts": 1_763_000_000_000,
+                "payload": {
+                    "baseVersion": 1,
+                    "ops": [
+                        {
+                            "op": "room.update",
+                            "roomId": bath["id"],
+                            "after": {"polygon": [[8, 0], [10.6, 0], [10.6, 3], [8, 3]]},
+                        }
+                    ],
+                },
+            }
+        )
+        patch = websocket.receive_json()
+        ack = websocket.receive_json()
+        assert patch["type"] == "scene.patch"
+        assert ack["type"] == "host.ack"
+        warnings = ack["payload"]["warnings"]
+        assert any(warning["code"] == "opening_reanchored" for warning in warnings)

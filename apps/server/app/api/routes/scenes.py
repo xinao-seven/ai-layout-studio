@@ -262,7 +262,12 @@ async def add_scene_item(
         scene_id, lambda document: _build_add_item_ops(document, request, catalog)
     )
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.patch("/{scene_id}/items/{item_id}", response_model=SceneResult)
@@ -311,7 +316,12 @@ async def update_scene_item(
 
     outcome = await registry.commit_with(scene_id, build_ops)
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.delete("/{scene_id}/items/{item_id}", response_model=SceneResult)
@@ -327,7 +337,12 @@ async def delete_scene_item(
 
     outcome = await registry.commit_with(scene_id, build_ops)
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.post("/{scene_id}/commit", response_model=SceneResult)
@@ -344,7 +359,12 @@ async def commit_scene(
         client_mutation_id=request.client_mutation_id,
     )
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.post("/{scene_id}/undo", response_model=SceneResult)
@@ -356,7 +376,12 @@ async def undo_scene(
 ) -> SceneResult:
     outcome = await registry.undo(scene_id, expected_version=request.expected_version)
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.post("/{scene_id}/redo", response_model=SceneResult)
@@ -368,7 +393,12 @@ async def redo_scene(
 ) -> SceneResult:
     outcome = await registry.redo(scene_id, expected_version=request.expected_version)
     await gateway.broadcast_patch(scene_id, outcome.patch)
-    return SceneResult(scene=outcome.document, patch=outcome.patch)
+    await gateway.emit_expired(scene_id, outcome.expired_proposals)
+    return SceneResult(
+        scene=outcome.document,
+        patch=outcome.patch,
+        warnings=outcome.warnings,
+    )
 
 
 @router.get("/{scene_id}/export")

@@ -24,6 +24,8 @@ COPY fixtures/catalog.json ./fixtures/catalog.json
 COPY fixtures/fixtures.json ./fixtures/fixtures.json
 COPY fixtures/scenes ./fixtures/scenes
 COPY packages/contracts/rules.json ./packages/contracts/rules.json
+COPY assets/models ./assets/models
+COPY assets/thumbnails ./assets/thumbnails
 
 # ---- runtime stage: no compiler/uv toolchain, non-root --------------------
 FROM python:3.12-slim AS runtime

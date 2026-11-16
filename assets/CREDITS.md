@@ -1,16 +1,30 @@
 # Asset credits
 
-No third-party assets have been added yet (M0). Every asset added later must be
-listed here with name, author, license and source URL (PRD §5.3, §13).
+Every committed asset is listed here with author, license and source URL
+(PRD §5.3, §13). The runtime catalog is `fixtures/catalog.json`; the per-model
+sizes, triangle counts and hashes are in `assets/generated/assets-index.json`.
 
-Asset sources planned:
+## Furniture models and thumbnails
 
-| Source | License | Usage |
-|---|---|---|
-| Kenney Furniture Kit | CC0 | main furniture line |
-| Quaternius | CC0 | main furniture line |
-| Poly Haven | CC0 | sparing accents |
-| Sketchfab (selected glTF) | CC-BY | accents, attribution required |
+| Asset set | Author | License | Source | Modifications |
+|---|---|---|---|---|
+| Kenney Furniture Kit (60 selected models + isometric thumbnails) | Kenney | CC0-1.0 (public domain) | <https://kenney.nl/assets/furniture-kit> | Uniform scale to realistic metric dimensions, baked bottom-center pivot, Y-up, front `+Z`; thumbnails padded to 256×256 on a uniform dark background |
+
+- Original archive: `kenney_furniture-kit.zip` (not committed).
+- Selected source models: `assets/source/catalog-manifest.json` records the
+  60 kind→model mappings and target sizes.
+- Build/validation: `scripts/build_catalog_assets.py` (rebuild) and
+  `pnpm`-independent check `uv run --directory apps/server python
+  ../../scripts/build_catalog_assets.py --check`.
+- License text: <https://creativecommons.org/publicdomain/zero/1.0/>.
+  CC0 requires no attribution; the credit is kept for provenance.
+
+Asset budgets (checked by the build script and pytest):
+
+- ≤1 MiB and ≤15k triangles per GLB.
+- 256×256 thumbnail per kind.
+- Catalog declares `frontAxis: "+Z"` and `pivot: "bottom-center"`; the validator
+  re-measures every GLB AABB and fails on drift.
 
 ## UI / visual references (no source code copied)
 

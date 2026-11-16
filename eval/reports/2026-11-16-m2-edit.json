@@ -1,0 +1,86 @@
+{
+  "milestone": "M2",
+  "kind": "manual-edit-acceptance",
+  "recordedAt": "2026-11-16",
+  "gitSha": "11402c0 (M2 changes uncommitted at report time)",
+  "environment": {
+    "os": "Windows 11 10.0.26300",
+    "browser": "ZCode in-app Chromium (WebGL2)",
+    "viewport": "1280x720",
+    "build": "Vite dev server + uvicorn (single worker)",
+    "scene": "studio fixture (47.5 m², 2 rooms, 9 items) plus a hand-drawn 3.2 m² room"
+  },
+  "catalog": {
+    "entries": 60,
+    "models": 60,
+    "thumbnails": 60,
+    "modelBytes": 1024892,
+    "thumbnailBytes": 1297206,
+    "largestModel": {
+      "kindId": "shower",
+      "bytes": 72220,
+      "triangles": 960
+    },
+    "maxTriangles": 960,
+    "budget": {
+      "maxBytesPerModel": 1048576,
+      "maxTrianglesPerModel": 15000
+    }
+  },
+  "automatedTests": {
+    "server": {
+      "passed": 110,
+      "failed": 0,
+      "command": "uv run --directory apps/server pytest -q"
+    },
+    "web": {
+      "passed": 23,
+      "failed": 0,
+      "command": "pnpm --filter @ai-layout/web test"
+    },
+    "typecheck": {
+      "tsc": "pass",
+      "mypy": "pass (61 files)"
+    },
+    "lint": {
+      "biome": "pass",
+      "ruff": "pass"
+    },
+    "build": {
+      "vite": "pass",
+      "jsBytes": 1456880,
+      "cssBytes": 49320
+    },
+    "eval": {
+      "cases": 8,
+      "passed": 8,
+      "command": "pytest tests/test_eval_runner.py"
+    },
+    "solverSpike": {
+      "tests": 4,
+      "passed": 4,
+      "command": "pytest tests/test_solver_spike.py"
+    }
+  },
+  "manualObservations": [
+    "Built-in studio loads with GLB furniture, walls, doors and windows in 3D and top view.",
+    "Catalog card click shows size/clearance summary; double-click adds a free-position item (v1→v2).",
+    "Undo removes the added item and produces a new server version (v2→v3); redo becomes available.",
+    "Top-view freehand room: 4 snapped points + first-point click created a 3.2 m² room (v3→v4).",
+    "Wall e0 selection + add door created a 0.90×2.10 m door (v4→v5); width/swing edits committed (v5→v7).",
+    "Dragging the sofa snapped to 0.1 m and committed one version (v7→v8); undo enables.",
+    "Vertex input edit changed the room polygon, server re-anchored the door and the UI showed the opening_reanchored warning toast (v8→v9).",
+    "Furniture selection shows kind/variant/size/position/rotation/room/constraints and a PointContext badge."
+  ],
+  "knownLimitations": [
+    "Catalog HTML5 drag/drop was verified by code path and client precheck tests, not by a synthetic native drag in the in-app browser.",
+    "The +Z front axis is recorded in the source manifest and visually checked in the editor; the asset validator measures AABB/pivot but cannot infer orientation automatically.",
+    "Door clearance and collision validation are delta-based for manual edits; legacy fixture furniture is not re-litigated on load.",
+    "Solver is a spike only; scoring, beam search and L-shaped rooms are M4 work (ADR-0008)."
+  ],
+  "review": {
+    "round1": "FAIL — P0 nginx /assets shadowing; P0 reanchor undo/redo; P1 item click, drop snapping, server inset; P2 delta issues",
+    "round2": "PASS WITH ISSUES — P0/P1 fixed; one residual P1 (room.update did not revalidate existing furniture) fixed afterwards",
+    "verifiedBy": "independent subagent + local regression tests (test_m2_regressions.py)"
+  }
+}

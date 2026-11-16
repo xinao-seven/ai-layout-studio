@@ -18,7 +18,8 @@
     "contracts:export": "uv run --directory apps/server python ../../scripts/export_contracts.py",
     "contracts:gen": "pnpm contracts:export && orval --config orval.config.ts && json2ts -i packages/contracts/generated/ws.schema.json -o apps/web/src/contracts/generated/ws.d.ts && json2ts -i packages/contracts/generated/tools.schema.json -o apps/web/src/contracts/generated/tools.d.ts",
     "contracts:check": "pnpm contracts:gen && node scripts/check_contracts.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "check:web-assets": "node scripts/check_web_assets_proxy.mjs"
   },
   "devDependencies": {
     "concurrently": "^10.0.7",

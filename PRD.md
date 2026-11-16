@@ -335,7 +335,7 @@ interface Proposal {
   sceneId: string
   turnId: string
   baseVersion: number               // turn 开始时的 confirmed 版本
-  dependsOn: string[]               // 同 turn 前序 proposal + 既有 pending proposal
+  dependsOn: string[]               // 同 turn 前序 proposal（跨 turn 引用会被拒绝）
   ops: PatchOp[]
   status: 'pending' | 'confirmed' | 'rejected' | 'expired'
   createdAt: string
@@ -778,6 +778,7 @@ pending ──confirm──> confirmed
 
 - `pending` 的 op 只存在于 overlay，不进 `scene_versions`。
 - 同一 turn 内后序 proposal 的 `dependsOn` 包含前序 proposal；确认必须按依赖顺序。
+- 新 proposal 不依赖其他 turn 的 pending proposal；若它引用/修改其他 turn pending 的 item，服务端拒绝为 `proposal_expired`（先确认或拒绝前一轮）。
 - confirm 必须满足：依赖全部 confirmed；当前版本 == `baseVersion + 已确认依赖数`；未过 TTL。
 - 任一外部 commit / undo / 另一 turn 的确认 → 其余 pending 全部 `expired`（`scene_changed`）。
 - 重复 confirm 返回 `{ ok: true, alreadyConfirmed: true }`，不重复写。

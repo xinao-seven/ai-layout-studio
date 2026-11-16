@@ -1,0 +1,1711 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "pack": "Kenney Furniture Kit",
+    "author": "Kenney",
+    "url": "https://kenney.nl/assets/furniture-kit",
+    "archive": "kenney_furniture-kit.zip",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "downloadHint": "curl -L -A \"Mozilla/5.0\" -e \"https://kenney.nl/assets/furniture-kit\" -o furniture-kit.zip \"https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip\"",
+    "note": "Models are metric, Y-up and authored with front +Z. The build pipeline bakes a uniform scale to realistic dimensions and re-centers the pivot to bottom-center."
+  },
+  "entries": [
+    {
+      "kindId": "sofa",
+      "name": "双人沙发",
+      "model": "loungeSofa",
+      "category": "sofa",
+      "tags": [
+        "sofa",
+        "沙发",
+        "双人沙发",
+        "living"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "preferredWall": "south",
+        "groupWith": [
+          "coffee_table",
+          "tv_stand"
+        ],
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "coffee_table",
+      "name": "茶几",
+      "model": "tableCoffee",
+      "category": "table",
+      "tags": [
+        "coffee table",
+        "茶几",
+        "living"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.44
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "bed_double",
+      "name": "双人床",
+      "model": "bedDouble",
+      "category": "bed",
+      "tags": [
+        "bed",
+        "double bed",
+        "双人床",
+        "床"
+      ],
+      "size": {
+        "mode": "length",
+        "value": 2.0
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "nightstand",
+          "wardrobe"
+        ],
+        "anchorPriority": 10,
+        "roomTypes": [
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bed_single",
+      "name": "单人床",
+      "model": "bedSingle",
+      "category": "bed",
+      "tags": [
+        "bed",
+        "single bed",
+        "单人床"
+      ],
+      "size": {
+        "mode": "length",
+        "value": 2.0
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "nightstand"
+        ],
+        "anchorPriority": 10,
+        "roomTypes": [
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bed_bunk",
+      "name": "双层床",
+      "model": "bedBunk",
+      "category": "bed",
+      "tags": [
+        "bunk bed",
+        "双层床",
+        "儿童床"
+      ],
+      "size": {
+        "mode": "length",
+        "value": 2.0
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.3,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 10,
+        "roomTypes": [
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "wardrobe",
+      "name": "衣柜",
+      "model": "bookcaseClosedWide",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "closet",
+        "衣柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 2.0
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "nightstand",
+      "name": "床头柜",
+      "model": "sideTable",
+      "category": "storage",
+      "tags": [
+        "nightstand",
+        "side table",
+        "床头柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.55
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "tv_stand",
+      "name": "电视柜",
+      "model": "cabinetTelevision",
+      "category": "storage",
+      "tags": [
+        "tv stand",
+        "media console",
+        "电视柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.5
+      },
+      "clearance": {
+        "front": 0.46,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "tv_stand_doors",
+      "name": "带门电视柜",
+      "model": "cabinetTelevisionDoors",
+      "category": "storage",
+      "tags": [
+        "tv stand",
+        "cabinet",
+        "电视柜",
+        "储物柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.5
+      },
+      "clearance": {
+        "front": 0.46,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "rug",
+      "name": "地毯",
+      "model": "rugRectangle",
+      "category": "decor",
+      "tags": [
+        "rug",
+        "carpet",
+        "地毯"
+      ],
+      "size": {
+        "mode": "footprint",
+        "value": [
+          2.4,
+          1.4
+        ]
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "dining_table",
+      "name": "餐桌",
+      "model": "table",
+      "category": "table",
+      "tags": [
+        "dining table",
+        "餐桌"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "rules": {
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "desk",
+      "name": "书桌",
+      "model": "desk",
+      "category": "table",
+      "tags": [
+        "desk",
+        "书桌",
+        "工作台"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.2,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bookshelf",
+      "name": "书架",
+      "model": "bookcaseOpen",
+      "category": "storage",
+      "tags": [
+        "bookshelf",
+        "bookcase",
+        "书架"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.9
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "chair",
+      "name": "餐椅",
+      "model": "chair",
+      "category": "other",
+      "tags": [
+        "chair",
+        "dining chair",
+        "餐椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "rules": {
+        "groupWith": [
+          "dining_table"
+        ],
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "plant",
+      "name": "盆栽",
+      "model": "pottedPlant",
+      "category": "decor",
+      "tags": [
+        "plant",
+        "盆栽",
+        "绿植"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.2
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study",
+          "balcony"
+        ]
+      }
+    },
+    {
+      "kindId": "sofa_long",
+      "name": "三人沙发",
+      "model": "loungeSofaLong",
+      "category": "sofa",
+      "tags": [
+        "sofa",
+        "three seat",
+        "三人沙发"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table",
+          "tv_stand"
+        ],
+        "anchorPriority": 8,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "sofa_corner",
+      "name": "转角沙发",
+      "model": "loungeSofaCorner",
+      "category": "sofa",
+      "tags": [
+        "sofa",
+        "corner sofa",
+        "转角沙发"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 9,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "armchair",
+      "name": "扶手椅",
+      "model": "loungeChair",
+      "category": "sofa",
+      "tags": [
+        "armchair",
+        "lounge chair",
+        "扶手椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.15,
+        "back": 0.05
+      },
+      "rules": {
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "lounge_chair",
+      "name": "休闲躺椅",
+      "model": "loungeChairRelax",
+      "category": "sofa",
+      "tags": [
+        "recliner",
+        "lounge chair",
+        "躺椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.95
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.05
+      },
+      "rules": {
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "balcony"
+        ]
+      }
+    },
+    {
+      "kindId": "sofa_design",
+      "name": "现代沙发",
+      "model": "loungeDesignSofa",
+      "category": "sofa",
+      "tags": [
+        "design sofa",
+        "现代沙发",
+        "loveseat"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.8
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "coffee_table"
+        ],
+        "anchorPriority": 7,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "ottoman",
+      "name": "脚凳",
+      "model": "loungeSofaOttoman",
+      "category": "sofa",
+      "tags": [
+        "ottoman",
+        "footstool",
+        "脚凳"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.45
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "design_chair",
+      "name": "设计单椅",
+      "model": "loungeDesignChair",
+      "category": "other",
+      "tags": [
+        "design chair",
+        "单椅",
+        "accent chair"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.08
+      },
+      "rules": {
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "coffee_table_glass",
+      "name": "玻璃茶几",
+      "model": "tableCoffeeGlass",
+      "category": "table",
+      "tags": [
+        "glass coffee table",
+        "玻璃茶几"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.44
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "coffee_table_square",
+      "name": "方形茶几",
+      "model": "tableCoffeeSquare",
+      "category": "table",
+      "tags": [
+        "square coffee table",
+        "方形茶几"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.44
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.2,
+        "back": 0.3
+      },
+      "rules": {
+        "groupWith": [
+          "sofa"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "side_table",
+      "name": "抽屉边几",
+      "model": "sideTableDrawers",
+      "category": "table",
+      "tags": [
+        "side table",
+        "边几",
+        "抽屉"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.55
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "anchorPriority": 4,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "round_table",
+      "name": "圆餐桌",
+      "model": "tableRound",
+      "category": "table",
+      "tags": [
+        "round table",
+        "圆桌",
+        "dining"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "rules": {
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "glass_table",
+      "name": "玻璃餐桌",
+      "model": "tableGlass",
+      "category": "table",
+      "tags": [
+        "glass table",
+        "玻璃餐桌"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.6,
+        "back": 0.6
+      },
+      "rules": {
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "corner_desk",
+      "name": "转角书桌",
+      "model": "deskCorner",
+      "category": "table",
+      "tags": [
+        "corner desk",
+        "转角书桌",
+        "工作台"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.2,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "groupWith": [
+          "chair"
+        ],
+        "anchorPriority": 6,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "stool_bar",
+      "name": "吧台凳",
+      "model": "stoolBar",
+      "category": "other",
+      "tags": [
+        "bar stool",
+        "吧台凳"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "stool_square",
+      "name": "方凳",
+      "model": "stoolBarSquare",
+      "category": "other",
+      "tags": [
+        "stool",
+        "方凳",
+        "seat"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.65
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "kitchen",
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bench",
+      "name": "软垫长凳",
+      "model": "benchCushion",
+      "category": "other",
+      "tags": [
+        "bench",
+        "长凳",
+        "软凳"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.5
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "anchorPriority": 3,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "balcony"
+        ]
+      }
+    },
+    {
+      "kindId": "chair_desk",
+      "name": "办公椅",
+      "model": "chairDesk",
+      "category": "other",
+      "tags": [
+        "office chair",
+        "desk chair",
+        "办公椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.15,
+        "back": 0.15
+      },
+      "rules": {
+        "groupWith": [
+          "desk"
+        ],
+        "anchorPriority": 4,
+        "roomTypes": [
+          "study",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "chair_cushion",
+      "name": "软垫餐椅",
+      "model": "chairCushion",
+      "category": "other",
+      "tags": [
+        "cushioned chair",
+        "软垫餐椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "rules": {
+        "groupWith": [
+          "dining_table"
+        ],
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "chair_rounded",
+      "name": "圆背椅",
+      "model": "chairRounded",
+      "category": "other",
+      "tags": [
+        "rounded chair",
+        "圆背椅"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.45,
+        "sides": 0.15,
+        "back": 0.1
+      },
+      "rules": {
+        "groupWith": [
+          "dining_table"
+        ],
+        "anchorPriority": 3,
+        "roomTypes": [
+          "kitchen",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "bookcase_low",
+      "name": "矮书架",
+      "model": "bookcaseOpenLow",
+      "category": "storage",
+      "tags": [
+        "low bookcase",
+        "矮书架"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.8
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 4,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bookcase_closed",
+      "name": "封闭书架",
+      "model": "bookcaseClosed",
+      "category": "storage",
+      "tags": [
+        "closed bookcase",
+        "封闭书架"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.8
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bookcase_doors",
+      "name": "带门书架",
+      "model": "bookcaseClosedDoors",
+      "category": "storage",
+      "tags": [
+        "bookcase doors",
+        "带门书架"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.8
+      },
+      "clearance": {
+        "front": 0.5,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "study",
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "kitchen_cabinet",
+      "name": "厨房地柜",
+      "model": "kitchenCabinet",
+      "category": "storage",
+      "tags": [
+        "kitchen cabinet",
+        "厨房地柜",
+        "橱柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "kitchen_cabinet_drawer",
+      "name": "厨房抽屉柜",
+      "model": "kitchenCabinetDrawer",
+      "category": "storage",
+      "tags": [
+        "kitchen drawer",
+        "抽屉柜",
+        "橱柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "fridge",
+      "name": "双门冰箱",
+      "model": "kitchenFridgeLarge",
+      "category": "storage",
+      "tags": [
+        "fridge",
+        "refrigerator",
+        "冰箱"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.9
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 8,
+        "roomTypes": [
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "stove",
+      "name": "灶台",
+      "model": "kitchenStove",
+      "category": "storage",
+      "tags": [
+        "stove",
+        "cooktop",
+        "灶台"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "kitchen_sink",
+      "name": "厨房水槽",
+      "model": "kitchenSink",
+      "category": "storage",
+      "tags": [
+        "sink",
+        "水槽",
+        "厨房"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.9,
+        "sides": 0.0,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 6,
+        "roomTypes": [
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "bathroom_cabinet",
+      "name": "浴室柜",
+      "model": "bathroomCabinetDrawer",
+      "category": "storage",
+      "tags": [
+        "bathroom cabinet",
+        "浴室柜"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bathroom_sink",
+      "name": "洗手盆",
+      "model": "bathroomSinkSquare",
+      "category": "storage",
+      "tags": [
+        "bathroom sink",
+        "洗手盆"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom"
+        ]
+      }
+    },
+    {
+      "kindId": "bathtub",
+      "name": "浴缸",
+      "model": "bathtub",
+      "category": "other",
+      "tags": [
+        "bathtub",
+        "浴缸"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.55
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      }
+    },
+    {
+      "kindId": "shower",
+      "name": "淋浴间",
+      "model": "showerRound",
+      "category": "other",
+      "tags": [
+        "shower",
+        "淋浴间"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 2.0
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.1,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      }
+    },
+    {
+      "kindId": "toilet",
+      "name": "马桶",
+      "model": "toiletSquare",
+      "category": "other",
+      "tags": [
+        "toilet",
+        "wc",
+        "马桶"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.6,
+        "sides": 0.15,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 7,
+        "roomTypes": [
+          "bathroom"
+        ]
+      }
+    },
+    {
+      "kindId": "washer",
+      "name": "洗衣机",
+      "model": "washer",
+      "category": "storage",
+      "tags": [
+        "washer",
+        "washing machine",
+        "洗衣机"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.7,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom",
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "dryer",
+      "name": "烘干机",
+      "model": "dryer",
+      "category": "storage",
+      "tags": [
+        "dryer",
+        "烘干机"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.85
+      },
+      "clearance": {
+        "front": 0.7,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "bathroom",
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "floor_lamp",
+      "name": "落地灯",
+      "model": "lampRoundFloor",
+      "category": "lighting",
+      "tags": [
+        "floor lamp",
+        "落地灯",
+        "灯"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.6
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.2,
+        "back": 0.2
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "floor_lamp_square",
+      "name": "方形落地灯",
+      "model": "lampSquareFloor",
+      "category": "lighting",
+      "tags": [
+        "floor lamp",
+        "方形落地灯"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.6
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.2,
+        "back": 0.2
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "table_lamp",
+      "name": "台灯",
+      "model": "lampRoundTable",
+      "category": "lighting",
+      "tags": [
+        "table lamp",
+        "台灯"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.5
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "rug_round",
+      "name": "圆形地毯",
+      "model": "rugRound",
+      "category": "decor",
+      "tags": [
+        "round rug",
+        "圆形地毯"
+      ],
+      "size": {
+        "mode": "footprint",
+        "value": [
+          2.0,
+          2.0
+        ]
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "rug_square",
+      "name": "方形地毯",
+      "model": "rugSquare",
+      "category": "decor",
+      "tags": [
+        "square rug",
+        "方形地毯"
+      ],
+      "size": {
+        "mode": "footprint",
+        "value": [
+          2.0,
+          2.0
+        ]
+      },
+      "clearance": {
+        "front": 0.0,
+        "sides": 0.0,
+        "back": 0.0
+      },
+      "rules": {
+        "allowOverlap": true,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "plant_small",
+      "name": "小盆栽",
+      "model": "plantSmall1",
+      "category": "decor",
+      "tags": [
+        "small plant",
+        "小盆栽",
+        "绿植"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.6
+      },
+      "clearance": {
+        "front": 0.05,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "bedroom",
+          "study",
+          "kitchen"
+        ]
+      }
+    },
+    {
+      "kindId": "television",
+      "name": "复古电视",
+      "model": "televisionVintage",
+      "category": "decor",
+      "tags": [
+        "television",
+        "tv",
+        "复古电视"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.6
+      },
+      "clearance": {
+        "front": 0.4,
+        "sides": 0.05,
+        "back": 0.02
+      },
+      "rules": {
+        "mustAgainstWall": true,
+        "anchorPriority": 5,
+        "roomTypes": [
+          "living",
+          "bedroom"
+        ]
+      }
+    },
+    {
+      "kindId": "speaker",
+      "name": "落地音箱",
+      "model": "speaker",
+      "category": "decor",
+      "tags": [
+        "speaker",
+        "音箱"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.9
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.05
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "speaker_small",
+      "name": "桌面音箱",
+      "model": "speakerSmall",
+      "category": "decor",
+      "tags": [
+        "small speaker",
+        "桌面音箱"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.35
+      },
+      "clearance": {
+        "front": 0.1,
+        "sides": 0.05,
+        "back": 0.05
+      },
+      "rules": {
+        "allowOverlap": true,
+        "anchorPriority": 1,
+        "roomTypes": [
+          "living",
+          "study"
+        ]
+      }
+    },
+    {
+      "kindId": "coat_rack",
+      "name": "衣帽架",
+      "model": "coatRackStanding",
+      "category": "storage",
+      "tags": [
+        "coat rack",
+        "衣帽架"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 1.8
+      },
+      "clearance": {
+        "front": 0.3,
+        "sides": 0.15,
+        "back": 0.15
+      },
+      "rules": {
+        "anchorPriority": 2,
+        "roomTypes": [
+          "bedroom",
+          "living"
+        ]
+      }
+    },
+    {
+      "kindId": "trashcan",
+      "name": "垃圾桶",
+      "model": "trashcan",
+      "category": "decor",
+      "tags": [
+        "trash can",
+        "垃圾桶"
+      ],
+      "size": {
+        "mode": "height",
+        "value": 0.75
+      },
+      "clearance": {
+        "front": 0.2,
+        "sides": 0.1,
+        "back": 0.1
+      },
+      "rules": {
+        "anchorPriority": 1,
+        "roomTypes": [
+          "kitchen",
+          "bathroom",
+          "study"
+        ]
+      }
+    }
+  ]
+}

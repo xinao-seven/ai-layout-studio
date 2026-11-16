@@ -4,6 +4,11 @@ import { type Vec2, wallInnerNormal } from './geometry'
 const EPS = 1e-6
 const TOP_VIEW_WALL_HEIGHT = 0.15
 
+export interface WallEdgeRef {
+  roomId: string
+  edgeIndex: number
+}
+
 export interface WallBox {
   key: string
   center: Vec2
@@ -13,6 +18,7 @@ export interface WallBox {
   y: number
   rotationY: number
   part: 'wall' | 'door-lintel' | 'window-sill' | 'window-lintel'
+  edges: WallEdgeRef[]
 }
 
 export interface DoorPanel {
@@ -68,6 +74,7 @@ interface LineGroup {
   height: number
   spans: [number, number][]
   openings: OpeningSpan[]
+  edges: WallEdgeRef[]
 }
 
 function canonicalLine(normal: Vec2, a: Vec2): { normal: Vec2; offset: number } {
@@ -191,10 +198,14 @@ export function buildWalls(
         height: info.height,
         spans: [],
         openings: [],
+        edges: [],
       }
       group.thickness = Math.max(group.thickness, info.thickness)
       group.height = Math.max(group.height, info.height)
       group.spans.push(info.span)
+      if (!group.edges.some((entry) => entry.roomId === room.id && entry.edgeIndex === edgeIndex)) {
+        group.edges.push({ roomId: room.id, edgeIndex })
+      }
       groups.set(key, group)
     })
   })
@@ -251,6 +262,7 @@ export function buildWalls(
         y: group.height / 2,
         rotationY: Math.atan2(-group.tangent[1], group.tangent[0]),
         part: 'wall',
+        edges: group.edges,
       })
     })
 
@@ -290,6 +302,7 @@ export function buildWalls(
             y: (wallHeight + opening.height) / 2,
             rotationY,
             part: 'door-lintel',
+            edges: group.edges,
           })
         }
       } else {
@@ -312,6 +325,7 @@ export function buildWalls(
             y: opening.sill / 2,
             rotationY,
             part: 'window-sill',
+            edges: group.edges,
           })
         }
         const top = opening.sill + opening.height
@@ -325,6 +339,7 @@ export function buildWalls(
             y: (wallHeight + top) / 2,
             rotationY,
             part: 'window-lintel',
+            edges: group.edges,
           })
         }
       }

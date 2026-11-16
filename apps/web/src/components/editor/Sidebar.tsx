@@ -1,39 +1,66 @@
+// biome-ignore-all lint/suspicious/noArrayIndexKey: wall edge index is the stable wall identity.
+// biome-ignore-all lint/a11y/useSemanticElements: compact nested cards keep div/field semantics for the editor layout.
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   ArrowUp,
   Circle,
+  DoorOpen,
   Loader2,
+  Pencil,
   Plus,
+  RefreshCw,
   RotateCcw,
   RotateCw,
   Search,
   Sparkles,
+  Square,
   Trash2,
   X,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import type { CatalogEntry, Item, SceneDocument } from '../../contracts/generated/client/rest'
+import { useEffect, useMemo, useState } from 'react'
+import type {
+  CatalogEntry,
+  DoorSpec,
+  Item,
+  Opening,
+  OpeningUpdateFields,
+  SceneDocument,
+} from '../../contracts/generated/client/rest'
 import { cn } from '../../lib/cn'
-import { polygonArea } from '../../scene/geometry'
+import { setCatalogDragKind } from '../../scene/catalogDrag'
+import { edgeInfo, MANUAL_ROTATION_RADIANS, polygonArea } from '../../scene/geometry'
 import {
   CATEGORY_ACCENTS,
   CATEGORY_LABELS,
   ROOM_ACCENTS,
   ROOM_TYPE_LABELS,
 } from '../../scene/labels'
+import { describeConstraint } from '../../scene/pointContext'
 import { type SidebarTab, useSceneStore } from '../../store/sceneStore'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
+import { ChatPanel } from './ChatPanel'
 
 const TAB_META: Record<SidebarTab, { title: string; subtitle: string }> = {
   scene: { title: '场景概览', subtitle: '结构、面积与版本' },
-  rooms: { title: '房间与墙', subtitle: '多边形、墙段与开口' },
-  items: { title: '家具目录', subtitle: '从目录添加到当前场景' },
-  ai: { title: 'AI 助手', subtitle: 'Agent 循环在 M3 接入' },
+  rooms: { title: '房间与墙', subtitle: '手绘、顶点与门窗开口' },
+  items: { title: '家具目录', subtitle: '拖放到画布或点击添加' },
+  ai: { title: 'AI 助手', subtitle: '对话、工具过程与提案确认' },
 }
+
+const CATEGORIES: Array<{ id: string; label: string }> = [
+  { id: 'all', label: '全部' },
+  { id: 'sofa', label: '沙发' },
+  { id: 'bed', label: '床' },
+  { id: 'table', label: '桌几' },
+  { id: 'storage', label: '收纳' },
+  { id: 'lighting', label: '灯具' },
+  { id: 'decor', label: '软装' },
+  { id: 'other', label: '其他' },
+]
 
 function Stat({
   label,
@@ -189,15 +216,316 @@ function SceneTab({ scene }: { scene: SceneDocument }) {
   )
 }
 
+function NumberField({
+  label,
+  value,
+  step,
+  min,
+  onChange,
+}: {
+  label: string
+  value: number
+  step: number
+  min?: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+      <span className="w-10 shrink-0">{label}</span>
+      <input
+        className="h-6 w-full rounded-md border border-border/70 bg-background/60 px-1.5 text-right text-[10px] text-foreground tabular-nums outline-none focus:border-primary/40"
+        min={min}
+        onChange={(event) => {
+          const parsed = Number(event.target.value)
+          if (Number.isFinite(parsed)) onChange(parsed)
+        }}
+        step={step}
+        type="number"
+        value={value}
+      />
+    </label>
+  )
+}
+
+function OpeningRow({ opening }: { opening: Opening }) {
+  const updateOpening = useSceneStore((state) => state.updateOpening)
+  const deleteOpening = useSceneStore((state) => state.deleteOpening)
+  const selectOpening = useSceneStore((state) => state.selectOpening)
+  const selectedOpeningId = useSceneStore((state) => state.selectedOpeningId)
+  const selected = selectedOpeningId === opening.id
+  const [offset, setOffset] = useState(opening.offset)
+  const [width, setWidth] = useState(opening.width)
+  const [height, setHeight] = useState(opening.height)
+  const [sill, setSill] = useState(opening.sillHeight ?? 0.9)
+  const [swing, setSwing] = useState(opening.door?.swing ?? 'single')
+  const [hinge, setHinge] = useState(opening.door?.hinge ?? 'start')
+  const isDoor = opening.type === 'door'
+
+  const apply = () => {
+    const after: OpeningUpdateFields = {
+      offset,
+      width,
+      height,
+      sillHeight: isDoor ? null : sill,
+    }
+    if (isDoor) {
+      const door: DoorSpec = {
+        ...(opening.door ?? {}),
+        swing: swing as DoorSpec['swing'],
+        hinge: hinge as DoorSpec['hinge'],
+      }
+      after.door = door
+    }
+    void updateOpening(opening.id, after)
+  }
+
+  return (
+    <div
+      className={cn(
+        'mt-2 rounded-lg border p-2',
+        selected ? 'border-primary/40 bg-primary/10' : 'border-border/60 bg-background/40',
+      )}
+      onClick={(event) => {
+        event.stopPropagation()
+        selectOpening(opening.id)
+      }}
+      onKeyDown={() => undefined}
+      role="group"
+    >
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="flex items-center gap-1 text-[11px]">
+          {isDoor ? <DoorOpen className="h-3 w-3" /> : <Square className="h-3 w-3" />}
+          {isDoor ? '门' : '窗'} · {opening.width.toFixed(2)}×{opening.height.toFixed(2)}m
+        </span>
+        <button
+          aria-label="删除开口"
+          className="rounded p-1 text-muted-foreground hover:bg-white/10 hover:text-red-300"
+          onClick={(event) => {
+            event.stopPropagation()
+            void deleteOpening(opening.id)
+          }}
+          type="button"
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <NumberField label="偏移" min={0} onChange={setOffset} step={0.05} value={offset} />
+        <NumberField label="宽度" min={0.2} onChange={setWidth} step={0.05} value={width} />
+        <NumberField label="高度" min={0.2} onChange={setHeight} step={0.05} value={height} />
+        {isDoor ? (
+          <span />
+        ) : (
+          <NumberField label="窗台" min={0} onChange={setSill} step={0.05} value={sill} />
+        )}
+      </div>
+      {isDoor ? (
+        <div className="mt-1.5 grid grid-cols-2 gap-1.5 text-[10px]">
+          <label className="flex items-center gap-1 text-muted-foreground">
+            <span className="w-10 shrink-0">开向</span>
+            <select
+              className="h-6 w-full rounded-md border border-border/70 bg-background/60 px-1 text-[10px] text-foreground outline-none"
+              onChange={(event) => setSwing(event.target.value as NonNullable<DoorSpec['swing']>)}
+              value={swing}
+            >
+              <option value="single">单开</option>
+              <option value="double">双开</option>
+              <option value="sliding">推拉</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-1 text-muted-foreground">
+            <span className="w-10 shrink-0">铰链</span>
+            <select
+              className="h-6 w-full rounded-md border border-border/70 bg-background/60 px-1 text-[10px] text-foreground outline-none"
+              onChange={(event) => setHinge(event.target.value as NonNullable<DoorSpec['hinge']>)}
+              value={hinge}
+            >
+              <option value="start">起点</option>
+              <option value="end">终点</option>
+            </select>
+          </label>
+        </div>
+      ) : null}
+      <Button className="mt-1.5 h-6 w-full text-[10px]" onClick={apply} size="sm" variant="outline">
+        应用开口参数
+      </Button>
+    </div>
+  )
+}
+
+function RoomVertexEditor({ room }: { room: SceneDocument['rooms'][number] }) {
+  const updateRoomPolygon = useSceneStore((state) => state.updateRoomPolygon)
+  const [points, setPoints] = useState<[number, number][]>(room.polygon as [number, number][])
+  useEffect(() => {
+    setPoints(room.polygon as [number, number][])
+  }, [room.polygon])
+
+  return (
+    <div
+      className="mt-2 rounded-lg border border-border/60 bg-background/40 p-2"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={() => undefined}
+      role="group"
+    >
+      <div className="mb-1.5 flex items-center justify-between">
+        <p className="text-[10px] text-muted-foreground">顶点（画布手柄支持拖动，此处精确输入）</p>
+        <Button
+          className="h-6 px-1.5 text-[10px]"
+          onClick={() => void updateRoomPolygon(room.id, points)}
+          size="sm"
+          variant="outline"
+        >
+          应用顶点
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        {points.map((point, index) => (
+          <div className="flex items-center gap-1" key={`${room.id}-vertex-input-${index}`}>
+            <span className="w-4 text-[9px] text-muted-foreground">V{index}</span>
+            <input
+              aria-label={`顶点 ${index} X`}
+              className="h-6 w-full rounded-md border border-border/70 bg-background/60 px-1 text-right text-[10px] tabular-nums outline-none focus:border-primary/40"
+              onChange={(event) => {
+                const parsed = Number(event.target.value)
+                if (!Number.isFinite(parsed)) return
+                setPoints((current) =>
+                  current.map((candidate, candidateIndex) =>
+                    candidateIndex === index ? [parsed, candidate[1]] : candidate,
+                  ),
+                )
+              }}
+              step={0.1}
+              type="number"
+              value={Math.round(point[0] * 100) / 100}
+            />
+            <input
+              aria-label={`顶点 ${index} Z`}
+              className="h-6 w-full rounded-md border border-border/70 bg-background/60 px-1 text-right text-[10px] tabular-nums outline-none focus:border-primary/40"
+              onChange={(event) => {
+                const parsed = Number(event.target.value)
+                if (!Number.isFinite(parsed)) return
+                setPoints((current) =>
+                  current.map((candidate, candidateIndex) =>
+                    candidateIndex === index ? [candidate[0], parsed] : candidate,
+                  ),
+                )
+              }}
+              step={0.1}
+              type="number"
+              value={Math.round(point[1] * 100) / 100}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function WallPanel({
+  scene,
+  roomId,
+  edgeIndex,
+}: {
+  scene: SceneDocument
+  roomId: string
+  edgeIndex: number
+}) {
+  const addOpening = useSceneStore((state) => state.addOpening)
+  const room = scene.rooms.find((candidate) => candidate.id === roomId)
+  if (!room) return null
+  const edge = edgeInfo(room.polygon as [number, number][], edgeIndex)
+  const openings = scene.openings.filter(
+    (opening) => opening.roomId === roomId && opening.edgeIndex === edgeIndex,
+  )
+  const label = room.wallLabels?.[String(edgeIndex)] ?? `墙 e${edgeIndex}`
+  return (
+    <div
+      className="mt-2 rounded-lg border border-primary/30 bg-primary/5 p-2"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={() => undefined}
+      role="group"
+    >
+      <div className="flex items-center justify-between">
+        <p className="font-medium text-[11px]">
+          {label} · {edge ? `${edge.length.toFixed(2)}m` : '—'}
+        </p>
+        <div className="flex gap-1">
+          <Button
+            className="h-6 px-1.5 text-[10px]"
+            onClick={() => void addOpening(roomId, edgeIndex, 'door')}
+            size="sm"
+            variant="outline"
+          >
+            <DoorOpen className="h-3 w-3" />门
+          </Button>
+          <Button
+            className="h-6 px-1.5 text-[10px]"
+            onClick={() => void addOpening(roomId, edgeIndex, 'window')}
+            size="sm"
+            variant="outline"
+          >
+            <Square className="h-3 w-3" />窗
+          </Button>
+        </div>
+      </div>
+      {openings.length === 0 ? (
+        <p className="mt-1.5 text-[10px] text-muted-foreground">这段墙还没有门窗。</p>
+      ) : (
+        openings.map((opening) => (
+          <OpeningRow
+            key={`${opening.id}:${opening.offset}:${opening.width}:${opening.height}:${opening.sillHeight}:${opening.door?.swing}:${opening.door?.hinge}`}
+            opening={opening}
+          />
+        ))
+      )}
+    </div>
+  )
+}
+
 function RoomsTab({ scene }: { scene: SceneDocument }) {
+  const selectedRoomId = useSceneStore((state) => state.selectedRoomId)
+  const selectedWall = useSceneStore((state) => state.selectedWall)
+  const selectRoom = useSceneStore((state) => state.selectRoom)
+  const selectWall = useSceneStore((state) => state.selectWall)
+  const deleteRoom = useSceneStore((state) => state.deleteRoom)
+  const tool = useSceneStore((state) => state.tool)
+  const setTool = useSceneStore((state) => state.setTool)
+
   return (
     <div className="space-y-2 p-3">
+      <Button
+        className="w-full justify-start"
+        onClick={() => setTool(tool === 'draw-room' ? 'select' : 'draw-room')}
+        size="sm"
+        variant={tool === 'draw-room' ? 'default' : 'outline'}
+      >
+        <Pencil className="h-3.5 w-3.5" />
+        {tool === 'draw-room' ? '正在绘制房间（点击地面加点）' : '绘制房间'}
+      </Button>
+
+      {scene.rooms.length === 0 ? (
+        <p className="px-1 py-4 text-center text-[11px] text-muted-foreground">
+          还没有房间。用上方工具在地面上点击墙中心线，点击起点闭合。
+        </p>
+      ) : null}
+
       {scene.rooms.map((room) => {
+        const selected = selectedRoomId === room.id
         const openings = scene.openings.filter((opening) => opening.roomId === room.id)
         return (
           <article
-            className="rounded-xl border border-border/70 bg-background/35 p-3"
+            className={cn(
+              'rounded-xl border bg-background/35 p-3 transition-colors',
+              selected ? 'border-primary/40 bg-primary/5' : 'border-border/70',
+            )}
             key={room.id}
+            onClick={(event) => {
+              const target = event.target as HTMLElement
+              if (target.closest('button,input,select,label')) return
+              selectRoom(room.id)
+            }}
+            onKeyDown={() => undefined}
+            role="group"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -213,7 +541,20 @@ function RoomsTab({ scene }: { scene: SceneDocument }) {
                   </p>
                 </div>
               </div>
-              <Badge tone="neutral">{room.polygon.length} 面墙</Badge>
+              <div className="flex items-center gap-1">
+                <Badge tone="neutral">{room.polygon.length} 面墙</Badge>
+                <button
+                  aria-label="删除房间"
+                  className="rounded p-1 text-muted-foreground hover:bg-white/10 hover:text-red-300"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    void deleteRoom(room.id)
+                  }}
+                  type="button"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] text-muted-foreground">
               <span>墙高 {room.wallHeight ?? scene.defaults.wallHeight} m</span>
@@ -221,17 +562,33 @@ function RoomsTab({ scene }: { scene: SceneDocument }) {
               <span>{openings.filter((o) => o.type === 'door').length} 门</span>
               <span>{openings.filter((o) => o.type === 'window').length} 窗</span>
             </div>
-            {room.wallLabels && Object.keys(room.wallLabels).length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {Object.entries(room.wallLabels).map(([edge, label]) => (
-                  <span
-                    className="rounded-md border border-border/60 bg-background/50 px-1.5 py-0.5 text-[9px] text-muted-foreground"
-                    key={edge}
+            <div className="mt-2 flex flex-wrap gap-1">
+              {(room.polygon as [number, number][]).map((_, edgeIndex) => {
+                const active =
+                  selectedWall?.roomId === room.id && selectedWall.edgeIndex === edgeIndex
+                return (
+                  <button
+                    className={cn(
+                      'rounded-md border px-1.5 py-0.5 text-[9px] transition-colors',
+                      active
+                        ? 'border-primary/50 bg-primary/15 text-foreground'
+                        : 'border-border/60 bg-background/50 text-muted-foreground hover:text-foreground',
+                    )}
+                    key={`${room.id}-e${edgeIndex}`}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      selectWall({ roomId: room.id, edgeIndex })
+                    }}
+                    type="button"
                   >
-                    {label} · e{edge}
-                  </span>
-                ))}
-              </div>
+                    {room.wallLabels?.[String(edgeIndex)] ?? `e${edgeIndex}`}
+                  </button>
+                )
+              })}
+            </div>
+            {selected ? <RoomVertexEditor room={room} /> : null}
+            {selected && selectedWall?.roomId === room.id ? (
+              <WallPanel edgeIndex={selectedWall.edgeIndex} roomId={room.id} scene={scene} />
             ) : null}
           </article>
         )
@@ -240,35 +597,70 @@ function RoomsTab({ scene }: { scene: SceneDocument }) {
   )
 }
 
-function CatalogCard({ entry }: { entry: CatalogEntry }) {
+function CatalogCard({
+  entry,
+  selected,
+  onSelect,
+}: {
+  entry: CatalogEntry
+  selected: boolean
+  onSelect: () => void
+}) {
   const addItem = useSceneStore((state) => state.addItemFromCatalog)
+  const clearCatalogGhost = useSceneStore((state) => state.clearCatalogGhost)
+  const [imageFailed, setImageFailed] = useState(false)
   const variant = entry.variants[0]
   const size = variant?.sizeM ?? [1, 1, 1]
   const accent = CATEGORY_ACCENTS[entry.category ?? 'other'] ?? CATEGORY_ACCENTS.other
+
   return (
     <button
-      className="group relative flex flex-col items-start gap-2 overflow-hidden rounded-xl border border-border/70 bg-background/35 p-2.5 text-left transition-all hover:border-white/20 hover:bg-accent/50"
-      onClick={() => void addItem(entry.kindId)}
+      className={cn(
+        'group relative flex cursor-grab flex-col items-start gap-1.5 overflow-hidden rounded-xl border bg-background/35 p-2 text-left transition-all active:cursor-grabbing',
+        selected
+          ? 'border-primary/45 bg-primary/10'
+          : 'border-border/70 hover:border-white/20 hover:bg-accent/50',
+      )}
+      draggable
+      onClick={onSelect}
+      onDoubleClick={() => void addItem(entry.kindId)}
+      onDragEnd={() => {
+        setCatalogDragKind(null)
+        clearCatalogGhost()
+      }}
+      onDragStart={(event) => {
+        setCatalogDragKind(entry.kindId)
+        event.dataTransfer.effectAllowed = 'copy'
+        event.dataTransfer.setData('text/plain', entry.kindId)
+      }}
       type="button"
     >
-      <span className="flex w-full items-center justify-between">
-        <span
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10"
-          style={{ backgroundColor: `${accent}22` }}
-        >
+      <span
+        className="relative flex h-16 w-full items-center justify-center overflow-hidden rounded-lg border border-white/5"
+        style={{ backgroundColor: `${accent}12` }}
+      >
+        {variant && !imageFailed ? (
+          <img
+            alt={entry.name}
+            className="h-full w-full object-contain p-1"
+            draggable={false}
+            onError={() => setImageFailed(true)}
+            src={variant.thumbnailPath}
+          />
+        ) : (
           <span
-            className="h-3.5 w-3.5 rounded-[4px] border border-white/20"
+            className="h-7 w-10 rounded-[4px] border border-white/20"
             style={{ backgroundColor: accent }}
           />
-        </span>
-        <span className="flex h-6 w-6 items-center justify-center rounded-md border border-border/70 bg-background/60 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-          <Plus className="h-3.5 w-3.5" />
+        )}
+        <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-md border border-border/70 bg-background/70 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+          <Plus className="h-3 w-3" />
         </span>
       </span>
-      <span className="min-w-0">
+      <span className="min-w-0 w-full">
         <span className="block truncate text-[12px]">{entry.name}</span>
         <span className="block text-[9px] text-muted-foreground">
-          {size[0].toFixed(1)}×{size[1].toFixed(1)}×{size[2].toFixed(1)} m
+          {size[0].toFixed(2)}×{size[1].toFixed(2)}×{size[2].toFixed(2)} m · 双击添加
         </span>
       </span>
     </button>
@@ -277,43 +669,121 @@ function CatalogCard({ entry }: { entry: CatalogEntry }) {
 
 function ItemsTab({ scene, catalog }: { scene: SceneDocument; catalog: CatalogEntry[] }) {
   const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('all')
+  const [selectedKindId, setSelectedKindId] = useState<string | null>(null)
   const selectItem = useSceneStore((state) => state.selectItem)
   const selectedItemId = useSceneStore((state) => state.selectedItemId)
+  const reloadCatalog = useSceneStore((state) => state.reloadCatalog)
+  const addItem = useSceneStore((state) => state.addItemFromCatalog)
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    if (!needle) return catalog
-    return catalog.filter(
-      (entry) =>
+    return catalog.filter((entry) => {
+      if (category !== 'all' && entry.category !== category) return false
+      if (!needle) return true
+      return (
         entry.name.toLowerCase().includes(needle) ||
         entry.kindId.includes(needle) ||
         (entry.tags ?? []).some((tag) => tag.toLowerCase().includes(needle)) ||
-        (CATEGORY_LABELS[entry.category ?? 'other'] ?? '').includes(needle),
-    )
-  }, [catalog, query])
+        (CATEGORY_LABELS[entry.category ?? 'other'] ?? '').includes(needle)
+      )
+    })
+  }, [catalog, category, query])
+
+  const selectedEntry = catalog.find((entry) => entry.kindId === selectedKindId)
 
   return (
-    <div className="space-y-4 p-3">
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <p className="font-medium text-[11px] text-muted-foreground tracking-wide">目录</p>
-          <Badge tone="neutral">{filtered.length}</Badge>
-        </div>
-        <label className="relative mb-2 block">
-          <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            className="h-8 w-full rounded-lg border border-border/70 bg-background/50 pr-2 pl-8 text-[12px] outline-none placeholder:text-muted-foreground/70 focus:border-primary/40"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索家具 / 关键词"
-            value={query}
-          />
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {filtered.map((entry) => (
-            <CatalogCard entry={entry} key={entry.kindId} />
-          ))}
+    <div className="space-y-3 p-3">
+      <div className="flex items-center justify-between px-1">
+        <p className="font-medium text-[11px] text-muted-foreground tracking-wide">目录</p>
+        <div className="flex items-center gap-1">
+          <Badge tone="neutral">{catalog.length}</Badge>
+          <button
+            aria-label="热加载目录"
+            className="rounded p-1 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+            onClick={() => void reloadCatalog()}
+            title="POST /api/catalog/reload"
+            type="button"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </button>
         </div>
       </div>
+
+      <label className="relative block">
+        <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          className="h-8 w-full rounded-lg border border-border/70 bg-background/50 pr-2 pl-8 text-[12px] outline-none placeholder:text-muted-foreground/70 focus:border-primary/40"
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="搜索家具 / 关键词"
+          value={query}
+        />
+      </label>
+
+      <div className="flex flex-wrap gap-1">
+        {CATEGORIES.map((item) => (
+          <button
+            className={cn(
+              'rounded-full border px-2 py-0.5 text-[10px] transition-colors',
+              category === item.id
+                ? 'border-primary/40 bg-primary/15 text-foreground'
+                : 'border-border/60 bg-background/40 text-muted-foreground hover:text-foreground',
+            )}
+            key={item.id}
+            onClick={() => setCategory(item.id)}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {selectedEntry ? (
+        <div className="rounded-xl border border-border/70 bg-background/40 p-2.5">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="font-medium text-[12px]">{selectedEntry.name}</p>
+              <p className="text-[9px] text-muted-foreground">
+                {CATEGORY_LABELS[selectedEntry.category ?? 'other']} · {selectedEntry.kindId}
+              </p>
+            </div>
+            <Button
+              className="h-6 px-2 text-[10px]"
+              onClick={() => void addItem(selectedEntry.kindId)}
+              size="sm"
+              variant="outline"
+            >
+              <Plus className="h-3 w-3" />
+              添加
+            </Button>
+          </div>
+          <div className="mt-1.5 grid grid-cols-3 gap-1 text-[9px] text-muted-foreground">
+            <span>宽 {selectedEntry.variants[0]?.sizeM[0].toFixed(2)}m</span>
+            <span>深 {selectedEntry.variants[0]?.sizeM[1].toFixed(2)}m</span>
+            <span>高 {selectedEntry.variants[0]?.sizeM[2].toFixed(2)}m</span>
+          </div>
+          <p className="mt-1.5 text-[9px] text-muted-foreground">
+            净空 前{selectedEntry.clearance?.front ?? 0}m · 侧{selectedEntry.clearance?.sides ?? 0}m
+            · 后{selectedEntry.clearance?.back ?? 0}m
+            {selectedEntry.rules?.mustAgainstWall ? ' · 必须靠墙' : ''}
+            {selectedEntry.rules?.allowOverlap ? ' · 可叠放' : ''}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-2">
+        {filtered.map((entry) => (
+          <CatalogCard
+            entry={entry}
+            key={entry.kindId}
+            onSelect={() => setSelectedKindId(entry.kindId)}
+            selected={selectedKindId === entry.kindId}
+          />
+        ))}
+      </div>
+      {filtered.length === 0 ? (
+        <p className="px-1 py-4 text-center text-[11px] text-muted-foreground">没有匹配的家具。</p>
+      ) : null}
 
       <Separator />
 
@@ -340,25 +810,35 @@ function ItemsTab({ scene, catalog }: { scene: SceneDocument; catalog: CatalogEn
 }
 
 function AiTab() {
+  const pointContext = useSceneStore((state) => state.pointContext)
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-        <Sparkles className="h-5 w-5 text-foreground" />
-      </span>
-      <div>
-        <p className="font-medium text-sm">AI 布局助手</p>
-        <p className="mt-1.5 text-[11px] text-muted-foreground leading-5">
-          Agent 循环、9 个工具与 ghost 提案在 M3 接入。当前 M1 已具备服务端场景、
-          版本历史、WebSocket 同步与手动家具编辑。
-        </p>
-      </div>
-      <div className="mt-2 w-full rounded-xl border border-border/60 bg-background/40 p-3 text-left">
-        <p className="text-[10px] text-muted-foreground">规划中的能力</p>
-        <ul className="mt-2 space-y-1.5 text-[11px] text-muted-foreground">
-          <li>· “在客厅放一个双人沙发，靠电视墙”</li>
-          <li>· auto_layout 整室求解与 verify_layout</li>
-          <li>· VLM 俯视评审 + 局部重排</li>
-        </ul>
+    <div className="flex h-full min-h-0 flex-col">
+      {pointContext ? (
+        <div className="shrink-0 border-b border-border/60 px-3 py-2">
+          <div className="flex items-center justify-between">
+            <p className="font-medium text-[10px]">已引用 PointContext</p>
+            <Badge tone="accent">{pointContext.kindId}</Badge>
+          </div>
+          <p className="mt-1 truncate font-mono text-[9px] text-muted-foreground">
+            {pointContext.itemId} · {pointContext.roomName ?? '未归属'} ·{' '}
+            {pointContext.position.map((value) => value.toFixed(2)).join(', ')}
+          </p>
+          {describeConstraint(pointContext.constraint).length > 0 ? (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {describeConstraint(pointContext.constraint).map((line) => (
+                <span
+                  className="rounded-md border border-border/60 bg-background/50 px-1.5 py-0.5 text-[9px] text-muted-foreground"
+                  key={line}
+                >
+                  {line}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      <div className="min-h-0 flex-1">
+        <ChatPanel />
       </div>
     </div>
   )
@@ -368,7 +848,9 @@ function ItemDetails() {
   const scene = useSceneStore((state) => state.scene)
   const catalog = useSceneStore((state) => state.catalog)
   const selectedItemId = useSceneStore((state) => state.selectedItemId)
+  const pointContext = useSceneStore((state) => state.pointContext)
   const selectItem = useSceneStore((state) => state.selectItem)
+  const setSidebarTab = useSceneStore((state) => state.setSidebarTab)
   const moveSelectedItem = useSceneStore((state) => state.moveSelectedItem)
   const rotateSelectedItem = useSceneStore((state) => state.rotateSelectedItem)
   const deleteSelectedItem = useSceneStore((state) => state.deleteSelectedItem)
@@ -380,17 +862,19 @@ function ItemDetails() {
     entry?.variants.find((candidate) => candidate.id === item.variantId) ?? entry?.variants[0]
   const size = variant?.sizeM ?? [1, 1, 1]
   const [x, y, z] = item.transform.position
+  const room = scene?.rooms.find((candidate) => candidate.id === item.constraint?.roomId)
+  const constraints = describeConstraint(item.constraint ?? null)
 
   const nudge = (dx: number, dz: number) => {
     void moveSelectedItem([x + dx, y, z + dz], item.transform.rotationY)
   }
 
   return (
-    <div className="shrink-0 border-border/50 border-t bg-sidebar p-3">
+    <div className="subtle-scrollbar max-h-[46%] shrink-0 overflow-y-auto border-border/50 border-t bg-sidebar p-3">
       <div className="mb-2 flex items-start justify-between">
-        <div>
-          <p className="font-medium text-[13px]">{entry?.name ?? item.kindId}</p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate font-medium text-[13px]">{entry?.name ?? item.kindId}</p>
+          <p className="mt-0.5 truncate font-mono text-[9px] text-muted-foreground">
             {item.id} · v{item.variantId}
           </p>
         </div>
@@ -409,6 +893,36 @@ function ItemDetails() {
         <span className="rounded-md bg-background/40 px-1.5 py-1">深 {size[1].toFixed(2)}m</span>
         <span className="rounded-md bg-background/40 px-1.5 py-1">高 {size[2].toFixed(2)}m</span>
       </div>
+
+      <div className="mb-2 grid grid-cols-2 gap-1 text-[10px] text-muted-foreground">
+        <span className="rounded-md bg-background/40 px-1.5 py-1">
+          位置 {x.toFixed(2)}, {z.toFixed(2)}
+        </span>
+        <span className="rounded-md bg-background/40 px-1.5 py-1">
+          朝向 {((item.transform.rotationY * 180) / Math.PI).toFixed(0)}°
+        </span>
+        <span className="col-span-2 truncate rounded-md bg-background/40 px-1.5 py-1">
+          房间 {room?.name ?? '未归属'}
+        </span>
+      </div>
+
+      {constraints.length > 0 || pointContext ? (
+        <div className="mb-2 flex flex-wrap gap-1">
+          {constraints.map((line) => (
+            <span
+              className="rounded-md border border-border/60 bg-background/50 px-1.5 py-0.5 text-[9px] text-muted-foreground"
+              key={line}
+            >
+              {line}
+            </span>
+          ))}
+          {pointContext ? (
+            <span className="rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] text-foreground/80">
+              PointContext 可用
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="flex items-center justify-between gap-2">
         <div className="grid grid-cols-3 gap-0.5">
@@ -449,7 +963,7 @@ function ItemDetails() {
           <div className="flex gap-1">
             <Button
               aria-label="逆时针旋转 15 度"
-              onClick={() => void rotateSelectedItem(-Math.PI / 12)}
+              onClick={() => void rotateSelectedItem(-MANUAL_ROTATION_RADIANS)}
               size="icon"
               variant="outline"
             >
@@ -457,7 +971,7 @@ function ItemDetails() {
             </Button>
             <Button
               aria-label="顺时针旋转 15 度"
-              onClick={() => void rotateSelectedItem(Math.PI / 12)}
+              onClick={() => void rotateSelectedItem(MANUAL_ROTATION_RADIANS)}
               size="icon"
               variant="outline"
             >
@@ -470,6 +984,15 @@ function ItemDetails() {
           </Button>
         </div>
       </div>
+
+      <Button
+        className="mt-2 w-full"
+        onClick={() => setSidebarTab('ai')}
+        size="sm"
+        variant="outline"
+      >
+        <Sparkles className="h-3.5 w-3.5" />用 PointContext 询问 AI
+      </Button>
     </div>
   )
 }
@@ -491,11 +1014,15 @@ export function Sidebar() {
         {loading ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
         ) : (
-          <Badge tone="neutral">M1</Badge>
+          <Badge tone="neutral">M3</Badge>
         )}
       </div>
 
-      <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div
+        className={`min-h-0 flex-1 ${
+          sidebarTab === 'ai' ? 'overflow-hidden' : 'subtle-scrollbar overflow-y-auto'
+        }`}
+      >
         {!scene ? (
           <div className="flex h-full items-center justify-center p-6 text-center text-[11px] text-muted-foreground">
             正在载入场景…

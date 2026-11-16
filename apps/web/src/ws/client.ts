@@ -22,13 +22,20 @@ export class SceneSocket {
   private reconnectTimer: number | null = null
   private pingTimer: number | null = null
   private reconnectAttempt = 0
-  private resumeFromSeq = 0
+  private resumeStateSeq = 0
+  private resumeTurnSeq = 0
+  private queuedHost: Array<{
+    type: string
+    payload: Record<string, unknown>
+    turnId?: string | null
+  }> = []
   private disposed = false
 
-  constructor(sceneId: string, handlers: SceneSocketHandlers, lastStateSeq = 0) {
+  constructor(sceneId: string, handlers: SceneSocketHandlers, lastStateSeq = 0, lastTurnSeq = 0) {
     this.sceneId = sceneId
     this.handlers = handlers
-    this.resumeFromSeq = lastStateSeq
+    this.resumeStateSeq = lastStateSeq
+    this.resumeTurnSeq = lastTurnSeq
   }
 
   connect(): void {
@@ -45,6 +52,7 @@ export class SceneSocket {
       this.reconnectAttempt = 0
       this.handlers.onStatus('open')
       this.sendResume()
+      this.flushQueued()
       this.startPing()
     })
 
@@ -74,14 +82,14 @@ export class SceneSocket {
   }
 
   private sendResume(): void {
-    if (this.resumeFromSeq <= 0) return
+    if (this.resumeStateSeq <= 0 && this.resumeTurnSeq <= 0) return
     this.send({
       v: 1,
       ch: 'host',
       type: 'resume',
       seq: 0,
       ts: Date.now(),
-      payload: { lastSeqs: { state: this.resumeFromSeq } },
+      payload: { lastSeqs: { state: this.resumeStateSeq, turn: this.resumeTurnSeq } },
     } as WsEnvelope)
   }
 
@@ -124,7 +132,35 @@ export class SceneSocket {
   }
 
   setResumeSequence(seq: number): void {
-    this.resumeFromSeq = seq
+    this.resumeStateSeq = seq
+  }
+
+  setResumeTurnSequence(seq: number): void {
+    this.resumeTurnSeq = seq
+  }
+
+  sendHost(type: string, payload: Record<string, unknown>, turnId?: string | null): void {
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      this.queuedHost.push({ type, payload, turnId })
+      return
+    }
+    this.send({
+      v: 1,
+      ch: 'host',
+      type,
+      seq: 0,
+      ts: Date.now(),
+      turnId: turnId ?? null,
+      payload,
+    } as WsEnvelope)
+  }
+
+  private flushQueued(): void {
+    const queued = this.queuedHost
+    this.queuedHost = []
+    for (const message of queued) {
+      this.sendHost(message.type, message.payload, message.turnId)
+    }
   }
 
   close(): void {

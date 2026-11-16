@@ -162,6 +162,40 @@
       "title": "AskUserAnswerPayload",
       "type": "object"
     },
+    "AssistantDeltaPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "AssistantDeltaPayload",
+      "type": "object"
+    },
+    "AssistantMessagePayload": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "default": "",
+          "title": "Content",
+          "type": "string"
+        },
+        "toolCalls": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Toolcalls",
+          "type": "array"
+        }
+      },
+      "title": "AssistantMessagePayload",
+      "type": "object"
+    },
     "CaptureResultMessage": {
       "additionalProperties": false,
       "properties": {
@@ -953,6 +987,15 @@
       ],
       "title": "ItemUpdateOp",
       "type": "object"
+    },
+    "MessageRole": {
+      "enum": [
+        "user",
+        "assistant",
+        "tool"
+      ],
+      "title": "MessageRole",
+      "type": "string"
     },
     "Near": {
       "additionalProperties": false,
@@ -2421,6 +2464,19 @@
       "properties": {
         "scene": {
           "$ref": "#/definitions/SceneDocument"
+        },
+        "serverEpoch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Server process id; clients reset turn sequence state when it changes.",
+          "title": "Serverepoch"
         }
       },
       "required": [
@@ -2440,6 +2496,48 @@
         "error"
       ],
       "title": "ServerErrorPayload",
+      "type": "object"
+    },
+    "ToolEventPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "arguments": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arguments"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "result": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        },
+        "toolCallId": {
+          "title": "Toolcallid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "toolCallId",
+        "name"
+      ],
+      "title": "ToolEventPayload",
       "type": "object"
     },
     "Transform": {
@@ -2540,6 +2638,60 @@
       "title": "TransformUpdate",
       "type": "object"
     },
+    "Turn": {
+      "additionalProperties": false,
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "endedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endedat"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "messages": {
+          "items": {
+            "$ref": "#/definitions/TurnMessage"
+          },
+          "title": "Messages",
+          "type": "array"
+        },
+        "sceneId": {
+          "minLength": 1,
+          "title": "Sceneid",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/TurnStatus",
+          "default": "queued"
+        },
+        "usage": {
+          "$ref": "#/definitions/TurnUsage"
+        }
+      },
+      "required": [
+        "id",
+        "sceneId",
+        "createdAt"
+      ],
+      "title": "Turn",
+      "type": "object"
+    },
     "TurnCancelMessage": {
       "additionalProperties": false,
       "properties": {
@@ -2620,6 +2772,126 @@
       "title": "TurnCancelPayload",
       "type": "object"
     },
+    "TurnFailedPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/ErrorBody"
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "title": "TurnFailedPayload",
+      "type": "object"
+    },
+    "TurnMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "default": "",
+          "title": "Content",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/MessageRole"
+        },
+        "screenshotAfter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Screenshotafter"
+        },
+        "screenshotBefore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Screenshotbefore"
+        },
+        "toolCalls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Toolcalls"
+        },
+        "toolResult": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Toolresult"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "TurnMessage",
+      "type": "object"
+    },
+    "TurnStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "waiting_user",
+        "done",
+        "failed",
+        "cancelled"
+      ],
+      "title": "TurnStatus",
+      "type": "string"
+    },
+    "TurnStatusPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "turn": {
+          "$ref": "#/definitions/Turn"
+        },
+        "waiting": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TurnWaitingUserPayload"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "turn"
+      ],
+      "title": "TurnStatusPayload",
+      "type": "object"
+    },
     "TurnSubscribeMessage": {
       "additionalProperties": false,
       "properties": {
@@ -2689,6 +2961,12 @@
     "TurnSubscribePayload": {
       "additionalProperties": false,
       "properties": {
+        "lastSeq": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Lastseq",
+          "type": "integer"
+        },
         "turnId": {
           "title": "Turnid",
           "type": "string"
@@ -2698,6 +2976,66 @@
         "turnId"
       ],
       "title": "TurnSubscribePayload",
+      "type": "object"
+    },
+    "TurnUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "iterations": {
+          "default": 0,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "refusals": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Refusals",
+          "type": "array"
+        },
+        "tokensIn": {
+          "default": 0,
+          "title": "Tokensin",
+          "type": "integer"
+        },
+        "tokensOut": {
+          "default": 0,
+          "title": "Tokensout",
+          "type": "integer"
+        },
+        "wallClockMs": {
+          "default": 0,
+          "title": "Wallclockms",
+          "type": "integer"
+        }
+      },
+      "title": "TurnUsage",
+      "type": "object"
+    },
+    "TurnWaitingUserPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "allowMultiple": {
+          "default": false,
+          "title": "Allowmultiple",
+          "type": "boolean"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "question": {
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "question"
+      ],
+      "title": "TurnWaitingUserPayload",
       "type": "object"
     },
     "UndoMessage": {
@@ -2791,6 +3129,12 @@
         "AskUserAnswerPayload": {
           "$ref": "#/definitions/AskUserAnswerPayload"
         },
+        "AssistantDeltaPayload": {
+          "$ref": "#/definitions/AssistantDeltaPayload"
+        },
+        "AssistantMessagePayload": {
+          "$ref": "#/definitions/AssistantMessagePayload"
+        },
         "CaptureResultMessage": {
           "$ref": "#/definitions/CaptureResultMessage"
         },
@@ -2845,17 +3189,29 @@
         "ServerErrorPayload": {
           "$ref": "#/definitions/ServerErrorPayload"
         },
+        "ToolEventPayload": {
+          "$ref": "#/definitions/ToolEventPayload"
+        },
         "TurnCancelMessage": {
           "$ref": "#/definitions/TurnCancelMessage"
         },
         "TurnCancelPayload": {
           "$ref": "#/definitions/TurnCancelPayload"
         },
+        "TurnFailedPayload": {
+          "$ref": "#/definitions/TurnFailedPayload"
+        },
+        "TurnStatusPayload": {
+          "$ref": "#/definitions/TurnStatusPayload"
+        },
         "TurnSubscribeMessage": {
           "$ref": "#/definitions/TurnSubscribeMessage"
         },
         "TurnSubscribePayload": {
           "$ref": "#/definitions/TurnSubscribePayload"
+        },
+        "TurnWaitingUserPayload": {
+          "$ref": "#/definitions/TurnWaitingUserPayload"
         },
         "UndoMessage": {
           "$ref": "#/definitions/UndoMessage"

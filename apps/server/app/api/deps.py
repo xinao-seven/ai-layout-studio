@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from fastapi import Request
 
@@ -12,6 +12,9 @@ from app.db.repository import SceneRepository
 from app.scene.fixtures import FixtureService
 from app.scene.registry import SceneRegistry
 from app.sync.gateway import SyncGateway
+
+if TYPE_CHECKING:
+    from app.agent.manager import TurnManager
 
 
 def get_app_settings(request: Request) -> Settings:
@@ -37,3 +40,7 @@ def get_fixtures(request: Request) -> FixtureService:
 
 def get_gateway(request: Request) -> SyncGateway:
     return cast(SyncGateway, request.app.state.gateway)
+
+
+def get_turn_manager(request: Request) -> TurnManager:
+    return cast("TurnManager", request.app.state.turn_manager)

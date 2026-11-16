@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "id": "scene_fixture_living",
+  "name": "客厅 · 22.5㎡",
+  "version": 1,
+  "units": "metric",
+  "north": [0, -1],
+  "defaults": {
+    "wallHeight": 2.8,
+    "wallThickness": 0.12,
+    "wallMaterial": "default"
+  },
+  "rooms": [
+    {
+      "id": "room_living_main",
+      "name": "客厅",
+      "type": "living",
+      "polygon": [
+        [0, 0],
+        [5, 0],
+        [5, 4.5],
+        [0, 4.5]
+      ],
+      "wallLabels": {
+        "0": "电视墙",
+        "1": "东墙",
+        "2": "南墙",
+        "3": "入户墙"
+      },
+      "floorMaterial": "oak"
+    }
+  ],
+  "openings": [
+    {
+      "id": "op_living_window",
+      "type": "window",
+      "roomId": "room_living_main",
+      "edgeIndex": 1,
+      "offsetFrom": "start",
+      "offset": 2.25,
+      "width": 2.0,
+      "height": 1.5,
+      "sillHeight": 0.9,
+      "style": "picture"
+    },
+    {
+      "id": "op_living_door",
+      "type": "door",
+      "roomId": "room_living_main",
+      "edgeIndex": 3,
+      "offsetFrom": "start",
+      "offset": 2.25,
+      "width": 0.9,
+      "height": 2.1,
+      "door": {
+        "swing": "single",
+        "hinge": "start",
+        "opensTo": "in"
+      },
+      "style": "entry"
+    }
+  ],
+  "items": [],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

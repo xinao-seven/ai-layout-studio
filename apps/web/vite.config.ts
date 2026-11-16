@@ -10,6 +10,8 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': 'http://127.0.0.1:8000',
+      '/assets/models': 'http://127.0.0.1:8000',
+      '/assets/thumbnails': 'http://127.0.0.1:8000',
       '/ws': { target: 'ws://127.0.0.1:8000', ws: true },
     },
   },

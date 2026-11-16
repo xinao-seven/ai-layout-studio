@@ -21,6 +21,7 @@ export const listCatalogApiCatalogGetResponseEntriesItemFrontAxisDefault = `+Z`;
 
 export const listCatalogApiCatalogGetResponseEntriesItemPivotDefault = `bottom-center`;
 export const listCatalogApiCatalogGetResponseEntriesItemPlacementDefault = `floor`;
+export const listCatalogApiCatalogGetResponseEntriesItemRulesOneAllowOverlapDefault = false;
 export const listCatalogApiCatalogGetResponseEntriesItemRulesOneAnchorPriorityDefault = 0;
 export const listCatalogApiCatalogGetResponseEntriesItemRulesOneMustAgainstWallDefault = false;
 
@@ -49,9 +50,78 @@ export const ListCatalogApiCatalogGetResponse = zod.object({
   "pivot": zod.literal("bottom-center").default(listCatalogApiCatalogGetResponseEntriesItemPivotDefault).meta({ title: 'Pivot' }),
   "placement": zod.literal("floor").default(listCatalogApiCatalogGetResponseEntriesItemPlacementDefault).meta({ title: 'Placement' }),
   "rules": zod.union([zod.object({
+  "allowOverlap": zod.boolean().default(listCatalogApiCatalogGetResponseEntriesItemRulesOneAllowOverlapDefault),
   "anchorPriority": zod.int().default(listCatalogApiCatalogGetResponseEntriesItemRulesOneAnchorPriorityDefault),
   "groupWith": zod.array(zod.string()).optional(),
   "mustAgainstWall": zod.boolean().default(listCatalogApiCatalogGetResponseEntriesItemRulesOneMustAgainstWallDefault),
+  "preferredWall": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.null()]).optional(),
+  "roomTypes": zod.array(zod.string()).optional()
+}),zod.null()]).optional(),
+  "tags": zod.array(zod.string()).optional(),
+  "variants": zod.array(zod.object({
+  "id": zod.string().min(1),
+  "modelPath": zod.string(),
+  "sizeM": zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),
+  "thumbnailPath": zod.string()
+})).min(1)
+}))
+})
+
+
+/**
+ * Hot-reload ``fixtures/catalog.json`` and refresh live scene validators.
+ *
+ * The new catalog is validated against every live scene before it is applied,
+ * so a reload that removes an in-use kind cannot silently break editing.
+ * @summary Reload Catalog
+ */
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemCategoryDefault = `other`;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceBackOneMin = 0;
+
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceFrontOneMin = 0;
+
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceSidesOneMin = 0;
+
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemCollisionTypeDefault = `obb`;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemFrontAxisDefault = `+Z`;
+
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemPivotDefault = `bottom-center`;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemPlacementDefault = `floor`;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneAllowOverlapDefault = false;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneAnchorPriorityDefault = 0;
+export const reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneMustAgainstWallDefault = false;
+
+
+
+export const ReloadCatalogApiCatalogReloadPostResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "allowedRotations": zod.array(zod.number()).optional(),
+  "category": zod.enum(['sofa', 'bed', 'table', 'storage', 'lighting', 'decor', 'other']).default(reloadCatalogApiCatalogReloadPostResponseEntriesItemCategoryDefault),
+  "clearance": zod.object({
+  "back": zod.union([zod.number().min(reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(reloadCatalogApiCatalogReloadPostResponseEntriesItemClearanceSidesOneMin),zod.null()]).optional()
+}).optional(),
+  "collision": zod.object({
+  "type": zod.literal("obb").default(reloadCatalogApiCatalogReloadPostResponseEntriesItemCollisionTypeDefault).meta({ title: 'Type' })
+}).optional(),
+  "defaultVariantId": zod.string(),
+  "frontAxis": zod.literal("+Z").default(reloadCatalogApiCatalogReloadPostResponseEntriesItemFrontAxisDefault).meta({ title: 'Frontaxis' }),
+  "kindId": zod.string().min(1),
+  "license": zod.union([zod.object({
+  "name": zod.string(),
+  "url": zod.string()
+}),zod.null()]).optional(),
+  "name": zod.string().min(1),
+  "pivot": zod.literal("bottom-center").default(reloadCatalogApiCatalogReloadPostResponseEntriesItemPivotDefault).meta({ title: 'Pivot' }),
+  "placement": zod.literal("floor").default(reloadCatalogApiCatalogReloadPostResponseEntriesItemPlacementDefault).meta({ title: 'Placement' }),
+  "rules": zod.union([zod.object({
+  "allowOverlap": zod.boolean().default(reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneAllowOverlapDefault),
+  "anchorPriority": zod.int().default(reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneAnchorPriorityDefault),
+  "groupWith": zod.array(zod.string()).optional(),
+  "mustAgainstWall": zod.boolean().default(reloadCatalogApiCatalogReloadPostResponseEntriesItemRulesOneMustAgainstWallDefault),
   "preferredWall": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.null()]).optional(),
   "roomTypes": zod.array(zod.string()).optional()
 }),zod.null()]).optional(),
@@ -1342,6 +1412,8 @@ export const commitSceneApiScenesSceneIdCommitPostResponseSceneSchemaVersionDefa
 export const commitSceneApiScenesSceneIdCommitPostResponseSceneUnitsDefault = `metric`;
 
 
+
+
 export const CommitSceneApiScenesSceneIdCommitPostResponse = zod.object({
   "patch": zod.object({
   "actor": zod.enum(['user', 'agent', 'system']).default(commitSceneApiScenesSceneIdCommitPostResponsePatchActorDefault),
@@ -1716,7 +1788,12 @@ zod.number()])).min(commitSceneApiScenesSceneIdCommitPostResponseSceneRoomsItemP
   "units": zod.literal("metric").default(commitSceneApiScenesSceneIdCommitPostResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
 })
 
 
@@ -1952,6 +2029,8 @@ export const addSceneItemApiScenesSceneIdItemsPostResponseSceneRoomsItemWallThic
 
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneSchemaVersionDefault = 1;
 export const addSceneItemApiScenesSceneIdItemsPostResponseSceneUnitsDefault = `metric`;
+
+
 
 
 export const AddSceneItemApiScenesSceneIdItemsPostResponse = zod.object({
@@ -2328,7 +2407,12 @@ zod.number()])).min(addSceneItemApiScenesSceneIdItemsPostResponseSceneRoomsItemP
   "units": zod.literal("metric").default(addSceneItemApiScenesSceneIdItemsPostResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
 })
 
 
@@ -2543,6 +2627,8 @@ export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneRoomsI
 
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneSchemaVersionDefault = 1;
 export const deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneUnitsDefault = `metric`;
+
+
 
 
 export const DeleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponse = zod.object({
@@ -2919,7 +3005,12 @@ zod.number()])).min(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseScen
   "units": zod.literal("metric").default(deleteSceneItemApiScenesSceneIdItemsItemIdDeleteResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
 })
 
 
@@ -3141,6 +3232,8 @@ export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneRoomsIt
 
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneSchemaVersionDefault = 1;
 export const updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneUnitsDefault = `metric`;
+
+
 
 
 export const UpdateSceneItemApiScenesSceneIdItemsItemIdPatchResponse = zod.object({
@@ -3517,7 +3610,477 @@ zod.number()])).min(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseScene
   "units": zod.literal("metric").default(updateSceneItemApiScenesSceneIdItemsItemIdPatchResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
+})
+
+
+/**
+ * @summary List Proposals
+ */
+export const ListProposalsApiScenesSceneIdProposalsGetParams = zod.object({
+  "scene_id": zod.string()
+})
+
+export const ListProposalsApiScenesSceneIdProposalsGetQueryParams = zod.object({
+  "status": zod.union([zod.enum(['pending', 'confirmed', 'rejected', 'expired']),zod.null()]).optional()
+})
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneBackOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneFrontOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneSidesOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemSourceDefault = `manual`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemTransformScaleDefault = 1;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemTransformScaleExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneSourceDefault = `manual`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneTransformScaleDefault = 1;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneTransformScaleExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneBackOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterTransformOneScaleOneExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomFloorMaterialDefault = `default`;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomPolygonMin = 3;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomTypeDefault = `other`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomWallHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomWallThicknessOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneFloorMaterialDefault = `default`;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOnePolygonMin = 3;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneTypeDefault = `other`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneWallThicknessOneExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterPolygonOneMin = 3;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterWallHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterWallThicknessOneExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOnePolygonOneMin = 3;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOneWallHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOneWallThicknessOneExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneHingeDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneOpensToDefault = `in`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneSwingDefault = `single`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningEdgeIndexMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningHeightExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningOffsetMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningOffsetFromDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningSillHeightOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningWidthExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneHingeDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneOpensToDefault = `in`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneSwingDefault = `single`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneEdgeIndexMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneHeightExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneOffsetMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneOffsetFromDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneSillHeightOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneWidthExclusiveMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneHingeDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneOpensToDefault = `in`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneSwingDefault = `single`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterEdgeIndexOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterOffsetOneMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterSillHeightOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterWidthOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneHingeDefault = `start`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneOpensToDefault = `in`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneSwingDefault = `single`;
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneEdgeIndexOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneHeightOneExclusiveMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneOffsetOneMin = 0;
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneSillHeightOneMin = 0;
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneWidthOneExclusiveMin = 0;
+
+
+
+export const listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemStatusDefault = `pending`;
+
+
+export const ListProposalsApiScenesSceneIdProposalsGetResponse = zod.object({
+  "proposals": zod.array(zod.object({
+  "baseVersion": zod.int().min(1),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "dependsOn": zod.array(zod.string()).optional(),
+  "id": zod.string().min(1),
+  "ops": zod.array(zod.union([zod.object({
+  "item": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "kindId": zod.string().min(1),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.enum(['manual', 'agent']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemSourceDefault),
+  "transform": zod.object({
+  "position": zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),
+  "rotationY": zod.number(),
+  "scale": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemTransformScaleExclusiveMin).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemOneItemTransformScaleDefault)
+}).describe('Item placement. Rotation is radians around +Y; front axis is +Z.'),
+  "variantId": zod.string().min(1)
+}),
+  "op": zod.literal("item.add").meta({ title: 'Op' })
+}),zod.object({
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "kindId": zod.string().min(1),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.enum(['manual', 'agent']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneSourceDefault),
+  "transform": zod.object({
+  "position": zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),
+  "rotationY": zod.number(),
+  "scale": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneTransformScaleExclusiveMin).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemTwoBeforeOneTransformScaleDefault)
+}).describe('Item placement. Rotation is radians around +Y; front axis is +Z.'),
+  "variantId": zod.string().min(1)
+}),zod.null()]).optional(),
+  "itemId": zod.string().min(1),
+  "op": zod.literal("item.remove").meta({ title: 'Op' })
+}),zod.object({
+  "after": zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeAfterTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "constraint": zod.union([zod.object({
+  "anchor": zod.union([zod.object({
+  "openingId": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['wall', 'corner', 'window', 'door', 'center']),
+  "wallId": zod.union([zod.string(),zod.null()]).optional(),
+  "wallLabel": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "clearance": zod.union([zod.object({
+  "back": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneBackOneMin),zod.null()]).optional(),
+  "front": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneFrontOneMin),zod.null()]).optional(),
+  "sides": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneClearanceOneSidesOneMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "facing": zod.union([zod.enum(['north', 'east', 'south', 'west']),zod.object({
+  "id": zod.union([zod.string(),zod.null()]).optional(),
+  "toward": zod.enum(['door', 'window', 'item'])
+}),zod.null()]).optional(),
+  "group": zod.union([zod.string(),zod.null()]).optional(),
+  "near": zod.union([zod.object({
+  "distance": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneConstraintOneNearOneDistanceOneExclusiveMin),zod.null()]).optional(),
+  "itemId": zod.union([zod.string(),zod.null()]).optional(),
+  "openingId": zod.union([zod.string(),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "roomId": zod.union([zod.string(),zod.null()]).optional()
+}).describe('Preserved agent intent so placements stay explainable and re-solvable.'),zod.null()]).optional(),
+  "kindId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "materialOverrides": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "source": zod.union([zod.enum(['manual', 'agent']),zod.null()]).optional(),
+  "transform": zod.union([zod.object({
+  "position": zod.union([zod.tuple([zod.number(),
+zod.number(),
+zod.number()]),zod.null()]).optional(),
+  "rotationY": zod.union([zod.number(),zod.null()]).optional(),
+  "scale": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemThreeBeforeOneTransformOneScaleOneExclusiveMin),zod.null()]).optional()
+}),zod.null()]).optional(),
+  "variantId": zod.union([zod.string().min(1),zod.null()]).optional()
+}).describe('Mutable item fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
+  "itemId": zod.string().min(1),
+  "op": zod.literal("item.update").meta({ title: 'Op' })
+}),zod.object({
+  "op": zod.literal("room.add").meta({ title: 'Op' }),
+  "room": zod.object({
+  "floorMaterial": zod.string().default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomFloorMaterialDefault),
+  "id": zod.string().min(1),
+  "name": zod.string().min(1),
+  "polygon": zod.array(zod.tuple([zod.number(),
+zod.number()])).min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomPolygonMin),
+  "type": zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomTypeDefault),
+  "wallHeight": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFourRoomWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Room whose polygon is the wall centerline (CCW).')
+}),zod.object({
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.string().default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneFloorMaterialDefault),
+  "id": zod.string().min(1),
+  "name": zod.string().min(1),
+  "polygon": zod.array(zod.tuple([zod.number(),
+zod.number()])).min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOnePolygonMin),
+  "type": zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneTypeDefault),
+  "wallHeight": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemFiveBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Room whose polygon is the wall centerline (CCW).'),zod.null()]).optional(),
+  "op": zod.literal("room.remove").meta({ title: 'Op' }),
+  "roomId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterPolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixAfterWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "floorMaterial": zod.union([zod.string(),zod.null()]).optional(),
+  "name": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "polygon": zod.union([zod.array(zod.tuple([zod.number(),
+zod.number()])).min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOnePolygonOneMin),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['living', 'bedroom', 'kitchen', 'bathroom', 'study', 'balcony', 'other']),zod.null()]).optional(),
+  "wallHeight": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOneWallHeightOneExclusiveMin),zod.null()]).optional(),
+  "wallLabels": zod.union([zod.record(zod.string(), zod.string()),zod.null()]).optional(),
+  "wallThickness": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSixBeforeOneWallThicknessOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable room fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("room.update").meta({ title: 'Op' }),
+  "roomId": zod.string().min(1)
+}),zod.object({
+  "op": zod.literal("opening.add").meta({ title: 'Op' }),
+  "opening": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.int().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningEdgeIndexMin),
+  "height": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningHeightExclusiveMin),
+  "id": zod.string().min(1),
+  "offset": zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningOffsetMin),
+  "offsetFrom": zod.literal("start").default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningOffsetFromDefault).meta({ title: 'Offsetfrom' }),
+  "roomId": zod.string().min(1),
+  "sillHeight": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['door', 'window']),
+  "width": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemSevenOpeningWidthExclusiveMin)
+}).describe('Door or window anchored to a room polygon edge.')
+}),zod.object({
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.int().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneEdgeIndexMin),
+  "height": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneHeightExclusiveMin),
+  "id": zod.string().min(1),
+  "offset": zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneOffsetMin),
+  "offsetFrom": zod.literal("start").default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneOffsetFromDefault).meta({ title: 'Offsetfrom' }),
+  "roomId": zod.string().min(1),
+  "sillHeight": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.enum(['door', 'window']),
+  "width": zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemEightBeforeOneWidthExclusiveMin)
+}).describe('Door or window anchored to a room polygon edge.'),zod.null()]).optional(),
+  "op": zod.literal("opening.remove").meta({ title: 'Op' }),
+  "openingId": zod.string().min(1)
+}),zod.object({
+  "after": zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineAfterWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),
+  "before": zod.union([zod.object({
+  "door": zod.union([zod.object({
+  "hinge": zod.enum(['start', 'end']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneHingeDefault),
+  "opensTo": zod.enum(['in', 'out']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneOpensToDefault),
+  "swing": zod.enum(['single', 'double', 'sliding']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneDoorOneSwingDefault)
+}).describe('Door geometry and swing metadata (PRD §5.1).'),zod.null()]).optional(),
+  "edgeIndex": zod.union([zod.int().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneEdgeIndexOneMin),zod.null()]).optional(),
+  "height": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneHeightOneExclusiveMin),zod.null()]).optional(),
+  "offset": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneOffsetOneMin),zod.null()]).optional(),
+  "offsetFrom": zod.union([zod.literal("start"),zod.null()]).optional(),
+  "roomId": zod.union([zod.string().min(1),zod.null()]).optional(),
+  "sillHeight": zod.union([zod.number().min(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneSillHeightOneMin),zod.null()]).optional(),
+  "style": zod.union([zod.string(),zod.null()]).optional(),
+  "type": zod.union([zod.enum(['door', 'window']),zod.null()]).optional(),
+  "width": zod.union([zod.number().gt(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemOpsItemNineBeforeOneWidthOneExclusiveMin),zod.null()]).optional()
+}).describe('Mutable opening fields; ``id`` is intentionally absent.'),zod.null()]).optional(),
+  "op": zod.literal("opening.update").meta({ title: 'Op' }),
+  "openingId": zod.string().min(1)
+})])),
+  "reason": zod.union([zod.string(),zod.null()]).optional(),
+  "resolvedAt": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "sceneId": zod.string().min(1),
+  "status": zod.enum(['pending', 'confirmed', 'rejected', 'expired']).default(listProposalsApiScenesSceneIdProposalsGetResponseProposalsItemStatusDefault),
+  "turnId": zod.string().min(1)
+}))
 })
 
 
@@ -3738,6 +4301,8 @@ export const redoSceneApiScenesSceneIdRedoPostResponseSceneRoomsItemWallThicknes
 
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneSchemaVersionDefault = 1;
 export const redoSceneApiScenesSceneIdRedoPostResponseSceneUnitsDefault = `metric`;
+
+
 
 
 export const RedoSceneApiScenesSceneIdRedoPostResponse = zod.object({
@@ -4114,7 +4679,146 @@ zod.number()])).min(redoSceneApiScenesSceneIdRedoPostResponseSceneRoomsItemPolyg
   "units": zod.literal("metric").default(redoSceneApiScenesSceneIdRedoPostResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
+})
+
+
+/**
+ * @summary List Turns
+ */
+export const ListTurnsApiScenesSceneIdTurnsGetParams = zod.object({
+  "scene_id": zod.string()
+})
+
+
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemMessagesItemContentDefault = ``;
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemStatusDefault = `queued`;
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageIterationsDefault = 0;
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageTokensInDefault = 0;
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageTokensOutDefault = 0;
+export const listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageWallClockMsDefault = 0;
+
+export const ListTurnsApiScenesSceneIdTurnsGetResponse = zod.object({
+  "turns": zod.array(zod.object({
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "endedAt": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "messages": zod.array(zod.object({
+  "content": zod.string().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemMessagesItemContentDefault),
+  "role": zod.enum(['user', 'assistant', 'tool']),
+  "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
+  "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),
+  "toolCalls": zod.union([zod.array(zod.record(zod.string(), zod.unknown())),zod.null()]).optional(),
+  "toolResult": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
+})).optional(),
+  "sceneId": zod.string().min(1),
+  "status": zod.enum(['queued', 'running', 'waiting_user', 'done', 'failed', 'cancelled']).default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemStatusDefault),
+  "usage": zod.object({
+  "iterations": zod.int().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageIterationsDefault),
+  "refusals": zod.array(zod.string()).optional(),
+  "tokensIn": zod.int().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageTokensInDefault),
+  "tokensOut": zod.int().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageTokensOutDefault),
+  "wallClockMs": zod.int().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemUsageWallClockMsDefault)
+}).optional()
+}))
+})
+
+
+/**
+ * @summary Create Turn
+ */
+export const CreateTurnApiScenesSceneIdTurnsPostParams = zod.object({
+  "scene_id": zod.string()
+})
+
+export const createTurnApiScenesSceneIdTurnsPostBodyMessageMax = 4000;
+
+
+
+export const CreateTurnApiScenesSceneIdTurnsPostBody = zod.object({
+  "clientTurnId": zod.union([zod.string(),zod.null()]).optional(),
+  "message": zod.string().min(1).max(createTurnApiScenesSceneIdTurnsPostBodyMessageMax),
+  "pointContext": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
+}).describe('User message that starts an agent turn (PRD §6.2).')
+
+
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnMessagesItemContentDefault = ``;
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnStatusDefault = `queued`;
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnUsageIterationsDefault = 0;
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnUsageTokensInDefault = 0;
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnUsageTokensOutDefault = 0;
+export const createTurnApiScenesSceneIdTurnsPostResponseTurnUsageWallClockMsDefault = 0;
+
+export const CreateTurnApiScenesSceneIdTurnsPostResponse = zod.object({
+  "turn": zod.object({
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "endedAt": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "messages": zod.array(zod.object({
+  "content": zod.string().default(createTurnApiScenesSceneIdTurnsPostResponseTurnMessagesItemContentDefault),
+  "role": zod.enum(['user', 'assistant', 'tool']),
+  "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
+  "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),
+  "toolCalls": zod.union([zod.array(zod.record(zod.string(), zod.unknown())),zod.null()]).optional(),
+  "toolResult": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
+})).optional(),
+  "sceneId": zod.string().min(1),
+  "status": zod.enum(['queued', 'running', 'waiting_user', 'done', 'failed', 'cancelled']).default(createTurnApiScenesSceneIdTurnsPostResponseTurnStatusDefault),
+  "usage": zod.object({
+  "iterations": zod.int().default(createTurnApiScenesSceneIdTurnsPostResponseTurnUsageIterationsDefault),
+  "refusals": zod.array(zod.string()).optional(),
+  "tokensIn": zod.int().default(createTurnApiScenesSceneIdTurnsPostResponseTurnUsageTokensInDefault),
+  "tokensOut": zod.int().default(createTurnApiScenesSceneIdTurnsPostResponseTurnUsageTokensOutDefault),
+  "wallClockMs": zod.int().default(createTurnApiScenesSceneIdTurnsPostResponseTurnUsageWallClockMsDefault)
+}).optional()
+})
+})
+
+
+/**
+ * @summary Get Turn
+ */
+export const GetTurnApiScenesSceneIdTurnsTurnIdGetParams = zod.object({
+  "scene_id": zod.string(),
+  "turn_id": zod.string()
+})
+
+
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnMessagesItemContentDefault = ``;
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnStatusDefault = `queued`;
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageIterationsDefault = 0;
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageTokensInDefault = 0;
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageTokensOutDefault = 0;
+export const getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageWallClockMsDefault = 0;
+
+export const GetTurnApiScenesSceneIdTurnsTurnIdGetResponse = zod.object({
+  "turn": zod.object({
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "endedAt": zod.union([zod.iso.datetime({"offset":true}),zod.null()]).optional(),
+  "id": zod.string().min(1),
+  "messages": zod.array(zod.object({
+  "content": zod.string().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnMessagesItemContentDefault),
+  "role": zod.enum(['user', 'assistant', 'tool']),
+  "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
+  "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),
+  "toolCalls": zod.union([zod.array(zod.record(zod.string(), zod.unknown())),zod.null()]).optional(),
+  "toolResult": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
+})).optional(),
+  "sceneId": zod.string().min(1),
+  "status": zod.enum(['queued', 'running', 'waiting_user', 'done', 'failed', 'cancelled']).default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnStatusDefault),
+  "usage": zod.object({
+  "iterations": zod.int().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageIterationsDefault),
+  "refusals": zod.array(zod.string()).optional(),
+  "tokensIn": zod.int().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageTokensInDefault),
+  "tokensOut": zod.int().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageTokensOutDefault),
+  "wallClockMs": zod.int().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnUsageWallClockMsDefault)
+}).optional()
+})
 })
 
 
@@ -4335,6 +5039,8 @@ export const undoSceneApiScenesSceneIdUndoPostResponseSceneRoomsItemWallThicknes
 
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneSchemaVersionDefault = 1;
 export const undoSceneApiScenesSceneIdUndoPostResponseSceneUnitsDefault = `metric`;
+
+
 
 
 export const UndoSceneApiScenesSceneIdUndoPostResponse = zod.object({
@@ -4711,5 +5417,25 @@ zod.number()])).min(undoSceneApiScenesSceneIdUndoPostResponseSceneRoomsItemPolyg
   "units": zod.literal("metric").default(undoSceneApiScenesSceneIdUndoPostResponseSceneUnitsDefault).meta({ title: 'Units' }),
   "updatedAt": zod.iso.datetime({"offset":true}),
   "version": zod.int().min(1)
-}).describe('Confirmed scene document; the single source of truth on the server.')
+}).describe('Confirmed scene document; the single source of truth on the server.'),
+  "warnings": zod.array(zod.object({
+  "code": zod.string().min(1),
+  "details": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "message": zod.string().min(1)
+}).describe('A non-fatal change made by the server while applying a patch.')).optional()
+})
+
+
+/**
+ * @summary Cancel Turn
+ */
+export const CancelTurnApiTurnsTurnIdCancelPostParams = zod.object({
+  "turn_id": zod.string()
+})
+
+export const cancelTurnApiTurnsTurnIdCancelPostResponseOkDefault = true;
+
+export const CancelTurnApiTurnsTurnIdCancelPostResponse = zod.object({
+  "ok": zod.boolean().default(cancelTurnApiTurnsTurnIdCancelPostResponseOkDefault),
+  "status": zod.enum(['queued', 'running', 'waiting_user', 'done', 'failed', 'cancelled'])
 })

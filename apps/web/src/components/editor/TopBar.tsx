@@ -62,7 +62,7 @@ export function TopBar() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="truncate font-medium text-sm">{scene?.name ?? '加载中…'}</h1>
-            <Badge tone="accent">M1</Badge>
+            <Badge tone="accent">M3</Badge>
           </div>
           <p className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <span>v{scene?.version ?? 1}</span>
@@ -110,7 +110,7 @@ export function TopBar() {
 
       <div className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-background/50 px-2.5 py-1 text-[10px] text-muted-foreground sm:flex">
         <Sparkles className="h-3 w-3" />
-        Agent 接入：M3
+        Agent 已就绪
       </div>
     </header>
   )

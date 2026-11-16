@@ -2,19 +2,29 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 
+from app.contracts.api import SceneWarning
 from app.contracts.enums import Actor, ProposalStatus
 from app.contracts.patch import PatchOp, ScenePatch
 from app.contracts.proposal import Proposal
 from app.contracts.rules import Rules
 from app.contracts.scene import SceneDocument
+from app.geometry.openings import GeometryWarning
 from app.scene.document import CatalogMap, validate_document
 from app.scene.errors import SceneError
 from app.scene.patch import apply_ops, invert_resolved_ops
 
 PROPOSAL_TTL = timedelta(minutes=15)
+
+
+def _scene_warning(warning: GeometryWarning) -> SceneWarning:
+    return SceneWarning(
+        code=warning.code,
+        message=warning.message,
+        details=warning.details or None,
+    )
 
 
 @dataclass(frozen=True)
@@ -24,7 +34,9 @@ class CommitOutcome:
     document: SceneDocument
     patch: ScenePatch
     inverse_ops: list[PatchOp]
+    warnings: list[SceneWarning] = field(default_factory=list)
     already_confirmed: bool = False
+    expired_proposals: list[str] = field(default_factory=list)
 
 
 def _utc_now() -> datetime:
@@ -57,6 +69,10 @@ class SceneService:
         self._rejected: set[str] = set()
         self._idempotency: dict[str, CommitOutcome] = {}
 
+    def update_catalog(self, catalog: CatalogMap | None) -> None:
+        """Swap the catalog map after a hot reload."""
+        self._catalog = catalog
+
     @property
     def document(self) -> SceneDocument:
         return self._document.model_copy(deep=True)
@@ -75,8 +91,14 @@ class SceneService:
 
     @property
     def pending_proposals(self) -> list[Proposal]:
-        self._expire_ttl()
+        """Current pending proposals; expiry is explicit via ``expire_due``."""
         return [proposal.model_copy(deep=True) for proposal in self._pending.values()]
+
+    def expire_due(self) -> list[str]:
+        """Expire TTL/stale proposals and return every removed id (cascaded)."""
+        expired = set(self._expire_ttl())
+        expired.update(self._expire_stale_pending())
+        return sorted(expired)
 
     def clone(self) -> SceneService:
         """Copy service state for persist-before-swap commits in the registry."""
@@ -135,12 +157,18 @@ class SceneService:
                 dependency_expired = any(
                     dependency in expired for dependency in proposal.depends_on
                 )
+                dependency_missing = any(
+                    dependency not in self._pending and dependency not in self._confirmed
+                    for dependency in proposal.depends_on
+                )
                 dependencies_confirmed = all(
                     dependency in self._confirmed for dependency in proposal.depends_on
                 )
                 required_version = proposal.base_version + len(proposal.depends_on)
-                if dependency_expired or (
-                    dependencies_confirmed and self._document.version != required_version
+                if (
+                    dependency_expired
+                    or dependency_missing
+                    or (dependencies_confirmed and self._document.version != required_version)
                 ):
                     expired.add(proposal_id)
                     changed = True
@@ -150,13 +178,15 @@ class SceneService:
 
     def _expire_ttl(self) -> list[str]:
         now = _utc_now()
-        expired: list[str] = []
+        expired: set[str] = set()
         for proposal_id, proposal in list(self._pending.items()):
             if now - _as_utc(proposal.created_at) <= PROPOSAL_TTL:
                 continue
-            expired.append(proposal_id)
+            expired.add(proposal_id)
             self._pending.pop(proposal_id, None)
-        return expired
+        # TTL removal can orphan dependants; cascade in the same pass.
+        expired.update(self._expire_stale_pending())
+        return sorted(expired)
 
     def commit(
         self,
@@ -175,7 +205,15 @@ class SceneService:
                 return cached
 
         self._check_version(base_version)
-        working, resolved = apply_ops(self._document, ops, validate=True)
+        geometry_warnings: list[GeometryWarning] = []
+        working, resolved = apply_ops(
+            self._document,
+            ops,
+            validate=True,
+            rules=self._rules,
+            catalog=self._catalog,
+            warnings=geometry_warnings,
+        )
         new_document, patch = self._advance(working, resolved)
         patch = patch.model_copy(
             update={
@@ -190,10 +228,17 @@ class SceneService:
         self._document = new_document
         self._undo.append((resolved, inverse_ops))
         self._redo.clear()
+        expired: list[str] = []
         if actor == Actor.USER:
-            self._expire_all("scene_changed")
+            expired = self._expire_all("scene_changed")
 
-        outcome = CommitOutcome(document=new_document, patch=patch, inverse_ops=inverse_ops)
+        outcome = CommitOutcome(
+            document=new_document,
+            patch=patch,
+            inverse_ops=inverse_ops,
+            warnings=[_scene_warning(warning) for warning in geometry_warnings],
+            expired_proposals=expired,
+        )
         if client_mutation_id is not None:
             if len(self._idempotency) >= 100:
                 self._idempotency.pop(next(iter(self._idempotency)))
@@ -209,17 +254,29 @@ class SceneService:
                 "Make a change first.",
             )
         forward_ops, inverse_ops = self._undo[-1]
-        working, resolved = apply_ops(self._document, inverse_ops, validate=True)
+        geometry_warnings: list[GeometryWarning] = []
+        working, resolved = apply_ops(
+            self._document,
+            inverse_ops,
+            validate=True,
+            reanchor=False,
+            check_placement=False,
+            rules=self._rules,
+            catalog=self._catalog,
+            warnings=geometry_warnings,
+        )
         new_document, patch = self._advance(working, resolved)
         patch = patch.model_copy(update={"actor": Actor.USER})
         self._undo.pop()
         self._document = new_document
         self._redo.append((forward_ops, inverse_ops))
-        self._expire_all("scene_changed")
+        expired = self._expire_all("scene_changed")
         return CommitOutcome(
             document=new_document,
             patch=patch,
             inverse_ops=invert_resolved_ops(resolved),
+            warnings=[_scene_warning(warning) for warning in geometry_warnings],
+            expired_proposals=expired,
         )
 
     def redo(self, *, expected_version: int) -> CommitOutcome:
@@ -231,17 +288,29 @@ class SceneService:
                 "Undo a change first.",
             )
         forward_ops, inverse_ops = self._redo[-1]
-        working, resolved = apply_ops(self._document, forward_ops, validate=True)
+        geometry_warnings: list[GeometryWarning] = []
+        working, resolved = apply_ops(
+            self._document,
+            forward_ops,
+            validate=True,
+            reanchor=False,
+            check_placement=False,
+            rules=self._rules,
+            catalog=self._catalog,
+            warnings=geometry_warnings,
+        )
         new_document, patch = self._advance(working, resolved)
         patch = patch.model_copy(update={"actor": Actor.USER})
         self._redo.pop()
         self._document = new_document
         self._undo.append((forward_ops, inverse_ops))
-        self._expire_all("scene_changed")
+        expired = self._expire_all("scene_changed")
         return CommitOutcome(
             document=new_document,
             patch=patch,
             inverse_ops=invert_resolved_ops(resolved),
+            warnings=[_scene_warning(warning) for warning in geometry_warnings],
+            expired_proposals=expired,
         )
 
     # ---- pending proposals (PRD §6.7) -----------------------------------
@@ -353,7 +422,13 @@ class SceneService:
         self._expire_stale_pending()
         working = self._document.model_copy(deep=True)
         for proposal in self._ordered_pending():
-            working, _ = apply_ops(working, proposal.ops, validate=False)
+            working, _ = apply_ops(
+                working,
+                proposal.ops,
+                validate=False,
+                rules=self._rules,
+                catalog=self._catalog,
+            )
         validate_document(working, rules=self._rules, catalog=self._catalog)
         return working
 
@@ -366,8 +441,9 @@ class SceneService:
         cached = self._confirmed_outcomes.get(proposal_id)
         if cached is not None:
             return replace(cached, already_confirmed=True)
-        self._expire_ttl()
-        self._expire_stale_pending()
+        pending_before = set(self._pending)
+        ttl_expired = self._expire_ttl()
+        stale_expired = self._expire_stale_pending()
         proposal = self._pending.get(proposal_id)
         if proposal is None:
             raise SceneError(
@@ -408,11 +484,28 @@ class SceneService:
         self._pending.pop(proposal_id, None)
         self._confirmed.add(proposal_id)
         self._confirmed_outcomes[proposal_id] = outcome
-        self._expire_stale_pending()
-        return outcome
+        # A confirmation from another turn invalidates that turn's siblings.
+        other_turn_expired = [
+            candidate_id
+            for candidate_id, candidate in list(self._pending.items())
+            if candidate.turn_id != proposal.turn_id
+        ]
+        for candidate_id in other_turn_expired:
+            self._pending.pop(candidate_id, None)
+        stale_after = self._expire_stale_pending()
+        expired = sorted(
+            {
+                *(pending_before - set(self._pending) - {proposal_id}),
+                *ttl_expired,
+                *stale_expired,
+                *other_turn_expired,
+                *stale_after,
+            }
+        )
+        return replace(outcome, expired_proposals=expired)
 
     def reject_proposal(self, proposal_id: str, reason: str | None = None) -> list[str]:
-        self._expire_ttl()
+        ttl_expired = set(self._expire_ttl())
         proposal = self._pending.pop(proposal_id, None)
         if proposal is None:
             raise SceneError(
@@ -431,8 +524,22 @@ class SceneService:
                     expired.append(candidate_id)
                     self._pending.pop(candidate_id, None)
                     changed = True
-        return expired
+        return sorted((set(expired) | ttl_expired) - {proposal_id})
 
     def expire_pending(self, reason: str = "scene_changed") -> list[str]:
         """Expire all pending proposals (external commit/undo)."""
         return self._expire_all(reason)
+
+    def expire_turn(self, turn_id: str, reason: str = "turn_cancelled") -> list[str]:
+        """Expire every pending proposal from ``turn_id`` and its dependants."""
+        del reason
+        expired: set[str] = set(self._expire_ttl())
+        changed = True
+        while changed:
+            changed = False
+            for proposal_id, proposal in list(self._pending.items()):
+                if proposal.turn_id == turn_id or set(proposal.depends_on) & expired:
+                    expired.add(proposal_id)
+                    self._pending.pop(proposal_id, None)
+                    changed = True
+        return sorted(expired)

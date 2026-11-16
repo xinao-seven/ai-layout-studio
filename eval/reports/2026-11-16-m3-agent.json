@@ -1,0 +1,146 @@
+{
+  "milestone": "M3",
+  "kind": "agent-g1-and-tool-regression",
+  "recordedAt": "2026-11-16",
+  "gitSha": "11402c0 (M2+M3 changes uncommitted at report time)",
+  "environment": {
+    "os": "Windows 11 10.0.26300",
+    "python": "3.12",
+    "node": "24",
+    "server": "FastAPI + uvicorn single worker, SQLite WAL",
+    "web": "Vite 7 + React 19 + R3F 9"
+  },
+  "llm": {
+    "mode": "scripted + fake-openai-sse",
+    "model": "scripted",
+    "liveModel": "not_run",
+    "liveModelReason": "No LLM_API_KEY/LLM_MODEL configured in this environment.",
+    "fakeService": "app.testing.fake_llm (OpenAI-compatible /v1/chat/completions SSE)"
+  },
+  "g1": {
+    "user": "在客厅放一个双人沙发，靠电视墙，再配个茶几",
+    "sceneFixture": "living-room (22.5 m², TV wall label)",
+    "script": "fixtures/llm/G1-01.jsonl",
+    "proposalsCreated": 2,
+    "proposalsConfirmed": 2,
+    "dependencyChain": "proposal[1].dependsOn = [proposal[0].id]",
+    "refusals": [],
+    "versionsAfterConfirm": 3,
+    "undoSteps": 2,
+    "itemsAfterUndo": 0,
+    "status": "passed",
+    "runners": [
+      "tests/test_agent_m3.py::test_g1_scripted_turn_dependency_chain_confirm_and_undo",
+      "tests/test_fake_openai_e2e.py::test_g1_via_real_openai_sdk_and_fake_service"
+    ],
+    "uiSmoke": {
+      "browser": "ZCode in-app Chromium (WebGL2)",
+      "serverMode": "LLM_SCRIPT_PATH=fixtures/llm/G1-01.jsonl",
+      "steps": [
+        "open living-room fixture",
+        "open AI panel and send the G1 sentence",
+        "observe query_scene/search_catalog/add_item tool cards",
+        "confirm sofa proposal (v1 -> v2, 1 item)",
+        "confirm coffee_table proposal (v2 -> v3, 2 items)"
+      ],
+      "result": "passed; screenshot shows sofa against the TV wall and coffee table in front"
+    }
+  },
+  "tools": {
+    "count": 7,
+    "names": [
+      "query_scene",
+      "search_catalog",
+      "add_item",
+      "move_item",
+      "remove_item",
+      "update_item",
+      "ask_user"
+    ],
+    "schemaSource": "apps/server/app/agent/contracts.py -> app.agent.registry.tool_bundle()",
+    "readToolsUngated": true,
+    "writeToolsCreateProposals": true,
+    "allSevenExercised": true
+  },
+  "refusals": {
+    "registryCodes": 31,
+    "registrySuggestCoverage": "31/31",
+    "triggeredInTests": [
+      "invalid_input",
+      "not_found",
+      "unknown_kind",
+      "variant_missing",
+      "unknown_room",
+      "invalid_polygon",
+      "room_too_small",
+      "out_of_room",
+      "collision",
+      "blocks_door",
+      "blocks_window",
+      "walkway_too_narrow",
+      "item_too_large",
+      "opening_off_wall",
+      "opening_overlap",
+      "unrealistic",
+      "version_conflict",
+      "turn_in_progress",
+      "budget_exceeded",
+      "llm_error",
+      "tool_timeout",
+      "import_invalid"
+    ],
+    "reservedForM4OrNotDirectlyTriggered": [
+      "no_space",
+      "unsupported_room_shape",
+      "solver_timeout",
+      "capture_unavailable",
+      "vlm_invalid_json",
+      "proposal_expired",
+      "turn_cancelled",
+      "scene_changed",
+      "internal_error"
+    ]
+  },
+  "turnLifecycle": {
+    "oneRunningOneQueuedPerScene": "passed",
+    "thirdTurnRejected": "turn_in_progress",
+    "cancelLeavesSceneUntouched": "passed",
+    "waitingUserTimeout": "failed with tool_timeout (timeout shortened in test)",
+    "restartMarksTurnsFailedAndProposalsExpired": "passed",
+    "wsTurnReplayResume": "covered: replay-before-status test; serverEpoch resets cursors after restart",
+    "crossTurnProposal": "covered: independent second-turn proposal confirms and expires first-turn pending",
+    "manualRestExpiry": "covered: persisted + proposal.updated broadcast",
+    "moveUpdateRemove": "covered: add -> move -> update -> remove proposal chain",
+    "ttlCascade": "covered by test_ttl_expiry_cascades_to_dependants",
+    "removeReferencedItem": "covered: near/facing refs cleared on item.remove",
+    "crossTurnMoveReference": "covered: cross-turn move near pending item refused with proposal_expired",
+    "ttlReadPersistence": "covered: GET proposals materialises TTL expiry",
+    "turnSubscribeFreshReplay": "covered: lastSeq=0 replays whole buffered turn",
+    "partialTranscriptPersistence": "covered: per-iteration messages_json + waiting status messages"
+  },
+  "automatedTests": {
+    "server": {
+      "command": "uv run pytest -q",
+      "passed": 138,
+      "failed": 0
+    },
+    "web": {
+      "command": "pnpm --filter @ai-layout/web test",
+      "passed": 25,
+      "failed": 0
+    },
+    "static": {
+      "ruff": "passed",
+      "mypyStrict": "passed",
+      "tsc": "passed",
+      "biome": "passed",
+      "productionBuild": "passed"
+    }
+  },
+  "limitations": [
+    "Live provider smoke was not run because no credentials are configured.",
+    "L3 rules are strict for agent writes only; manual edits still surface L2 refusals.",
+    "Solver/VLM refusal codes are registered but exercised in M4.",
+    "Turn history/messages are persisted in turns.messages_json; live in-memory turns are still retained until process exit."
+  ]
+}

@@ -23,6 +23,7 @@ class CatalogRules(CamelModel):
     preferred_wall: FacingDirection | None = None
     group_with: list[str] = Field(default_factory=list)
     anchor_priority: int = 0
+    allow_overlap: bool = False
     room_types: list[str] = Field(default_factory=list)
 
 

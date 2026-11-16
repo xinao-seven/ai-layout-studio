@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     llm_base_url: str = ""
     llm_api_key: SecretStr = SecretStr("")
     llm_model: str = ""
+    # Optional JSONL script for local demos/tests; bypasses the network model.
+    llm_script_path: str = ""
     vlm_base_url: str = ""
     vlm_api_key: SecretStr = SecretStr("")
     vlm_model: str = ""
