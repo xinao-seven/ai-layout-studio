@@ -15,8 +15,10 @@ import {
   type ItemDragState,
   type PngExportRequestState,
   useSceneStore,
+  type ViewMode,
 } from '../../store/sceneStore'
 import { CaptureGrab, CaptureLabels, PngExportGrab } from './CaptureOverlay'
+import { WalkRig } from './WalkRig'
 
 const WALL_COLOR = '#d9d5cc'
 const WALL_SELECTED = '#8fa9e8'
@@ -48,7 +50,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 interface SceneCanvasProps {
   scene: SceneDocument
   catalog: CatalogEntry[]
-  viewMode: '3d' | 'top'
+  viewMode: ViewMode
   selectedItemId: string | null
   perfMode: boolean
   cameraResetToken: number
@@ -95,6 +97,7 @@ function CameraFit({
   fitToken,
   restore,
   saved,
+  walkMode,
   onRestored,
 }: {
   bounds: Bounds
@@ -102,6 +105,7 @@ function CameraFit({
   fitToken: string
   restore: boolean
   saved: CameraState | null
+  walkMode: boolean
   onRestored: () => void
 }) {
   const camera = useThree((state) => state.camera)
@@ -113,6 +117,8 @@ function CameraFit({
   restoreRef.current = restore
 
   useEffect(() => {
+    // The first-person rig owns the camera while walking; refits would snap it.
+    if (walkMode) return
     const savedState = savedRef.current
     if (restoreRef.current && savedState) {
       camera.up.set(0, 1, 0)
@@ -146,7 +152,18 @@ function CameraFit({
     }
     // Fit only when the scene identity changes or the user resets the camera.
     // Item commits update `scene` but must not move the camera.
-  }, [bounds.maxDim, camera, cx, cz, fitToken, onRestored, orthographic, size.height, size.width])
+  }, [
+    bounds.maxDim,
+    camera,
+    cx,
+    cz,
+    fitToken,
+    onRestored,
+    orthographic,
+    size.height,
+    size.width,
+    walkMode,
+  ])
 
   return null
 }
@@ -459,6 +476,7 @@ function ItemMesh({
   const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
     if (event.button !== 0) return
     if (useSceneStore.getState().tool !== 'select') return
+    if (useSceneStore.getState().viewMode === 'walk') return
     event.stopPropagation()
     // Use the floor intersection, not the (possibly raised) mesh surface, so
     // tall furniture does not jump on the first pointermove.
@@ -475,6 +493,7 @@ function ItemMesh({
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     if (useSceneStore.getState().tool !== 'select') return
+    if (useSceneStore.getState().viewMode === 'walk') return
     event.stopPropagation()
     useSceneStore.getState().selectItem(item.id)
   }
@@ -855,6 +874,7 @@ function SceneInteractions() {
 
     const onPointerMove = (event: PointerEvent) => {
       const state = useSceneStore.getState()
+      if (state.viewMode === 'walk') return
       if (state.drag) {
         const groundPoint = ground(event.clientX, event.clientY)
         if (groundPoint) {
@@ -876,6 +896,7 @@ function SceneInteractions() {
     }
 
     const onDragOver = (event: DragEvent) => {
+      if (useSceneStore.getState().viewMode === 'walk') return
       const kindId = getCatalogDragKind()
       if (!kindId) return
       event.preventDefault()
@@ -981,6 +1002,7 @@ function SceneContents({
 }) {
   const bounds = useMemo(() => sceneBounds(scene), [scene])
   const topView = viewMode === 'top'
+  const walkMode = viewMode === 'walk'
   const tool = useSceneStore((state) => state.tool)
   const dragState = useSceneStore((state) => state.drag)
   const ghost = useSceneStore((state) => state.ghost)
@@ -1013,10 +1035,12 @@ function SceneContents({
         orthographic={topView}
         restore={restoreCamera}
         saved={cameraState}
+        walkMode={walkMode}
       />
-      <CameraKeeper enabled={!captureRequest} />
+      <CameraKeeper enabled={!captureRequest && !walkMode} />
       <FpsMeter onFps={onFps} />
       <SceneInteractions />
+      {walkMode ? <WalkRig catalog={catalog} scene={scene} /> : null}
 
       <gridHelper
         args={[60, 120, '#303030', '#202020']}
@@ -1036,7 +1060,7 @@ function SceneContents({
             dragState={captureRequest ? null : dragState}
             item={item}
             key={item.id}
-            selected={!captureRequest && item.id === selectedItemId}
+            selected={!captureRequest && !walkMode && item.id === selectedItemId}
           />
         ),
       )}
@@ -1054,9 +1078,9 @@ function SceneContents({
           ))}
 
       {!captureRequest && ghost ? <GhostItem catalog={catalog} ghost={ghost} /> : null}
-      {!captureRequest && tool === 'draw-room' ? <DrawingPlane /> : null}
-      {!captureRequest && tool === 'draw-room' ? <DraftOverlay /> : null}
-      {!captureRequest ? <VertexEditor scene={scene} /> : null}
+      {!captureRequest && !walkMode && tool === 'draw-room' ? <DrawingPlane /> : null}
+      {!captureRequest && !walkMode && tool === 'draw-room' ? <DraftOverlay /> : null}
+      {!captureRequest && !walkMode ? <VertexEditor scene={scene} /> : null}
 
       {!captureRequest && perfMode ? <ProxyBoxes bounds={bounds} count={200} /> : null}
 
@@ -1078,7 +1102,7 @@ function SceneContents({
       ) : null}
       {pngExportRequest ? <PngExportGrab maxEdge={pngExportRequest.maxEdge} /> : null}
 
-      {captureRequest ? null : topView ? (
+      {captureRequest ? null : walkMode ? null : topView ? (
         <TopControls bounds={bounds} target={cameraState?.target} />
       ) : (
         <ViewControls bounds={bounds} target={cameraState?.target} />

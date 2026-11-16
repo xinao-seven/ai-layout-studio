@@ -1,4 +1,4 @@
-import { Box, MousePointer2, Pencil, RotateCcw, Square } from 'lucide-react'
+import { Box, Footprints, MousePointer2, Pencil, RotateCcw, Square } from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
 import { Button } from '../ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
@@ -65,6 +65,19 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
         >
           <Square className="h-3.5 w-3.5" />
           俯视
+        </button>
+        <span className="my-1.5 w-px bg-border/70" />
+        <button
+          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+            viewMode === 'walk'
+              ? 'bg-white/10 text-foreground'
+              : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
+          }`}
+          onClick={() => setViewMode(viewMode === 'walk' ? '3d' : 'walk')}
+          type="button"
+        >
+          <Footprints className="h-3.5 w-3.5" />
+          漫游
         </button>
       </div>
 

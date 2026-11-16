@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react'
+import { Footprints, Loader2 } from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
 import { Compass } from './Compass'
 import { FloatingToolbar } from './FloatingToolbar'
@@ -9,6 +9,20 @@ import { Sidebar } from './Sidebar'
 import { StatusBar } from './StatusBar'
 import { TopBar } from './TopBar'
 import { WarningToast } from './WarningToast'
+
+function WalkHint() {
+  const walkLocked = useSceneStore((state) => state.walkLocked)
+  return (
+    <div className="pointer-events-none absolute bottom-14 left-1/2 z-20 -translate-x-1/2">
+      <span className="flex items-center gap-2 rounded-full border border-white/10 bg-black/70 px-3.5 py-1.5 text-[11px] text-white/85 backdrop-blur">
+        <Footprints className="h-3.5 w-3.5" />
+        {walkLocked
+          ? 'WASD/方向键移动 · Shift 加速 · ESC 退出指针锁定'
+          : '点击画面进入第一人称漫游 · 再次点击「漫游」按钮退出'}
+      </span>
+    </div>
+  )
+}
 
 export function EditorShell({ perfMode }: { perfMode: boolean }) {
   const scene = useSceneStore((state) => state.scene)
@@ -40,6 +54,7 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
                 viewMode={viewMode}
               />
               <FloatingToolbar perfMode={perfMode} />
+              {viewMode === 'walk' ? <WalkHint /> : null}
               <PlacementHint />
               <Compass north={scene.north as [number, number]} />
               <StatusBar perfMode={perfMode} />

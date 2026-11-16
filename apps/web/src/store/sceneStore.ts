@@ -34,7 +34,7 @@ import { checkPlacement, type PlacementIssue, variantFor } from '../scene/placem
 import { buildPointContext, type PointContext } from '../scene/pointContext'
 import { type ConnectionStatus, SceneSocket } from '../ws/client'
 
-export type ViewMode = '3d' | 'top'
+export type ViewMode = '3d' | 'top' | 'walk'
 export type SidebarTab = 'scene' | 'rooms' | 'items' | 'ai'
 export type EditorTool = 'select' | 'draw-room'
 
@@ -186,6 +186,7 @@ interface SceneState {
   pngExportRequest: PngExportRequestState | null
   cameraState: CameraState | null
   restoreCamera: boolean
+  walkLocked: boolean
 
   bootstrap: () => Promise<void>
   refreshScenes: () => Promise<void>
@@ -254,6 +255,7 @@ interface SceneState {
   importSceneFile: (file: File) => Promise<void>
   saveCameraState: (state: CameraState) => void
   consumeCameraRestore: () => void
+  setWalkLocked: (locked: boolean) => void
   confirmProposal: (proposalId: string) => void
   rejectProposal: (proposalId: string) => void
   answerUser: (answers: string[]) => void
@@ -501,6 +503,7 @@ export const useSceneStore = create<SceneState>()(
       pngExportRequest: null,
       cameraState: null,
       restoreCamera: false,
+      walkLocked: false,
 
       bootstrap: async () => {
         set({ loading: true, error: null })
@@ -1546,6 +1549,7 @@ export const useSceneStore = create<SceneState>()(
 
       saveCameraState: (cameraState) => set({ cameraState }),
       consumeCameraRestore: () => set({ restoreCamera: false }),
+      setWalkLocked: (walkLocked) => set({ walkLocked }),
 
       handleWsEnvelope: (envelope) => {
         if (envelope.ch === 'host') {
