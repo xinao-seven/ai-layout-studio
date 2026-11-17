@@ -144,8 +144,7 @@ def _catalog_summary(catalog: Mapping[str, CatalogEntry]) -> list[dict[str, Any]
             }
         )
     sections: list[dict[str, Any]] = [
-        {"category": category, "items": items[:20]}
-        for category, items in sorted(grouped.items())
+        {"category": category, "items": items[:20]} for category, items in sorted(grouped.items())
     ]
     if generated:
         # Newest first: the manifest preserves creation order, so the tail is the

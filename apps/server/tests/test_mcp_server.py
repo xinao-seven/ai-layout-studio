@@ -48,9 +48,7 @@ def test_tools_list_matches_chat_contract() -> None:
     tools = mcp_tool_definitions()
     assert [tool["name"] for tool in tools] == list(MCP_TOOL_NAMES)
     assert set(MCP_TOOL_NAMES) <= set(TOOL_NAMES)
-    chat_openai_payload = {
-        entry["function"]["name"]: entry["function"] for entry in openai_tools()
-    }
+    chat_openai_payload = {entry["function"]["name"]: entry["function"] for entry in openai_tools()}
     for tool in tools:
         spec = TOOL_BY_NAME[tool["name"]]
         # 契约对等：名称/描述/schema 必须与 chat 工具完全一致。
@@ -256,9 +254,7 @@ async def _fail_ask_user(*args: Any) -> dict[str, list[str]]:
     raise AssertionError("ask_user should not be called")
 
 
-async def test_tools_call_move_and_remove_item(
-    test_settings: Settings, seeded_scene: str
-) -> None:
+async def test_tools_call_move_and_remove_item(test_settings: Settings, seeded_scene: str) -> None:
     context = McpContext(settings=test_settings)
     await context.startup()
     try:
@@ -280,9 +276,7 @@ async def test_tools_call_move_and_remove_item(
         assert payload["ok"] is True, payload
         item_id = payload["preview"]["itemId"]
         document = await context.registry.get_document(seeded_scene)
-        added_item = next(
-            candidate for candidate in document.items if candidate.id == item_id
-        )
+        added_item = next(candidate for candidate in document.items if candidate.id == item_id)
         before_x = added_item.transform.position[0]
         before_z = added_item.transform.position[2]
 

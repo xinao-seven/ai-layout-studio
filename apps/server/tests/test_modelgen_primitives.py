@@ -228,7 +228,9 @@ def test_model_item_composes_primitives_end_to_end(client: TestClient) -> None:
     assert turn["usage"]["refusals"] == [], turn["usage"]
 
     generated = [
-        entry for entry in client.get("/api/catalog").json()["entries"] if entry.get("source") == "library"
+        entry
+        for entry in client.get("/api/catalog").json()["entries"]
+        if entry.get("source") == "library"
     ]
     assert len(generated) == 1
     entry = generated[0]

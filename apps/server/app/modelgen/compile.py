@@ -64,9 +64,7 @@ def compile_spec(
             # same spec, not merely the same id.
             stored = existing.generator.get("spec")
             if isinstance(stored, dict) and stored != canonical_spec(spec):
-                raise CompileError(
-                    f"spec hash collision for {kind_id}: stored spec differs"
-                )
+                raise CompileError(f"spec hash collision for {kind_id}: stored spec differs")
             return CompiledAsset(
                 entry=existing.entry,
                 spec_hash=hash8,
@@ -116,9 +114,7 @@ def compile_spec(
     )
 
 
-def _validate(
-    build: FamilyBuild, stats: GlbStats, path: Path
-) -> tuple[float, float, float]:
+def _validate(build: FamilyBuild, stats: GlbStats, path: Path) -> tuple[float, float, float]:
     triangles = stats.triangles
     size = stats.size
     minimum = stats.minimum

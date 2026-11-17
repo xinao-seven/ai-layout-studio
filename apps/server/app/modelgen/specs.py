@@ -120,9 +120,7 @@ class ScaleSpec(SpecBase):
     """Re-scale an existing catalog model (T1: variant by proportion)."""
 
     family: Literal["scale"]
-    source_kind_id: str = Field(
-        min_length=1, max_length=128, description="已存在的 kindId"
-    )
+    source_kind_id: str = Field(min_length=1, max_length=128, description="已存在的 kindId")
     factor_x: float = Field(default=1.0, ge=0.6, le=1.4, description="宽度倍数")
     factor_y: float = Field(default=1.0, ge=0.6, le=1.4, description="高度倍数")
     factor_z: float = Field(default=1.0, ge=0.6, le=1.4, description="进深倍数")
@@ -132,10 +130,7 @@ class ScaleSpec(SpecBase):
         return (0.0, 0.0, 0.0)
 
     def display_name(self) -> str:
-        return (
-            f"{self.source_kind_id} ×{self.factor_x:.2f}/"
-            f"{self.factor_y:.2f}/{self.factor_z:.2f}"
-        )
+        return f"{self.source_kind_id} ×{self.factor_x:.2f}/{self.factor_y:.2f}/{self.factor_z:.2f}"
 
 
 PartLength = Annotated[float, Field(ge=0.01, le=3.0, allow_inf_nan=False)]
@@ -201,9 +196,7 @@ class PrimitivesSpec(SpecBase):
     def _check_grounded(self) -> PrimitivesSpec:
         lowest = min(part.position[1] - part.size[1] / 2 for part in self.parts)
         if lowest < -1e-6:
-            raise ValueError(
-                "至少有一个部件低于地面; 把 position[1] 抬高到 size[1] / 2 以上"
-            )
+            raise ValueError("至少有一个部件低于地面; 把 position[1] 抬高到 size[1] / 2 以上")
         if lowest > 0.02:
             raise ValueError("没有部件接触地面; 至少有一个部件的底面应在 y≈0")
         return self

@@ -82,10 +82,7 @@ def _validate_scale(
     if height > ceiling + 1e-6:
         raise SceneError(
             "unrealistic",
-            (
-                f"Item {item.id} would be {height:.2f} m tall, above the "
-                f"{ceiling:.2f} m ceiling."
-            ),
+            (f"Item {item.id} would be {height:.2f} m tall, above the {ceiling:.2f} m ceiling."),
             "Reduce the size or use a shorter variant.",
             {
                 "itemId": item.id,

@@ -136,9 +136,7 @@ class AssetLibrary:
         hash8 = record.spec_hash
         if not hash8:
             return None
-        candidate = (
-            self.model_path(hash8) if record.promoted else self.tmp_model_path(hash8)
-        )
+        candidate = self.model_path(hash8) if record.promoted else self.tmp_model_path(hash8)
         return candidate if candidate.is_file() else None
 
     def ensure_dirs(self) -> None:
@@ -236,8 +234,7 @@ class AssetLibrary:
             keep_hashes = {
                 record.spec_hash
                 for record in self._records.values()
-                if record.spec_hash
-                and (record.promoted or record.entry.kind_id in protected)
+                if record.spec_hash and (record.promoted or record.entry.kind_id in protected)
             }
             for path in tmp_dir.iterdir():
                 if not path.is_file():
@@ -276,8 +273,9 @@ class AssetLibrary:
             payload = json.loads(self._manifest_path.read_text(encoding="utf-8"))
             raw_records = payload.get("assets", []) if isinstance(payload, dict) else payload
         except (OSError, ValueError) as error:
-            logger.warning("library.manifest_unreadable", path=str(self._manifest_path),
-                           error=str(error))
+            logger.warning(
+                "library.manifest_unreadable", path=str(self._manifest_path), error=str(error)
+            )
             return
         for raw in raw_records:
             try:

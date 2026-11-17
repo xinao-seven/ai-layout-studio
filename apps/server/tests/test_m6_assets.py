@@ -196,8 +196,18 @@ def test_catalog_builtin_wins_kind_collision(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "spec",
     [
-        BookshelfSpec(family="bookshelf", width_m=2.4, depth_m=0.35, height_m=2.6, shelves=5, door_count=2, glass_doors=True),
-        WardrobeSpec(family="wardrobe", width_m=2.0, height_m=2.4, door_count=3, door_type="sliding"),
+        BookshelfSpec(
+            family="bookshelf",
+            width_m=2.4,
+            depth_m=0.35,
+            height_m=2.6,
+            shelves=5,
+            door_count=2,
+            glass_doors=True,
+        ),
+        WardrobeSpec(
+            family="wardrobe", width_m=2.0, height_m=2.4, door_count=3, door_type="sliding"
+        ),
         TvStandSpec(family="tv_stand", width_m=1.8, height_m=0.5, drawers=2),
         DeskLSpec(family="desk_l", width_m=1.6, return_width_m=0.5, return_length_m=1.2),
         CounterRunSpec(family="counter_run", length_m=2.4, segments=3, sink=True, cooktop=True),
@@ -351,7 +361,9 @@ def _create_scene(client: TestClient) -> dict[str, Any]:
     return response.json()
 
 
-def _run_turn(client: TestClient, scene_id: str, message: str, timeout: float = 10.0) -> dict[str, Any]:
+def _run_turn(
+    client: TestClient, scene_id: str, message: str, timeout: float = 10.0
+) -> dict[str, Any]:
     response = client.post(f"/api/scenes/{scene_id}/turns", json={"message": message})
     assert response.status_code == 201, response.text
     turn_id = response.json()["turn"]["id"]
@@ -477,7 +489,9 @@ def test_library_dir_is_not_the_repository_assets_tree(test_settings: Settings) 
     assert library_root != repo_assets
     # The shipped catalog is still exactly the fixture file.
     service = CatalogService()
-    assert service.builtin_count == len(json.loads(find_catalog_path().read_text("utf-8"))["entries"])
+    assert service.builtin_count == len(
+        json.loads(find_catalog_path().read_text("utf-8"))["entries"]
+    )
 
 
 # --------------------------------------------------------------------------
@@ -591,8 +605,7 @@ def test_promotion_returns_every_generated_entry(tmp_path: Path) -> None:
         robe.entry.kind_id,
     }
     assert all(
-        entry.variants[0].model_path.startswith("/assets/library/models/")
-        for entry in entries
+        entry.variants[0].model_path.startswith("/assets/library/models/") for entry in entries
     )
     assert library.model_path(shelf.spec_hash).is_file()
     assert library.model_path(robe.spec_hash).is_file()

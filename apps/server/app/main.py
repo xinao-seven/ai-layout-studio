@@ -124,9 +124,7 @@ def create_app(
         modelgen = ModelGenService(
             library,
             enabled=app_settings.asset_generation_enabled,
-            resolve_model_path=build_model_path_resolver(
-                catalog, library, find_assets_root()
-            ),
+            resolve_model_path=build_model_path_resolver(catalog, library, find_assets_root()),
         )
         manager = TurnManager(
             registry=registry,

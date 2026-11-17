@@ -102,9 +102,7 @@ class ModelBuilder:
         if dx == 0.0 and dy == 0.0 and dz == 0.0:
             return
         for part in self._parts.values():
-            part.positions = [
-                (x + dx, y + dy, z + dz) for x, y, z in part.positions
-            ]
+            part.positions = [(x + dx, y + dy, z + dz) for x, y, z in part.positions]
 
     def bounds(self) -> tuple[Vec3, Vec3]:
         minimum = [float("inf")] * 3

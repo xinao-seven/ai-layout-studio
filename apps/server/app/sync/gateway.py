@@ -79,19 +79,13 @@ class SyncGateway:
     def set_manager(self, manager: TurnManager) -> None:
         self._manager = manager
 
-    def set_confirm_hook(
-        self, hook: Callable[[Proposal], Awaitable[None]] | None
-    ) -> None:
+    def set_confirm_hook(self, hook: Callable[[Proposal], Awaitable[None]] | None) -> None:
         """Register a post-confirmation hook (used to promote generated assets)."""
         self._on_proposal_confirmed = hook
 
     def connected_scenes(self) -> list[str]:
         """Scene ids with at least one live host connection."""
-        return [
-            scene_id
-            for scene_id, sockets in self._connections.items()
-            if sockets
-        ]
+        return [scene_id for scene_id, sockets in self._connections.items() if sockets]
 
     def _require_manager(self) -> TurnManager:
         if self._manager is None:

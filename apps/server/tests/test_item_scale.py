@@ -107,9 +107,7 @@ def test_commit_scales_an_item_and_undo_restores_it(client: TestClient) -> None:
     )
     assert undo.status_code == 200, undo.text
     restored = undo.json()["scene"]
-    reverted = next(
-        candidate for candidate in restored["items"] if candidate["id"] == item["id"]
-    )
+    reverted = next(candidate for candidate in restored["items"] if candidate["id"] == item["id"])
     assert reverted["transform"]["scale"] == pytest.approx(1.0)
 
 

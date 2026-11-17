@@ -72,8 +72,7 @@ def build_glb_document(
         if not part.positions or not part.indices:
             continue
         position_bytes = b"".join(
-            struct.pack("<3f", position[0], position[1], position[2])
-            for position in part.positions
+            struct.pack("<3f", position[0], position[1], position[2]) for position in part.positions
         )
         normal_bytes = b"".join(
             struct.pack("<3f", normal[0], normal[1], normal[2]) for normal in part.normals

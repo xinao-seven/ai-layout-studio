@@ -101,8 +101,7 @@ def _finish(
     for axis, (declared, actual) in enumerate(zip(expected_size_m, measured, strict=True)):
         if abs(declared - actual) > SIZE_TOLERANCE:
             raise ValueError(
-                f"{name}: declared size[{axis}]={declared:.3f} but geometry measures "
-                f"{actual:.3f}"
+                f"{name}: declared size[{axis}]={declared:.3f} but geometry measures {actual:.3f}"
             )
     parts = builder.build()
     document = build_glb_document(parts, name=name)
@@ -129,14 +128,27 @@ def _bookshelf(spec: BookshelfSpec) -> FamilyBuild:
     builder = ModelBuilder()
     material = spec.material
 
-    builder.add_box(material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2))
-    builder.add_box(material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, height - thickness, -depth / 2),
-                    (width / 2 - thickness, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, 0, -depth / 2),
-                    (width / 2 - thickness, thickness, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, thickness, -depth / 2),
-                    (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL))
+    builder.add_box(
+        material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2)
+    )
+    builder.add_box(
+        material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2)
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, height - thickness, -depth / 2),
+        (width / 2 - thickness, height, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, 0, -depth / 2),
+        (width / 2 - thickness, thickness, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, thickness, -depth / 2),
+        (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL),
+    )
 
     has_doors = spec.door_count > 0
     shelf_front = depth / 2 - thickness if has_doors else depth / 2
@@ -185,14 +197,27 @@ def _wardrobe(spec: WardrobeSpec) -> FamilyBuild:
     builder = ModelBuilder()
     material = spec.material
 
-    builder.add_box(material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2))
-    builder.add_box(material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, height - thickness, -depth / 2),
-                    (width / 2 - thickness, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, 0, -depth / 2),
-                    (width / 2 - thickness, thickness, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, thickness, -depth / 2),
-                    (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL))
+    builder.add_box(
+        material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2)
+    )
+    builder.add_box(
+        material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2)
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, height - thickness, -depth / 2),
+        (width / 2 - thickness, height, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, 0, -depth / 2),
+        (width / 2 - thickness, thickness, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, thickness, -depth / 2),
+        (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL),
+    )
 
     if spec.with_rail:
         rail_y = height - 0.12
@@ -246,24 +271,43 @@ def _tv_stand(spec: TvStandSpec) -> FamilyBuild:
     builder = ModelBuilder()
     material = spec.material
 
-    builder.add_box(material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2))
-    builder.add_box(material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, height - thickness, -depth / 2),
-                    (width / 2 - thickness, height, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, 0, -depth / 2),
-                    (width / 2 - thickness, thickness, depth / 2))
-    builder.add_box(material, (-width / 2 + thickness, thickness, -depth / 2),
-                    (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL))
+    builder.add_box(
+        material, (-width / 2, 0, -depth / 2), (-width / 2 + thickness, height, depth / 2)
+    )
+    builder.add_box(
+        material, (width / 2 - thickness, 0, -depth / 2), (width / 2, height, depth / 2)
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, height - thickness, -depth / 2),
+        (width / 2 - thickness, height, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, 0, -depth / 2),
+        (width / 2 - thickness, thickness, depth / 2),
+    )
+    builder.add_box(
+        material,
+        (-width / 2 + thickness, thickness, -depth / 2),
+        (width / 2 - thickness, height - thickness, -depth / 2 + BACK_PANEL),
+    )
 
     inner_width = width - 2 * thickness
     if spec.drawers > 0 and spec.open_shelf:
         split = -width / 2 + thickness + inner_width * 0.62
-        builder.add_box(material, (split, thickness, -depth / 2 + BACK_PANEL),
-                        (split + thickness, height - thickness, depth / 2))
+        builder.add_box(
+            material,
+            (split, thickness, -depth / 2 + BACK_PANEL),
+            (split + thickness, height - thickness, depth / 2),
+        )
         drawer_left, drawer_width = -width / 2 + thickness, split - (-width / 2 + thickness)
         shelf_center = thickness + (height - 2 * thickness) / 2
-        builder.add_box(material, (split + thickness, shelf_center - thickness / 2, -depth / 2),
-                        (width / 2 - thickness, shelf_center + thickness / 2, depth / 2))
+        builder.add_box(
+            material,
+            (split + thickness, shelf_center - thickness / 2, -depth / 2),
+            (width / 2 - thickness, shelf_center + thickness / 2, depth / 2),
+        )
     else:
         drawer_left, drawer_width = -width / 2 + thickness, inner_width
 
@@ -273,8 +317,11 @@ def _tv_stand(spec: TvStandSpec) -> FamilyBuild:
         for index in range(spec.drawers):
             low_y = thickness + index * drawer_height + 0.004
             high_y = thickness + (index + 1) * drawer_height - 0.004
-            builder.add_box(material, (drawer_left + 0.004, low_y, panel_front - thickness),
-                            (drawer_left + drawer_width - 0.004, high_y, panel_front))
+            builder.add_box(
+                material,
+                (drawer_left + 0.004, low_y, panel_front - thickness),
+                (drawer_left + drawer_width - 0.004, high_y, panel_front),
+            )
             handle_y = (low_y + high_y) / 2
             builder.add_box(
                 "metal",
@@ -319,10 +366,16 @@ def _desk_l(spec: DeskLSpec) -> FamilyBuild:
     )
 
     for x in (-width / 2 + leg / 2, width / 2 - leg / 2):
-        builder.add_box(material, (x - leg / 2, 0, main_depth / 2 - leg),
-                        (x + leg / 2, height - top, main_depth / 2))
-        builder.add_box(material, (x - leg / 2, 0, -main_depth / 2),
-                        (x + leg / 2, height - top, -main_depth / 2 + leg))
+        builder.add_box(
+            material,
+            (x - leg / 2, 0, main_depth / 2 - leg),
+            (x + leg / 2, height - top, main_depth / 2),
+        )
+        builder.add_box(
+            material,
+            (x - leg / 2, 0, -main_depth / 2),
+            (x + leg / 2, height - top, -main_depth / 2 + leg),
+        )
     return_leg_x = -width / 2 + leg / 2
     builder.add_box(
         material,
@@ -337,8 +390,11 @@ def _desk_l(spec: DeskLSpec) -> FamilyBuild:
         for index in range(spec.drawer_count):
             low_y = index * drawer_height + 0.004
             high_y = (index + 1) * drawer_height - 0.004
-            builder.add_box(material, (unit_x0, low_y, -main_depth / 2 + 0.02),
-                            (width / 2 - 0.02, high_y, main_depth / 2 - 0.02))
+            builder.add_box(
+                material,
+                (unit_x0, low_y, -main_depth / 2 + 0.02),
+                (width / 2 - 0.02, high_y, main_depth / 2 - 0.02),
+            )
             handle_y = (low_y + high_y) / 2
             builder.add_box(
                 "metal",
@@ -379,14 +435,18 @@ def _counter_run(spec: CounterRunSpec) -> FamilyBuild:
         (-length / 2, TOE_KICK_HEIGHT, -depth / 2),
         (length / 2, body_height, depth / 2 - 0.02),
     )
-    builder.add_slab(material, (-length / 2, body_height, -depth / 2),
-                     (length / 2, height, depth / 2))
+    builder.add_slab(
+        material, (-length / 2, body_height, -depth / 2), (length / 2, height, depth / 2)
+    )
 
     segment_width = length / spec.segments
     for index in range(1, spec.segments):
         x = -length / 2 + index * segment_width
-        builder.add_box(material, (x - 0.01, TOE_KICK_HEIGHT, depth / 2 - 0.04),
-                        (x + 0.01, body_height, depth / 2 - 0.02))
+        builder.add_box(
+            material,
+            (x - 0.01, TOE_KICK_HEIGHT, depth / 2 - 0.04),
+            (x + 0.01, body_height, depth / 2 - 0.02),
+        )
     # Door handles, one per segment, ending flush with the front plane.
     for index in range(spec.segments):
         centre = -length / 2 + (index + 0.5) * segment_width
@@ -397,11 +457,17 @@ def _counter_run(spec: CounterRunSpec) -> FamilyBuild:
         )
 
     if spec.sink:
-        builder.add_slab("metal", (-length / 2 + 0.25, height - 0.012, -depth / 2 + 0.12),
-                         (-length / 2 + 0.25 + 0.55, height, depth / 2 - 0.12))
+        builder.add_slab(
+            "metal",
+            (-length / 2 + 0.25, height - 0.012, -depth / 2 + 0.12),
+            (-length / 2 + 0.25 + 0.55, height, depth / 2 - 0.12),
+        )
     if spec.cooktop:
-        builder.add_slab("graphite", (length / 2 - 0.85, height - 0.012, -depth / 2 + 0.1),
-                         (length / 2 - 0.25, height, depth / 2 - 0.1))
+        builder.add_slab(
+            "graphite",
+            (length / 2 - 0.85, height - 0.012, -depth / 2 + 0.1),
+            (length / 2 - 0.25, height, depth / 2 - 0.1),
+        )
 
     return _finish(
         builder,
@@ -452,9 +518,15 @@ def _add_doors(
             frame = min(0.05, door_width / 4.0, height / 4.0)
             panel = "glass"
             builder.add_box(material, (x0, offset_y, z0), (x1, offset_y + frame, z1))
-            builder.add_box(material, (x0, offset_y + height - frame, z0), (x1, offset_y + height, z1))
-            builder.add_box(material, (x0, offset_y + frame, z0), (x0 + frame, offset_y + height - frame, z1))
-            builder.add_box(material, (x1 - frame, offset_y + frame, z0), (x1, offset_y + height - frame, z1))
+            builder.add_box(
+                material, (x0, offset_y + height - frame, z0), (x1, offset_y + height, z1)
+            )
+            builder.add_box(
+                material, (x0, offset_y + frame, z0), (x0 + frame, offset_y + height - frame, z1)
+            )
+            builder.add_box(
+                material, (x1 - frame, offset_y + frame, z0), (x1, offset_y + height - frame, z1)
+            )
             builder.add_box(
                 panel,
                 (x0 + frame, offset_y + frame, z0 + thickness * 0.35),
@@ -503,10 +575,10 @@ def _scale(spec: SpecBase, resolve_model_path: ModelPathResolver | None) -> Fami
         category=entry.category if entry is not None else CatalogCategory.OTHER,
         tags=("scaled", "缩放", "custom", spec.source_kind_id),
         must_against_wall=bool(rules and rules.must_against_wall),
-        clearance=entry.clearance if entry is not None else Clearance(front=0.4, sides=0.05, back=0.02),
-        allowed_rotations=(
-            tuple(entry.allowed_rotations) if entry is not None else ROTATIONS
-        ),
+        clearance=entry.clearance
+        if entry is not None
+        else Clearance(front=0.4, sides=0.05, back=0.02),
+        allowed_rotations=(tuple(entry.allowed_rotations) if entry is not None else ROTATIONS),
         render_parts=None,
     )
 
@@ -591,7 +663,9 @@ _BUILDERS: dict[str, Callable[[SpecBase, ModelPathResolver | None], FamilyBuild]
 }
 
 
-def build_family(spec: SpecBase, *, resolve_model_path: ModelPathResolver | None = None) -> FamilyBuild:
+def build_family(
+    spec: SpecBase, *, resolve_model_path: ModelPathResolver | None = None
+) -> FamilyBuild:
     builder = _BUILDERS.get(spec.family)
     if builder is None:
         raise ValueError(f"unknown family {spec.family!r}")
