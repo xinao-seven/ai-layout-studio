@@ -7,6 +7,26 @@
 import * as zod from 'zod';
 
 /**
+ * Report the model name and the reasoning levels it can honour.
+ * @summary Get Capabilities
+ */
+export const getCapabilitiesApiAgentCapabilitiesGetResponseDefaultThinkingLevelDefault = `off`;
+export const getCapabilitiesApiAgentCapabilitiesGetResponseGranularDefault = false;
+export const getCapabilitiesApiAgentCapabilitiesGetResponseModelDefault = ``;
+export const getCapabilitiesApiAgentCapabilitiesGetResponseReasoningDefault = false;
+export const getCapabilitiesApiAgentCapabilitiesGetResponseReasoningStyleDefault = `none`;
+
+export const GetCapabilitiesApiAgentCapabilitiesGetResponse = zod.object({
+  "defaultThinkingLevel": zod.enum(['off', 'low', 'medium', 'high']).default(getCapabilitiesApiAgentCapabilitiesGetResponseDefaultThinkingLevelDefault).describe('Reasoning effort requested for one turn (M7).\n\n``off`` asks for nothing extra; the provider default still applies.'),
+  "granular": zod.boolean().default(getCapabilitiesApiAgentCapabilitiesGetResponseGranularDefault).describe('Whether low/medium/high map to distinct budgets, or only on/off.'),
+  "model": zod.string().default(getCapabilitiesApiAgentCapabilitiesGetResponseModelDefault),
+  "reasoning": zod.boolean().default(getCapabilitiesApiAgentCapabilitiesGetResponseReasoningDefault),
+  "reasoningStyle": zod.enum(['auto', 'openai', 'deepseek', 'anthropic', 'qwen', 'glm', 'none']).default(getCapabilitiesApiAgentCapabilitiesGetResponseReasoningStyleDefault).describe('How a provider accepts a reasoning request (reported by capabilities).'),
+  "thinkingLevels": zod.array(zod.enum(['off', 'low', 'medium', 'high']).describe('Reasoning effort requested for one turn (M7).\n\n``off`` asks for nothing extra; the provider default still applies.')).optional()
+}).describe('What the configured model exposes to the agent UI (M7).')
+
+
+/**
  * @summary List Catalog
  */
 export const listCatalogApiCatalogGetResponseEntriesItemCategoryDefault = `other`;
@@ -5171,6 +5191,7 @@ export const ListTurnsApiScenesSceneIdTurnsGetResponse = zod.object({
   "id": zod.string().min(1),
   "messages": zod.array(zod.object({
   "content": zod.string().default(listTurnsApiScenesSceneIdTurnsGetResponseTurnsItemMessagesItemContentDefault),
+  "reasoning": zod.union([zod.string(),zod.null()]).optional(),
   "role": zod.enum(['user', 'assistant', 'tool']),
   "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
   "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),
@@ -5204,7 +5225,8 @@ export const createTurnApiScenesSceneIdTurnsPostBodyMessageMax = 4000;
 export const CreateTurnApiScenesSceneIdTurnsPostBody = zod.object({
   "clientTurnId": zod.union([zod.string(),zod.null()]).optional(),
   "message": zod.string().min(1).max(createTurnApiScenesSceneIdTurnsPostBodyMessageMax),
-  "pointContext": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional()
+  "pointContext": zod.union([zod.record(zod.string(), zod.unknown()),zod.null()]).optional(),
+  "thinkingLevel": zod.union([zod.enum(['off', 'low', 'medium', 'high']).describe('Reasoning effort requested for one turn (M7).\n\n``off`` asks for nothing extra; the provider default still applies.'),zod.null()]).optional()
 }).describe('User message that starts an agent turn (PRD §6.2).')
 
 
@@ -5222,6 +5244,7 @@ export const CreateTurnApiScenesSceneIdTurnsPostResponse = zod.object({
   "id": zod.string().min(1),
   "messages": zod.array(zod.object({
   "content": zod.string().default(createTurnApiScenesSceneIdTurnsPostResponseTurnMessagesItemContentDefault),
+  "reasoning": zod.union([zod.string(),zod.null()]).optional(),
   "role": zod.enum(['user', 'assistant', 'tool']),
   "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
   "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),
@@ -5264,6 +5287,7 @@ export const GetTurnApiScenesSceneIdTurnsTurnIdGetResponse = zod.object({
   "id": zod.string().min(1),
   "messages": zod.array(zod.object({
   "content": zod.string().default(getTurnApiScenesSceneIdTurnsTurnIdGetResponseTurnMessagesItemContentDefault),
+  "reasoning": zod.union([zod.string(),zod.null()]).optional(),
   "role": zod.enum(['user', 'assistant', 'tool']),
   "screenshotAfter": zod.union([zod.string(),zod.null()]).optional(),
   "screenshotBefore": zod.union([zod.string(),zod.null()]).optional(),

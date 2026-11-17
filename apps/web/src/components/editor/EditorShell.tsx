@@ -1,5 +1,8 @@
 import { Footprints, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useSceneStore } from '../../store/sceneStore'
+import { clampDockWidth, useUiStore } from '../../store/uiStore'
+import { AgentDock } from './AgentDock'
 import { Compass } from './Compass'
 import { FloatingToolbar } from './FloatingToolbar'
 import { PlacementHint } from './PlacementHint'
@@ -10,6 +13,8 @@ import { StatusBar } from './StatusBar'
 import { SunPanel } from './SunPanel'
 import { TopBar } from './TopBar'
 import { WarningToast } from './WarningToast'
+
+const DOCK_OVERLAY_BREAKPOINT = 1180
 
 function WalkHint() {
   const walkLocked = useSceneStore((state) => state.walkLocked)
@@ -35,11 +40,27 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
   const loading = useSceneStore((state) => state.loading)
   const selectItem = useSceneStore((state) => state.selectItem)
   const setFps = useSceneStore((state) => state.setFps)
+  const dockOpen = useUiStore((state) => state.dockOpen)
+  const setDockWidth = useUiStore((state) => state.setDockWidth)
+  const [overlay, setOverlay] = useState(false)
+
+  useEffect(() => {
+    const sync = () => {
+      const compact = window.innerWidth < DOCK_OVERLAY_BREAKPOINT
+      setOverlay(compact)
+      setDockWidth(
+        clampDockWidth(useUiStore.getState().dockWidth, compact ? undefined : window.innerWidth),
+      )
+    }
+    sync()
+    window.addEventListener('resize', sync)
+    return () => window.removeEventListener('resize', sync)
+  }, [setDockWidth])
 
   return (
     <div className="flex h-full flex-col bg-background">
       <TopBar />
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
         <SceneIconRail />
         <Sidebar />
         <main className="relative min-w-0 flex-1 overflow-hidden bg-[#151515]">
@@ -77,6 +98,7 @@ export function EditorShell({ perfMode }: { perfMode: boolean }) {
             </div>
           ) : null}
         </main>
+        {dockOpen ? <AgentDock overlay={overlay} /> : null}
       </div>
       <WarningToast />
     </div>

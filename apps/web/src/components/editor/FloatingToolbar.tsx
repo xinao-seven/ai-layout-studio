@@ -14,9 +14,9 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
 
   return (
     <div className="pointer-events-none absolute top-3 right-3 z-20 flex items-center gap-2">
-      <div className="pointer-events-auto inline-flex h-8 items-stretch overflow-hidden rounded-xl border border-border bg-background/90 shadow-2xl backdrop-blur-md">
+      <div className="pointer-events-auto inline-flex h-8 shrink-0 items-stretch overflow-hidden whitespace-nowrap rounded-xl border border-border bg-background/90 shadow-2xl backdrop-blur-md">
         <button
-          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 text-[11px] transition-colors ${
             tool === 'select'
               ? 'bg-white/10 text-foreground'
               : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
@@ -29,7 +29,7 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
         </button>
         <span className="my-1.5 w-px bg-border/70" />
         <button
-          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 text-[11px] transition-colors ${
             tool === 'draw-room'
               ? 'bg-primary/20 text-foreground'
               : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
@@ -42,9 +42,9 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
         </button>
       </div>
 
-      <div className="pointer-events-auto inline-flex h-8 items-stretch overflow-hidden rounded-xl border border-border bg-background/90 shadow-2xl backdrop-blur-md">
+      <div className="pointer-events-auto inline-flex h-8 shrink-0 items-stretch overflow-hidden whitespace-nowrap rounded-xl border border-border bg-background/90 shadow-2xl backdrop-blur-md">
         <button
-          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 text-[11px] transition-colors ${
             viewMode === '3d'
               ? 'bg-white/10 text-foreground'
               : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
@@ -57,7 +57,7 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
         </button>
         <span className="my-1.5 w-px bg-border/70" />
         <button
-          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 text-[11px] transition-colors ${
             viewMode === 'top'
               ? 'bg-white/10 text-foreground'
               : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'
@@ -70,7 +70,7 @@ export function FloatingToolbar({ perfMode }: { perfMode: boolean }) {
         </button>
         <span className="my-1.5 w-px bg-border/70" />
         <button
-          className={`flex items-center gap-1.5 px-2.5 text-[11px] transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 text-[11px] transition-colors ${
             viewMode === 'walk'
               ? 'bg-white/10 text-foreground'
               : 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground'

@@ -17,11 +17,11 @@ from app.agent.context import (
     compact_tool_result,
     estimate_tokens,
 )
-from app.agent.llm import LLMAdapter, StreamEnd, TextDelta, ToolCall, Usage
+from app.agent.llm import LLMAdapter, ReasoningDelta, StreamEnd, TextDelta, ToolCall, Usage
 from app.agent.refusals import make_refusal
 from app.agent.registry import TOOL_BY_NAME, openai_tools
 from app.agent.tools import ToolExecution, ToolExecutor
-from app.contracts.enums import MessageRole, TurnStatus
+from app.contracts.enums import MessageRole, ThinkingLevel, TurnStatus
 from app.contracts.proposal import Proposal, TurnMessage, TurnUsage
 from app.contracts.scene import SceneDocument
 from app.scene.errors import SceneError
@@ -31,6 +31,13 @@ logger = structlog.get_logger(__name__)
 MAX_ITERATIONS = 40
 MAX_WALL_CLOCK_SECONDS = 120.0
 MAX_WRITE_FAILURES = 3
+
+# Streaming deltas are coalesced before they hit the WebSocket and SQLite:
+# real providers emit hundreds of tiny chunks per turn and every `_emit` is a
+# transaction. The character threshold keeps flush latency low for slow streams
+# while cutting write amplification for fast ones.
+DELTA_FLUSH_CHARS = 24
+DELTA_FLUSH_SECONDS = 0.05
 
 Emit = Callable[[str, dict[str, Any]], Awaitable[None]]
 SnapshotProvider = Callable[[], Awaitable[tuple[SceneDocument, list[Proposal], set[str]]]]
@@ -52,6 +59,40 @@ class AgentRunResult:
 
 
 ProgressHandler = Callable[[AgentRunResult], Awaitable[None]]
+
+
+class _DeltaCoalescer:
+    """Batches streamed text/reasoning so each emit is one WS frame + one DB row."""
+
+    def __init__(self, emit: Emit) -> None:
+        self._emit = emit
+        self._text: list[str] = []
+        self._reasoning: list[str] = []
+        self._last_flush = time.monotonic()
+
+    def add_text(self, text: str) -> None:
+        self._text.append(text)
+
+    def add_reasoning(self, text: str) -> None:
+        self._reasoning.append(text)
+
+    async def flush(self, *, force: bool = False) -> None:
+        if self._reasoning and (
+            force
+            or sum(len(part) for part in self._reasoning) >= DELTA_FLUSH_CHARS
+            or time.monotonic() - self._last_flush >= DELTA_FLUSH_SECONDS
+        ):
+            await self._emit("assistant.reasoning_delta", {"text": "".join(self._reasoning)})
+            self._reasoning.clear()
+            self._last_flush = time.monotonic()
+        if self._text and (
+            force
+            or sum(len(part) for part in self._text) >= DELTA_FLUSH_CHARS
+            or time.monotonic() - self._last_flush >= DELTA_FLUSH_SECONDS
+        ):
+            await self._emit("assistant.delta", {"text": "".join(self._text)})
+            self._text.clear()
+            self._last_flush = time.monotonic()
 
 
 class AgentLoop:
@@ -88,6 +129,7 @@ class AgentLoop:
         turn_id: str,
         user_message: str,
         point_context: dict[str, Any] | None,
+        thinking_level: ThinkingLevel | None = None,
     ) -> AgentRunResult:
         started = time.monotonic()
         result = AgentRunResult()
@@ -136,15 +178,24 @@ class AgentLoop:
             result.usage.iterations = iteration
 
             text_parts: list[str] = []
+            reasoning_parts: list[str] = []
             tool_calls: list[ToolCall] = []
             seen_call_ids: set[str] = set()
             finish_reason: str | None = None
-            async for event in self._llm.stream(messages, tools):
+            coalescer = _DeltaCoalescer(self._emit)
+
+            async for event in self._llm.stream(messages, tools, thinking_level=thinking_level):
                 self._check_cancel()
                 if isinstance(event, TextDelta):
                     text_parts.append(event.text)
-                    await self._emit("assistant.delta", {"text": event.text})
+                    coalescer.add_text(event.text)
+                    await coalescer.flush()
+                elif isinstance(event, ReasoningDelta):
+                    reasoning_parts.append(event.text)
+                    coalescer.add_reasoning(event.text)
+                    await coalescer.flush()
                 elif isinstance(event, ToolCall):
+                    await coalescer.flush(force=True)
                     if event.id in seen_call_ids:
                         continue
                     seen_call_ids.add(event.id)
@@ -153,11 +204,15 @@ class AgentLoop:
                     result.usage.tokens_in += event.prompt_tokens
                     result.usage.tokens_out += event.completion_tokens
                 elif isinstance(event, StreamEnd):
+                    await coalescer.flush(force=True)
                     finish_reason = event.finish_reason
+            await coalescer.flush(force=True)
             content = "".join(text_parts)
+            reasoning = "".join(reasoning_parts)
             assistant_message = TurnMessage(
                 role=MessageRole.ASSISTANT,
                 content=content,
+                reasoning=reasoning or None,
                 tool_calls=[
                     {
                         "id": call.id,
@@ -176,6 +231,7 @@ class AgentLoop:
                 "assistant.message",
                 {
                     "content": content,
+                    "reasoning": reasoning,
                     "toolCalls": assistant_message.tool_calls or [],
                     "finishReason": finish_reason,
                 },

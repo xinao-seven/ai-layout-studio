@@ -23,6 +23,7 @@ from app.agent.llm import ScriptedAdapter
 @dataclass
 class FakeStep:
     text: str = ""
+    reasoning: str = ""
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     usage: dict[str, int] = field(default_factory=dict)
 
@@ -47,6 +48,7 @@ def _coerce(step: FakeStep | dict[str, Any]) -> FakeStep:
         return step
     return FakeStep(
         text=str(step.get("text", "")),
+        reasoning=str(step.get("reasoning", step.get("reasoningContent", ""))),
         tool_calls=list(step.get("toolCalls", step.get("tool_calls", []))),
         usage=dict(step.get("usage", {})),
     )
@@ -93,6 +95,12 @@ def create_fake_openai(
 
         def generate() -> Any:
             yield _chunk(state, {"role": "assistant", "content": ""}, None)
+            for start in range(0, len(step.reasoning), 24):
+                yield _chunk(
+                    state,
+                    {"reasoning_content": step.reasoning[start : start + 24]},
+                    None,
+                )
             for start in range(0, len(step.text), 24):
                 yield _chunk(state, {"content": step.text[start : start + 24]}, None)
             for index, call in enumerate(step.tool_calls):

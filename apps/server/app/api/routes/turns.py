@@ -46,6 +46,7 @@ async def create_turn(
         request.message,
         point_context=request.point_context,
         client_turn_id=request.client_turn_id,
+        thinking_level=request.thinking_level,
     )
     return TurnResponse(turn=turn)
 

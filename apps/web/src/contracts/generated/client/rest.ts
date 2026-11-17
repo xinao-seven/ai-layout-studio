@@ -26,6 +26,50 @@ export interface AddItemRequest {
   variantId?: string | null;
 }
 
+/**
+ * Reasoning effort requested for one turn (M7).
+ *
+ * ``off`` asks for nothing extra; the provider default still applies.
+ */
+export type ThinkingLevel = typeof ThinkingLevel[keyof typeof ThinkingLevel];
+
+
+export const ThinkingLevel = {
+  off: 'off',
+  low: 'low',
+  medium: 'medium',
+  high: 'high',
+} as const;
+
+/**
+ * How a provider accepts a reasoning request (reported by capabilities).
+ */
+export type ReasoningStyle = typeof ReasoningStyle[keyof typeof ReasoningStyle];
+
+
+export const ReasoningStyle = {
+  auto: 'auto',
+  openai: 'openai',
+  deepseek: 'deepseek',
+  anthropic: 'anthropic',
+  qwen: 'qwen',
+  glm: 'glm',
+  none: 'none',
+} as const;
+
+/**
+ * What the configured model exposes to the agent UI (M7).
+ */
+export interface AgentCapabilitiesResponse {
+  defaultThinkingLevel?: ThinkingLevel;
+  /** Whether low/medium/high map to distinct budgets, or only on/off. */
+  granular?: boolean;
+  model?: string;
+  reasoning?: boolean;
+  reasoningStyle?: ReasoningStyle;
+  thinkingLevels?: ThinkingLevel[];
+}
+
 export type AnchorType = typeof AnchorType[keyof typeof AnchorType];
 
 
@@ -478,6 +522,7 @@ export interface CreateTurnRequest {
      */
   message: string;
   pointContext?: CreateTurnRequestPointContext;
+  thinkingLevel?: ThinkingLevel | null;
 }
 
 export interface FixtureSummary {
@@ -670,6 +715,7 @@ export type TurnMessageToolResult = { [key: string]: unknown } | null;
 
 export interface TurnMessage {
   content?: string;
+  reasoning?: string | null;
   role: MessageRole;
   screenshotAfter?: string | null;
   screenshotBefore?: string | null;
@@ -755,6 +801,50 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
   }
   return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
 };
+
+export type getCapabilitiesApiAgentCapabilitiesGetResponse200 = {
+  data: AgentCapabilitiesResponse
+  status: 200
+}
+
+export type getCapabilitiesApiAgentCapabilitiesGetResponseSuccess = (getCapabilitiesApiAgentCapabilitiesGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getCapabilitiesApiAgentCapabilitiesGetResponse = (getCapabilitiesApiAgentCapabilitiesGetResponseSuccess)
+
+export const getGetCapabilitiesApiAgentCapabilitiesGetUrl = () => {
+
+
+
+
+  return `/api/agent/capabilities`
+}
+
+/**
+ * Report the model name and the reasoning levels it can honour.
+ * @summary Get Capabilities
+ */
+export const getCapabilitiesApiAgentCapabilitiesGet = async ( options?: RequestInit): Promise<getCapabilitiesApiAgentCapabilitiesGetResponse> => {
+
+  const res = await fetch(getGetCapabilitiesApiAgentCapabilitiesGetUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getCapabilitiesApiAgentCapabilitiesGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getCapabilitiesApiAgentCapabilitiesGetResponse
+}
+
+
 
 export type listCatalogApiCatalogGetResponse200 = {
   data: CatalogResponse

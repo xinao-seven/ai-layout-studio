@@ -75,6 +75,45 @@
         "title": "AddItemRequest",
         "type": "object"
       },
+      "AgentCapabilitiesResponse": {
+        "additionalProperties": false,
+        "description": "What the configured model exposes to the agent UI (M7).",
+        "properties": {
+          "defaultThinkingLevel": {
+            "$ref": "#/components/schemas/ThinkingLevel",
+            "default": "off"
+          },
+          "granular": {
+            "default": false,
+            "description": "Whether low/medium/high map to distinct budgets, or only on/off.",
+            "title": "Granular",
+            "type": "boolean"
+          },
+          "model": {
+            "default": "",
+            "title": "Model",
+            "type": "string"
+          },
+          "reasoning": {
+            "default": false,
+            "title": "Reasoning",
+            "type": "boolean"
+          },
+          "reasoningStyle": {
+            "$ref": "#/components/schemas/ReasoningStyle",
+            "default": "none"
+          },
+          "thinkingLevels": {
+            "items": {
+              "$ref": "#/components/schemas/ThinkingLevel"
+            },
+            "title": "Thinkinglevels",
+            "type": "array"
+          }
+        },
+        "title": "AgentCapabilitiesResponse",
+        "type": "object"
+      },
       "Anchor": {
         "additionalProperties": false,
         "properties": {
@@ -591,6 +630,16 @@
               }
             ],
             "title": "Pointcontext"
+          },
+          "thinkingLevel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ThinkingLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1660,6 +1709,20 @@
         "title": "ProposalStatus",
         "type": "string"
       },
+      "ReasoningStyle": {
+        "description": "How a provider accepts a reasoning request (reported by capabilities).",
+        "enum": [
+          "auto",
+          "openai",
+          "deepseek",
+          "anthropic",
+          "qwen",
+          "glm",
+          "none"
+        ],
+        "title": "ReasoningStyle",
+        "type": "string"
+      },
       "Room": {
         "additionalProperties": false,
         "description": "Room whose polygon is the wall centerline (CCW).",
@@ -2388,6 +2451,17 @@
         "title": "SceneWarning",
         "type": "object"
       },
+      "ThinkingLevel": {
+        "description": "Reasoning effort requested for one turn (M7).\n\n``off`` asks for nothing extra; the provider default still applies.",
+        "enum": [
+          "off",
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "ThinkingLevel",
+        "type": "string"
+      },
       "Transform": {
         "additionalProperties": false,
         "description": "Item placement. Rotation is radians around +Y; front axis is +Z.",
@@ -2576,6 +2650,17 @@
             "default": "",
             "title": "Content",
             "type": "string"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning"
           },
           "role": {
             "$ref": "#/components/schemas/MessageRole"
@@ -2800,6 +2885,28 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/agent/capabilities": {
+      "get": {
+        "description": "Report the model name and the reasoning levels it can honour.",
+        "operationId": "get_capabilities_api_agent_capabilities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentCapabilitiesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Capabilities",
+        "tags": [
+          "agent"
+        ]
+      }
+    },
     "/api/catalog": {
       "get": {
         "operationId": "list_catalog_api_catalog_get",

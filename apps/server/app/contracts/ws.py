@@ -78,9 +78,17 @@ class AssistantDeltaPayload(CamelModel):
     text: str
 
 
+class AssistantReasoningDeltaPayload(CamelModel):
+    """Incremental reasoning/thinking text (M7); providers stream this before content."""
+
+    text: str
+
+
 class AssistantMessagePayload(CamelModel):
     content: str = ""
+    reasoning: str = ""
     tool_calls: list[dict[str, Any]] = Field(default_factory=list)
+    finish_reason: str | None = None
 
 
 class ToolEventPayload(CamelModel):
@@ -265,6 +273,7 @@ WS_MODELS: tuple[type[CamelModel], ...] = (
     CatalogUpdatedPayload,
     TurnStatusPayload,
     AssistantDeltaPayload,
+    AssistantReasoningDeltaPayload,
     AssistantMessagePayload,
     ToolEventPayload,
     TurnWaitingUserPayload,

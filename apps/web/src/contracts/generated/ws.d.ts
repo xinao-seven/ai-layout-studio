@@ -15,9 +15,12 @@ export type Type = "ask_user.answer";
 export type V = 1;
 export type Text = string;
 export type Content = string;
+export type Finishreason = string | null;
+export type Reasoning = string;
 export type Toolcalls = {
   [k: string]: unknown;
 }[];
+export type Text1 = string;
 export type Format = "png";
 export type Height = number;
 /**
@@ -323,6 +326,7 @@ export type Createdat2 = string;
 export type Endedat = string | null;
 export type Id7 = string;
 export type Content1 = string;
+export type Reasoning1 = string | null;
 export type MessageRole = "user" | "assistant" | "tool";
 export type Screenshotafter = string | null;
 export type Screenshotbefore = string | null;
@@ -392,6 +396,7 @@ export interface WebSocketContracts {
   AskUserAnswerPayload?: AskUserAnswerPayload;
   AssistantDeltaPayload?: AssistantDeltaPayload;
   AssistantMessagePayload?: AssistantMessagePayload;
+  AssistantReasoningDeltaPayload?: AssistantReasoningDeltaPayload;
   CaptureRequestPayload?: CaptureRequestPayload;
   CaptureResultMessage?: CaptureResultMessage;
   CaptureResultPayload?: CaptureResultPayload;
@@ -446,7 +451,15 @@ export interface AssistantDeltaPayload {
 }
 export interface AssistantMessagePayload {
   content?: Content;
+  finishReason?: Finishreason;
+  reasoning?: Reasoning;
   toolCalls?: Toolcalls;
+}
+/**
+ * Incremental reasoning/thinking text (M7); providers stream this before content.
+ */
+export interface AssistantReasoningDeltaPayload {
+  text: Text1;
 }
 /**
  * Server -> host request for an orthographic labelled screenshot.
@@ -917,6 +930,7 @@ export interface Turn {
 }
 export interface TurnMessage {
   content?: Content1;
+  reasoning?: Reasoning1;
   role: MessageRole;
   screenshotAfter?: Screenshotafter;
   screenshotBefore?: Screenshotbefore;

@@ -43,6 +43,10 @@ types-jsonschema (Apache-2.0).
 | lucide-react | icon set | ISC |
 | Zundo | undo/redo temporal middleware | MIT |
 | @fontsource/barlow | Barlow UI typeface | OFL-1.1 |
+| @fontsource/geist-mono | Geist Mono code typeface | OFL-1.1 |
+| marked | Markdown rendering for agent replies | MIT |
+| highlight.js | Code block highlighting | BSD-3-Clause |
+| dompurify | Sanitizes rendered markdown before injection | MPL-2.0 OR Apache-2.0 |
 | Vitest | Unit tests | MIT |
 | TypeScript | Type checking | Apache-2.0 |
 | Biome | Lint/format | MIT |

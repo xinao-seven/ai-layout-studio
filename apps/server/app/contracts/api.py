@@ -9,7 +9,7 @@ from pydantic import Field
 
 from app.contracts.base import CamelModel
 from app.contracts.catalog import CatalogEntry
-from app.contracts.enums import TurnStatus
+from app.contracts.enums import ReasoningStyle, ThinkingLevel, TurnStatus
 from app.contracts.patch import PatchOp, ScenePatch
 from app.contracts.proposal import Proposal, Turn
 from app.contracts.scene import SceneDocument, Vec2, Vec3
@@ -111,6 +111,21 @@ class CreateTurnRequest(CamelModel):
     message: str = Field(min_length=1, max_length=4000)
     point_context: dict[str, Any] | None = None
     client_turn_id: str | None = None
+    thinking_level: ThinkingLevel | None = None
+
+
+class AgentCapabilitiesResponse(CamelModel):
+    """What the configured model exposes to the agent UI (M7)."""
+
+    model: str = ""
+    reasoning: bool = False
+    reasoning_style: ReasoningStyle = ReasoningStyle.NONE
+    thinking_levels: list[ThinkingLevel] = Field(default_factory=lambda: [ThinkingLevel.OFF])
+    default_thinking_level: ThinkingLevel = ThinkingLevel.OFF
+    granular: bool = Field(
+        default=False,
+        description="Whether low/medium/high map to distinct budgets, or only on/off.",
+    )
 
 
 class TurnListResponse(CamelModel):

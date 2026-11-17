@@ -9,6 +9,8 @@
 >   and windows, first-person walkthrough, JSON/PNG export.
 > - **Agent**: streaming tool loop over 11 tools, ghost proposals confirmed by the
 >   user, whole-room beam-search solver, VLM visual review.
+> - **Agent UI**: resizable right-hand dock, token-level markdown replies with
+>   thinking blocks and collapsible tool cards, per-turn reasoning level.
 > - **Procedural assets**: the agent can *build* furniture — parametric families
 >   and free box composition — into a reusable scene library.
 > - **Contract-first**: Pydantic is the only schema source; REST/WS/TS types are
@@ -17,12 +19,14 @@
 对话式 AI 室内布局工作台：上传/绘制户型，用自然语言和直接操作完成家具布置。
 AI Agent 输出**关系约束**，确定性求解器产出坐标，用户确认后落库。
 
-> 当前状态：**M6 完成（2026-11-17）**。M1–M5 交付场景内核、目录与拖放、Agent 回合、
-> 求解器 + VLM 闭环、导出/漫游/MCP/日照；M6 在 Agent 侧新增**参数化资产库**：
-> `model_item` 工具按 spec 现场编译 GLB（书柜/衣柜/电视柜/L 型书桌/厨房台面/
-> 比例缩放/自由图元组合七个族），注册为可复用目录条目并以 ghost 提案摆放；
-> `catalog.updated` 事件把新资产推给所有在线场景。编辑器侧新增家具手动缩放、
-> 边缘吸附、走道/窗净空预检对齐、跨房间顶点吸附与整面墙平移。
+> 当前状态：**M7 完成（2026-11-17）**。M1–M6 交付场景内核、目录与拖放、Agent 回合、
+> 求解器 + VLM 闭环、导出/漫游/MCP/日照、参数化资产库；M7 重做 **Agent 界面**：
+> 对话搬到右侧可拖拽 Dock（360–720px，可收起、双击复位、尺寸持久化，窄屏浮层），
+> 助手回复改为逐 token 的 markdown 渲染（代码高亮/复制、表格、列表），
+> 思考过程与工具调用改为可折叠卡片；服务端补齐 **reasoning 全链路**——
+> `assistant.reasoning_delta` 流、`TurnMessage.reasoning` 持久化、
+> `GET /api/agent/capabilities`，以及按 provider 自动映射的
+> `thinkingLevel`（off/low/medium/high，`LLM_REASONING_STYLE` 可覆盖）。
 >
 > 项目为独立自研实现；aedifex / Pascal Editor（MIT）等开源项目仅作**架构与视觉参考**，
 > 不复制源码。
@@ -74,6 +78,8 @@ pnpm install
 # 2. 配置 LLM（可选；不配置时对话回合会以 llm_error 失败）
 cp .env.example .env
 # 填 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL（GLM、Qwen、DeepSeek、OpenAI 均可）
+# 推理挡位默认 off；LLM_REASONING_STYLE=auto 会按端点识别 provider，
+# 自定义网关可显式设为 openai/deepseek/anthropic/qwen/glm/none。
 
 # 3. 起前后端（web:5173，server:8000；server 启动时自动执行 Alembic 迁移）
 pnpm dev

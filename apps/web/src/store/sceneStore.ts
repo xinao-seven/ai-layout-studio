@@ -1,6 +1,7 @@
 import rules from '@ai-layout/contracts/rules.json'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
+import { createStreamCoalescer } from '../agent/streamCoalescer'
 import * as api from '../api/client'
 import { ApiError } from '../api/client'
 import type {
@@ -43,9 +44,10 @@ import { checkPlacement, itemFootprint, type PlacementIssue, variantFor } from '
 import { buildPointContext, type PointContext } from '../scene/pointContext'
 import { resolveSnap } from '../scene/snapping'
 import { type ConnectionStatus, SceneSocket } from '../ws/client'
+import { useUiStore } from './uiStore'
 
 export type ViewMode = '3d' | 'top' | 'walk'
-export type SidebarTab = 'scene' | 'rooms' | 'items' | 'ai'
+export type SidebarTab = 'scene' | 'rooms' | 'items'
 export type EditorTool = 'select' | 'draw-room'
 
 export interface UiError {
@@ -64,6 +66,8 @@ export interface ChatEntry {
   id: string
   role: 'user' | 'assistant' | 'tool' | 'system'
   content: string
+  /** Provider reasoning streamed before the answer (M7). */
+  reasoning?: string
   name?: string
   status?: 'running' | 'done' | 'failed'
   arguments?: Record<string, unknown> | null
@@ -608,6 +612,7 @@ function chatFromTurn(turn: Turn): ChatEntry[] {
       id: `history-${message.role}-${turn.id}-${index}`,
       role: message.role === 'assistant' ? 'assistant' : 'user',
       content: message.content ?? '',
+      reasoning: message.reasoning ?? undefined,
       screenshotBefore: message.screenshotBefore ?? null,
       screenshotAfter: message.screenshotAfter ?? null,
     })
@@ -622,6 +627,12 @@ function toolSummary(result: unknown): string {
     return payload.refusals.map((refusal) => refusal.message ?? 'refused').join('; ')
   }
   return payload.ok === true ? 'ok' : ''
+}
+
+/** Close any dangling streaming bubble so a later turn cannot append into it. */
+function finalizeStreaming(entries: ChatEntry[]): ChatEntry[] {
+  if (!entries.some((entry) => entry.streaming)) return entries
+  return entries.map((entry) => (entry.streaming ? { ...entry, streaming: false } : entry))
 }
 
 function lastStreamingIndex(entries: ChatEntry[]): number {
@@ -743,6 +754,7 @@ export const useSceneStore = create<SceneState>()(
       openScene: async (sceneId) => {
         socket?.close()
         socket = null
+        streamCoalescer.dispose()
         set({
           loading: true,
           error: null,
@@ -833,6 +845,7 @@ export const useSceneStore = create<SceneState>()(
       closeScene: () => {
         socket?.close()
         socket = null
+        streamCoalescer.dispose()
         withSceneUpdate(() =>
           set({
             scene: null,
@@ -1782,11 +1795,15 @@ export const useSceneStore = create<SceneState>()(
             pointContext: get().pointContext
               ? (get().pointContext as unknown as Record<string, unknown>)
               : null,
+            thinkingLevel: useUiStore.getState().thinkingLevel,
           })
           set((state) => ({
             turns: [turn, ...state.turns.filter((candidate) => candidate.id !== turn.id)],
             activeTurnId: turn.id ?? null,
-            turnStatus: turn.status ?? null,
+            // The turn can finish before this HTTP response arrives (failed in
+            // milliseconds); WS events are authoritative once they moved past
+            // the optimistic "queued" state, so never overwrite them.
+            turnStatus: state.turnStatus === 'queued' ? (turn.status ?? null) : state.turnStatus,
           }))
         } catch (error) {
           set((state) => ({
@@ -1809,14 +1826,9 @@ export const useSceneStore = create<SceneState>()(
         if (!turnId) return
         try {
           const status = await api.cancelTurn(turnId)
-          set((state) => ({
-            turnStatus: status,
-            waitingUser: null,
-            chatMessages: [
-              ...state.chatMessages,
-              { id: `system-${Date.now()}`, role: 'system', content: '已取消当前回合。' },
-            ],
-          }))
+          // `turn.cancelled` appends the visible system note; adding one here
+          // as well produced two "cancelled" bubbles per cancel.
+          set({ turnStatus: status, waitingUser: null })
         } catch (error) {
           set({ error: toUiError(error, 'Failed to cancel the turn.') })
         }
@@ -2067,6 +2079,14 @@ export const useSceneStore = create<SceneState>()(
             return
           }
           const payload = envelope.payload as Record<string, unknown> | undefined
+          // Any non-delta event must see the text streamed so far, otherwise the
+          // final message could be replaced before its buffered tokens land.
+          if (
+            envelope.type !== 'assistant.delta' &&
+            envelope.type !== 'assistant.reasoning_delta'
+          ) {
+            streamCoalescer.flushNow()
+          }
           if (envelope.type === 'turn.started' || envelope.type === 'turn.status') {
             const turn = payload?.turn as Turn | undefined
             if (!turn) return
@@ -2084,7 +2104,9 @@ export const useSceneStore = create<SceneState>()(
                 ? history
                 : state.chatMessages.length === 0
                   ? history
-                  : state.chatMessages,
+                  : envelope.type === 'turn.started'
+                    ? finalizeStreaming(state.chatMessages)
+                    : state.chatMessages,
               waitingUser: waiting
                 ? {
                     turnId: turn.id ?? state.activeTurnId ?? '',
@@ -2099,49 +2121,41 @@ export const useSceneStore = create<SceneState>()(
             return
           }
           if (envelope.type === 'assistant.delta') {
-            const text = String(payload?.text ?? '')
-            if (!text) return
+            streamCoalescer.pushText(String(payload?.text ?? ''))
+            return
+          }
+          if (envelope.type === 'assistant.reasoning_delta') {
+            streamCoalescer.pushReasoning(String(payload?.text ?? ''))
+            return
+          }
+          if (envelope.type === 'assistant.message') {
+            const content = String(payload?.content ?? '')
+            const reasoning = String(payload?.reasoning ?? '')
             set((state) => {
               const index = lastStreamingIndex(state.chatMessages)
               if (index >= 0) {
                 const next = [...state.chatMessages]
                 const current = next[index]
                 if (current) {
-                  next[index] = { ...current, content: current.content + text }
+                  next[index] = {
+                    ...current,
+                    content,
+                    reasoning: reasoning || current.reasoning,
+                    streaming: false,
+                  }
                 }
                 return { chatMessages: next }
               }
+              if (!content && !reasoning) return state
               return {
                 chatMessages: [
                   ...state.chatMessages,
                   {
                     id: `assistant-${Date.now()}`,
                     role: 'assistant',
-                    content: text,
-                    streaming: true,
+                    content,
+                    reasoning: reasoning || undefined,
                   },
-                ],
-              }
-            })
-            return
-          }
-          if (envelope.type === 'assistant.message') {
-            const content = String(payload?.content ?? '')
-            set((state) => {
-              const index = lastStreamingIndex(state.chatMessages)
-              if (index >= 0) {
-                const next = [...state.chatMessages]
-                const current = next[index]
-                if (current) {
-                  next[index] = { ...current, content, streaming: false }
-                }
-                return { chatMessages: next }
-              }
-              if (!content) return state
-              return {
-                chatMessages: [
-                  ...state.chatMessages,
-                  { id: `assistant-${Date.now()}`, role: 'assistant', content },
                 ],
               }
             })
@@ -2214,6 +2228,7 @@ export const useSceneStore = create<SceneState>()(
               turnStatus: 'done',
               waitingUser: null,
               activeTurnId: turn?.id ?? state.activeTurnId,
+              chatMessages: finalizeStreaming(state.chatMessages),
               turns: turn
                 ? [turn, ...state.turns.filter((candidate) => candidate.id !== turn.id)]
                 : state.turns,
@@ -2227,14 +2242,14 @@ export const useSceneStore = create<SceneState>()(
             set((state) => ({
               turnStatus: 'failed',
               waitingUser: null,
-              chatMessages: [
+              chatMessages: finalizeStreaming([
                 ...state.chatMessages,
                 {
                   id: `system-${Date.now()}`,
                   role: 'system',
                   content: [error?.message, error?.suggest].filter(Boolean).join(' '),
                 },
-              ],
+              ]),
             }))
             return
           }
@@ -2242,10 +2257,10 @@ export const useSceneStore = create<SceneState>()(
             set((state) => ({
               turnStatus: 'cancelled',
               waitingUser: null,
-              chatMessages: [
+              chatMessages: finalizeStreaming([
                 ...state.chatMessages,
                 { id: `system-${Date.now()}`, role: 'system', content: '回合已取消。' },
-              ],
+              ]),
             }))
             return
           }
@@ -2392,3 +2407,40 @@ export const useSceneStore = create<SceneState>()(
     },
   ),
 )
+
+/**
+ * Streaming deltas are buffered per animation frame so a token-per-event
+ * provider does not copy the message array (and re-parse markdown) 60+ times a
+ * second. `assistant.message` and tool events flush it first, keeping order.
+ */
+const streamCoalescer = createStreamCoalescer((delta) => {
+  useSceneStore.setState((state) => {
+    const index = lastStreamingIndex(state.chatMessages)
+    if (index >= 0) {
+      const current = state.chatMessages[index]
+      if (!current) return state
+      const next = [...state.chatMessages]
+      next[index] = {
+        ...current,
+        content: current.content + delta.text,
+        reasoning: delta.reasoning
+          ? `${current.reasoning ?? ''}${delta.reasoning}`
+          : current.reasoning,
+      }
+      return { chatMessages: next }
+    }
+    if (!delta.text && !delta.reasoning) return state
+    return {
+      chatMessages: [
+        ...state.chatMessages,
+        {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: delta.text,
+          reasoning: delta.reasoning || undefined,
+          streaming: true,
+        },
+      ],
+    }
+  })
+})

@@ -20,6 +20,7 @@ from app.capture.service import CaptureProvider, CaptureService
 from app.catalog.library import AssetLibrary
 from app.catalog.service import CatalogService
 from app.contracts.catalog import CatalogEntry
+from app.contracts.enums import ThinkingLevel
 from app.contracts.proposal import Proposal
 from app.contracts.rules import get_rules
 from app.core.config import Settings, ensure_single_worker, get_settings
@@ -137,6 +138,7 @@ def create_app(
             capture=capture,
             vlm=vlm,
             modelgen=modelgen,
+            default_thinking_level=ThinkingLevel(app_settings.llm_thinking_level),
         )
         gateway.set_manager(manager)
 

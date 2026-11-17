@@ -18,6 +18,11 @@ from typing import Any, Protocol, cast
 import structlog
 from openai import NOT_GIVEN, AsyncOpenAI
 
+from app.agent.reasoning import (
+    build_stream_options,
+    resolve_reasoning_style,
+)
+from app.contracts.enums import ReasoningStyle, ThinkingLevel
 from app.core.config import Settings
 from app.core.paths import project_roots
 from app.scene.errors import SceneError
@@ -27,9 +32,25 @@ logger = structlog.get_logger(__name__)
 STREAM_TIMEOUT_SECONDS = 60.0
 STALL_TIMEOUT_SECONDS = 30.0
 
+_REASONING_REJECTION_MARKERS = (
+    "reasoning_effort",
+    "reasoning effort",
+    "thinking",
+    "enable_thinking",
+    "extra_body",
+    "budget_tokens",
+)
+
 
 @dataclass(frozen=True)
 class TextDelta:
+    text: str
+
+
+@dataclass(frozen=True)
+class ReasoningDelta:
+    """Incremental reasoning/thinking content streamed by some providers."""
+
     text: str
 
 
@@ -51,7 +72,7 @@ class StreamEnd:
     finish_reason: str | None = None
 
 
-LLMEvent = TextDelta | ToolCall | Usage | StreamEnd
+LLMEvent = TextDelta | ReasoningDelta | ToolCall | Usage | StreamEnd
 
 
 class LLMAdapter(Protocol):
@@ -63,6 +84,8 @@ class LLMAdapter(Protocol):
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
+        *,
+        thinking_level: ThinkingLevel | None = None,
     ) -> AsyncIterator[LLMEvent]: ...
 
 
@@ -98,10 +121,15 @@ class OpenAIAdapter:
         model: str,
         http_client: Any | None = None,
         timeout: float = STREAM_TIMEOUT_SECONDS,
+        reasoning_style: str | ReasoningStyle | None = None,
     ) -> None:
         self.model = model
         self._timeout = timeout
         self._include_usage = True
+        # Remembered after a provider rejects reasoning parameters so later
+        # calls skip them instead of paying a failed round trip every turn.
+        self._reasoning_supported = True
+        self.reasoning_style = resolve_reasoning_style(base_url, model, reasoning_style)
         self._client = AsyncOpenAI(
             base_url=base_url or None,
             api_key=api_key,
@@ -114,6 +142,8 @@ class OpenAIAdapter:
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
+        *,
+        thinking_level: ThinkingLevel | None = None,
     ) -> AsyncIterator[LLMEvent]:
         attempts = 0
         while True:
@@ -121,7 +151,7 @@ class OpenAIAdapter:
             emitted = False
             try:
                 async with asyncio.timeout(self._timeout):
-                    async for event in self._stream_once(messages, tools):
+                    async for event in self._stream_once(messages, tools, thinking_level):
                         emitted = True
                         yield event
                 return
@@ -137,6 +167,13 @@ class OpenAIAdapter:
                 if "stream_options" in str(error).lower():
                     # Some OpenAI-compatible providers reject the usage option.
                     self._include_usage = False
+                if (
+                    not emitted
+                    and self._reasoning_supported
+                    and self._is_reasoning_rejection(error)
+                ):
+                    logger.info("llm.reasoning_unsupported", style=self.reasoning_style.value)
+                    self._reasoning_supported = False
                 if emitted or attempts >= 2:
                     raise SceneError(
                         "llm_error",
@@ -146,21 +183,40 @@ class OpenAIAdapter:
                 logger.info("llm.retry", reason=str(error), attempt=attempts)
                 await asyncio.sleep(0.2)
 
+    @staticmethod
+    def _is_reasoning_rejection(error: Exception) -> bool:
+        message = str(error).lower()
+        return any(marker in message for marker in _REASONING_REJECTION_MARKERS)
+
     async def _stream_once(
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
+        thinking_level: ThinkingLevel | None = None,
     ) -> AsyncIterator[LLMEvent]:
-        create = cast(Any, self._client.chat.completions.create)
-        stream = await create(
-            model=self.model,
-            messages=messages,
-            tools=tools if tools else NOT_GIVEN,
-            tool_choice="auto" if tools else NOT_GIVEN,
-            temperature=0.0,
-            stream=True,
-            stream_options={"include_usage": True} if self._include_usage else NOT_GIVEN,
+        options = (
+            build_stream_options(self.reasoning_style, thinking_level)
+            if self._reasoning_supported
+            else None
         )
+        create = cast(Any, self._client.chat.completions.create)
+        kwargs: dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "tools": tools if tools else NOT_GIVEN,
+            "tool_choice": "auto" if tools else NOT_GIVEN,
+            "temperature": 0.0,
+            "stream": True,
+            "stream_options": {"include_usage": True} if self._include_usage else NOT_GIVEN,
+        }
+        if options is not None and options.reasoning_requested:
+            if options.reasoning_effort:
+                kwargs["reasoning_effort"] = options.reasoning_effort
+            if options.max_tokens is not None:
+                kwargs["max_tokens"] = options.max_tokens
+            if options.extra_body:
+                kwargs["extra_body"] = options.extra_body
+        stream = await create(**kwargs)
         accumulator: dict[int, dict[str, Any]] = {}
         iterator = stream.__aiter__()
         while True:
@@ -185,6 +241,11 @@ class OpenAIAdapter:
             delta = choice.delta
             if delta is None:
                 continue
+            reasoning = getattr(delta, "reasoning_content", None) or getattr(
+                delta, "reasoning", None
+            )
+            if isinstance(reasoning, str) and reasoning:
+                yield ReasoningDelta(text=reasoning)
             if delta.content:
                 yield TextDelta(text=delta.content)
             for tool_delta in delta.tool_calls or []:
@@ -224,6 +285,7 @@ class OpenAIAdapter:
 @dataclass
 class ScriptedStep:
     text: str = ""
+    reasoning: str = ""
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     usage: dict[str, int] = field(default_factory=dict)
 
@@ -245,6 +307,7 @@ class ScriptedAdapter:
             return step
         return ScriptedStep(
             text=str(step.get("text", "")),
+            reasoning=str(step.get("reasoning", step.get("reasoningContent", ""))),
             tool_calls=list(step.get("toolCalls", step.get("tool_calls", []))),
             usage=dict(step.get("usage", {})),
         )
@@ -343,6 +406,8 @@ class ScriptedAdapter:
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
+        *,
+        thinking_level: ThinkingLevel | None = None,
     ) -> AsyncIterator[LLMEvent]:
         self.seen_messages.append(json.loads(json.dumps(messages)))
         if self._index >= len(self._steps):
@@ -353,6 +418,9 @@ class ScriptedAdapter:
             )
         step = self._steps[self._index]
         self._index += 1
+        for start in range(0, len(step.reasoning), 24):
+            yield ReasoningDelta(text=step.reasoning[start : start + 24])
+            await asyncio.sleep(0)
         for start in range(0, len(step.text), 24):
             yield TextDelta(text=step.text[start : start + 24])
             await asyncio.sleep(0)
@@ -385,6 +453,8 @@ class MissingLLMAdapter:
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
+        *,
+        thinking_level: ThinkingLevel | None = None,
     ) -> AsyncIterator[LLMEvent]:
         raise SceneError(
             "llm_error",
@@ -418,4 +488,5 @@ def build_adapter(settings: Settings) -> LLMAdapter:
         base_url=settings.llm_base_url,
         api_key=settings.llm_api_key.get_secret_value(),
         model=settings.llm_model,
+        reasoning_style=settings.llm_reasoning_style,
     )

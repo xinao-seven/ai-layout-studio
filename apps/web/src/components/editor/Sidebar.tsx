@@ -41,16 +41,15 @@ import {
 } from '../../scene/labels'
 import { describeConstraint } from '../../scene/pointContext'
 import { clampScale, type SidebarTab, useSceneStore } from '../../store/sceneStore'
+import { useUiStore } from '../../store/uiStore'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
-import { ChatPanel } from './ChatPanel'
 
 const TAB_META: Record<SidebarTab, { title: string; subtitle: string }> = {
   scene: { title: '场景概览', subtitle: '结构、面积与版本' },
   rooms: { title: '房间与墙', subtitle: '手绘、顶点与门窗开口' },
   items: { title: '家具目录', subtitle: '拖放到画布或点击添加' },
-  ai: { title: 'AI 助手', subtitle: '对话、工具过程与提案确认' },
 }
 
 const CATEGORIES: Array<{ id: string; label: string }> = [
@@ -814,48 +813,13 @@ function ItemsTab({ scene, catalog }: { scene: SceneDocument; catalog: CatalogEn
   )
 }
 
-function AiTab() {
-  const pointContext = useSceneStore((state) => state.pointContext)
-  return (
-    <div className="flex h-full min-h-0 flex-col">
-      {pointContext ? (
-        <div className="shrink-0 border-b border-border/60 px-3 py-2">
-          <div className="flex items-center justify-between">
-            <p className="font-medium text-[10px]">已引用 PointContext</p>
-            <Badge tone="accent">{pointContext.kindId}</Badge>
-          </div>
-          <p className="mt-1 truncate font-mono text-[9px] text-muted-foreground">
-            {pointContext.itemId} · {pointContext.roomName ?? '未归属'} ·{' '}
-            {pointContext.position.map((value) => value.toFixed(2)).join(', ')}
-          </p>
-          {describeConstraint(pointContext.constraint).length > 0 ? (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {describeConstraint(pointContext.constraint).map((line) => (
-                <span
-                  className="rounded-md border border-border/60 bg-background/50 px-1.5 py-0.5 text-[9px] text-muted-foreground"
-                  key={line}
-                >
-                  {line}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-      <div className="min-h-0 flex-1">
-        <ChatPanel />
-      </div>
-    </div>
-  )
-}
-
 function ItemDetails() {
   const scene = useSceneStore((state) => state.scene)
   const catalog = useSceneStore((state) => state.catalog)
   const selectedItemId = useSceneStore((state) => state.selectedItemId)
   const pointContext = useSceneStore((state) => state.pointContext)
   const selectItem = useSceneStore((state) => state.selectItem)
-  const setSidebarTab = useSceneStore((state) => state.setSidebarTab)
+  const setDockOpen = useUiStore((state) => state.setDockOpen)
   const moveSelectedItem = useSceneStore((state) => state.moveSelectedItem)
   const rotateSelectedItem = useSceneStore((state) => state.rotateSelectedItem)
   const deleteSelectedItem = useSceneStore((state) => state.deleteSelectedItem)
@@ -1035,12 +999,7 @@ function ItemDetails() {
         </div>
       </div>
 
-      <Button
-        className="mt-2 w-full"
-        onClick={() => setSidebarTab('ai')}
-        size="sm"
-        variant="outline"
-      >
+      <Button className="mt-2 w-full" onClick={() => setDockOpen(true)} size="sm" variant="outline">
         <Sparkles className="h-3.5 w-3.5" />用 PointContext 询问 AI
       </Button>
     </div>
@@ -1052,7 +1011,7 @@ export function Sidebar() {
   const scene = useSceneStore((state) => state.scene)
   const catalog = useSceneStore((state) => state.catalog)
   const loading = useSceneStore((state) => state.loading)
-  const meta = TAB_META[sidebarTab]
+  const meta = TAB_META[sidebarTab] ?? TAB_META.scene
 
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col border-border/50 border-r bg-sidebar">
@@ -1068,11 +1027,7 @@ export function Sidebar() {
         )}
       </div>
 
-      <div
-        className={`min-h-0 flex-1 ${
-          sidebarTab === 'ai' ? 'overflow-hidden' : 'subtle-scrollbar overflow-y-auto'
-        }`}
-      >
+      <div className="subtle-scrollbar min-h-0 flex-1 overflow-y-auto">
         {!scene ? (
           <div className="flex h-full items-center justify-center p-6 text-center text-[11px] text-muted-foreground">
             正在载入场景…
@@ -1081,10 +1036,8 @@ export function Sidebar() {
           <SceneTab scene={scene} />
         ) : sidebarTab === 'rooms' ? (
           <RoomsTab scene={scene} />
-        ) : sidebarTab === 'items' ? (
-          <ItemsTab catalog={catalog} scene={scene} />
         ) : (
-          <AiTab />
+          <ItemsTab catalog={catalog} scene={scene} />
         )}
       </div>
 

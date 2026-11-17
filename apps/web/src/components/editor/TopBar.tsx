@@ -11,6 +11,7 @@ import {
   WifiOff,
 } from 'lucide-react'
 import { useSceneStore } from '../../store/sceneStore'
+import { useUiStore } from '../../store/uiStore'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
@@ -56,6 +57,8 @@ export function TopBar() {
   const redo = useSceneStore((state) => state.redo)
   const exportSceneJson = useSceneStore((state) => state.exportSceneJson)
   const exportScenePng = useSceneStore((state) => state.exportScenePng)
+  const dockOpen = useUiStore((state) => state.dockOpen)
+  const toggleDock = useUiStore((state) => state.toggleDock)
 
   const summary = scenes.find((candidate) => candidate.id === scene?.id)
   const area = summary?.areaM2 ?? 0
@@ -75,7 +78,7 @@ export function TopBar() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="truncate font-medium text-sm">{scene?.name ?? '加载中…'}</h1>
-            <Badge tone="accent">M6</Badge>
+            <Badge tone="accent">M7</Badge>
           </div>
           <p className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <span>v{scene?.version ?? 1}</span>
@@ -152,10 +155,20 @@ export function TopBar() {
         <TooltipContent side="bottom">导出当前视图 PNG</TooltipContent>
       </Tooltip>
 
-      <div className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-background/50 px-2.5 py-1 text-[10px] text-muted-foreground sm:flex">
+      <button
+        aria-pressed={dockOpen}
+        className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] transition-colors sm:flex ${
+          dockOpen
+            ? 'border-primary/30 bg-primary/10 text-foreground'
+            : 'border-border/70 bg-background/50 text-muted-foreground hover:text-foreground'
+        }`}
+        onClick={toggleDock}
+        title={dockOpen ? '收起 AI 面板' : '打开 AI 面板'}
+        type="button"
+      >
         <Sparkles className="h-3 w-3" />
-        Agent 已就绪
-      </div>
+        {dockOpen ? 'AI 面板' : '打开 AI'}
+      </button>
     </header>
   )
 }

@@ -87,7 +87,7 @@ export function HomeScreen() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge tone="accent">M6 · 参数化资产</Badge>
+            <Badge tone="accent">M7 · Agent 界面</Badge>
             <input
               accept="application/json,.json"
               className="hidden"

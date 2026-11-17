@@ -69,6 +69,30 @@ class MessageRole(StrEnum):
     TOOL = "tool"
 
 
+class ThinkingLevel(StrEnum):
+    """Reasoning effort requested for one turn (M7).
+
+    ``off`` asks for nothing extra; the provider default still applies.
+    """
+
+    OFF = "off"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class ReasoningStyle(StrEnum):
+    """How a provider accepts a reasoning request (reported by capabilities)."""
+
+    AUTO = "auto"
+    OPENAI = "openai"
+    DEEPSEEK = "deepseek"
+    ANTHROPIC = "anthropic"
+    QWEN = "qwen"
+    GLM = "glm"
+    NONE = "none"
+
+
 class AnchorType(StrEnum):
     WALL = "wall"
     CORNER = "corner"

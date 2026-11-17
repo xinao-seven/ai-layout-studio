@@ -28,6 +28,7 @@ class Proposal(CamelModel):
 class TurnMessage(CamelModel):
     role: MessageRole
     content: str = ""
+    reasoning: str | None = None
     tool_calls: list[dict[str, Any]] | None = None
     tool_result: dict[str, Any] | None = None
     screenshot_before: str | None = None

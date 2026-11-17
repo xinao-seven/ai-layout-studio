@@ -184,6 +184,23 @@
           "title": "Content",
           "type": "string"
         },
+        "finishReason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finishreason"
+        },
+        "reasoning": {
+          "default": "",
+          "title": "Reasoning",
+          "type": "string"
+        },
         "toolCalls": {
           "items": {
             "additionalProperties": true,
@@ -194,6 +211,21 @@
         }
       },
       "title": "AssistantMessagePayload",
+      "type": "object"
+    },
+    "AssistantReasoningDeltaPayload": {
+      "additionalProperties": false,
+      "description": "Incremental reasoning/thinking text (M7); providers stream this before content.",
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "AssistantReasoningDeltaPayload",
       "type": "object"
     },
     "CaptureRequestPayload": {
@@ -3231,6 +3263,18 @@
           "title": "Content",
           "type": "string"
         },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
         "role": {
           "$ref": "#/definitions/MessageRole"
         },
@@ -3572,6 +3616,9 @@
         },
         "AssistantMessagePayload": {
           "$ref": "#/definitions/AssistantMessagePayload"
+        },
+        "AssistantReasoningDeltaPayload": {
+          "$ref": "#/definitions/AssistantReasoningDeltaPayload"
         },
         "CaptureRequestPayload": {
           "$ref": "#/definitions/CaptureRequestPayload"

@@ -419,6 +419,32 @@ carries a non-empty `suggest`.
   refuse with `invalid_input`; `search_catalog` accepts
   `source=any|builtin|library`.
 
+## M7 additions
+
+- **Capabilities**: `GET /api/agent/capabilities` returns
+  `{ model, reasoning, reasoningStyle, thinkingLevels, defaultThinkingLevel,
+  granular }`. `reasoning=false` (or a single `off` level) means the configured
+  provider has no reasoning channel; `granular=false` means the endpoint only
+  distinguishes on/off and low/medium/high are equivalent.
+- **Thinking level**: `POST /api/scenes/{id}/turns` accepts an optional
+  `thinkingLevel` (`off | low | medium | high`). It applies to that turn only;
+  `off` asks for nothing extra and keeps the provider default. The server maps
+  the level per provider family (`reasoning_effort`, `thinking.budget_tokens`,
+  `thinking.type`, `enable_thinking`); `LLM_REASONING_STYLE` overrides
+  auto-detection for custom gateways. A provider that rejects the parameter is
+  retried once without it and the capability is remembered for the process.
+- **Reasoning stream** (`ch: "turn"`): `assistant.reasoning_delta` carries
+  `{ text }` increments and arrives before the answer text. The authoritative
+  message of a model iteration is `assistant.message`, which now also carries
+  `reasoning` and `finishReason`. `reasoning` is persisted on
+  `TurnMessage.reasoning`, so reconnect/REST history can render the thinking
+  block without replaying events.
+- **Delta coalescing**: the server batches streamed text/reasoning into frames
+  of at least 24 characters (or 50 ms), and always flushes before tool events
+  and `assistant.message`. Clients treat `assistant.delta` /
+  `assistant.reasoning_delta` as incremental and `assistant.message` as the
+  final replacement.
+
 ## Known limitations
 
 - Opening overlap validation groups by `(roomId, edgeIndex)`. Openings placed

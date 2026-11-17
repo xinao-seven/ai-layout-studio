@@ -17,7 +17,7 @@ from app.agent.orchestrator import AgentLoop, AgentRunResult, TurnCancelled
 from app.agent.tools import AskUserHandler, CatalogPublisher, ToolExecutor
 from app.capture.service import CaptureService
 from app.contracts.catalog import CatalogEntry
-from app.contracts.enums import MessageRole, ProposalStatus, TurnStatus
+from app.contracts.enums import MessageRole, ProposalStatus, ThinkingLevel, TurnStatus
 from app.contracts.ids import IdPrefix, new_id
 from app.contracts.proposal import Proposal, Turn, TurnMessage, TurnUsage
 from app.contracts.rules import Rules
@@ -55,6 +55,7 @@ class _TurnState:
     def __init__(self, turn: Turn) -> None:
         self.turn = turn
         self.point_context: dict[str, Any] | None = None
+        self.thinking_level: ThinkingLevel = ThinkingLevel.OFF
         self.proposals: list[Proposal] = []
         self.task: asyncio.Task[None] | None = None
         self.cancelled = False
@@ -84,6 +85,7 @@ class TurnManager:
         capture: CaptureService | None = None,
         vlm: VLMService | None = None,
         modelgen: ModelGenService | None = None,
+        default_thinking_level: ThinkingLevel = ThinkingLevel.OFF,
     ) -> None:
         self._registry = registry
         self._repository = repository
@@ -95,6 +97,7 @@ class TurnManager:
         self._capture = capture
         self._vlm = vlm
         self._modelgen = modelgen
+        self._default_thinking_level = default_thinking_level
         self._publish_catalog: CatalogPublisher | None = None
         self._context = ContextBuilder(catalog)
         self._states: dict[str, _TurnState] = {}
@@ -160,6 +163,7 @@ class TurnManager:
         *,
         point_context: dict[str, Any] | None = None,
         client_turn_id: str | None = None,
+        thinking_level: ThinkingLevel | None = None,
     ) -> Turn:
         await self._registry.get_document(scene_id)  # 404 for unknown scenes
         if client_turn_id is not None:
@@ -178,6 +182,7 @@ class TurnManager:
         )
         state = _TurnState(turn)
         state.point_context = point_context
+        state.thinking_level = thinking_level or self._default_thinking_level
         state.turn.status = TurnStatus.RUNNING
         self._states[turn.id] = state
         await self._repository.create_turn(turn, message)
@@ -333,6 +338,7 @@ class TurnManager:
                 turn_id=turn.id,
                 user_message=user_message,
                 point_context=state.point_context,
+                thinking_level=state.thinking_level,
             )
             turn.messages = result.messages
             await self._capture_after(state)

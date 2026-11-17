@@ -1,4 +1,4 @@
-import { Box, Home, Layers3, Ruler, Sofa, Sparkles } from 'lucide-react'
+import { Box, Home, Layers3, Ruler, Sofa } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { cn } from '../../lib/cn'
 import { type SidebarTab, useSceneStore } from '../../store/sceneStore'
@@ -11,7 +11,6 @@ const TABS: Array<{
   { id: 'scene', label: '场景', icon: Layers3 },
   { id: 'rooms', label: '房间', icon: Home },
   { id: 'items', label: '家具', icon: Sofa },
-  { id: 'ai', label: 'AI 助手', icon: Sparkles },
 ]
 
 export function SceneIconRail() {

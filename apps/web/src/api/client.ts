@@ -1,5 +1,6 @@
 import type {
   AddItemRequest,
+  AgentCapabilitiesResponse,
   CatalogEntry,
   CommitRequest,
   CreateSceneRequest,
@@ -22,6 +23,7 @@ import {
   createTurnApiScenesSceneIdTurnsPost,
   deleteSceneItemApiScenesSceneIdItemsItemIdDelete,
   exportSceneApiScenesSceneIdExportGet,
+  getCapabilitiesApiAgentCapabilitiesGet,
   getSceneApiScenesSceneIdGet,
   importSceneApiScenesImportPost,
   listCatalogApiCatalogGet,
@@ -211,6 +213,10 @@ export async function createTurn(sceneId: string, request: CreateTurnRequest): P
     createTurnApiScenesSceneIdTurnsPost(sceneId, request),
   )
   return response.turn
+}
+
+export async function getAgentCapabilities(): Promise<AgentCapabilitiesResponse> {
+  return call<AgentCapabilitiesResponse>(() => getCapabilitiesApiAgentCapabilitiesGet())
 }
 
 export async function cancelTurn(turnId: string): Promise<TurnStatus> {

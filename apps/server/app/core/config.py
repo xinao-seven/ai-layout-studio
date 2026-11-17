@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     llm_model: str = ""
     # Optional JSONL script for local demos/tests; bypasses the network model.
     llm_script_path: str = ""
+    # M7 reasoning. `auto` detects the provider family from base URL/model.
+    llm_reasoning_style: Literal[
+        "auto", "openai", "deepseek", "anthropic", "qwen", "glm", "none"
+    ] = "auto"
+    llm_thinking_level: Literal["off", "low", "medium", "high"] = "off"
     vlm_base_url: str = ""
     vlm_api_key: SecretStr = SecretStr("")
     vlm_model: str = ""
