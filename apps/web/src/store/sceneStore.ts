@@ -20,18 +20,28 @@ import type {
 import type { WsEnvelope } from '../contracts/generated/ws'
 import type { CaptureLegend } from '../scene/capture'
 import {
+  type AlignPlanes,
+  alignValue,
+  collectAlignPlanes,
   distance,
+  edgeInfo,
+  insetPolygon,
   isSimplePolygon,
-  orthoSnap,
+  obbCornersInsidePolygon,
+  obbFromBox,
+  pointInPolygon,
   polygonArea,
   signedArea,
+  snapDraftPoint,
   snapPoint,
+  snapValue,
   type Vec2,
   vertexAlignSnap,
 } from '../scene/geometry'
 import { applyPatchToDocument } from '../scene/patch'
-import { checkPlacement, type PlacementIssue, variantFor } from '../scene/placement'
+import { checkPlacement, itemFootprint, type PlacementIssue, variantFor } from '../scene/placement'
 import { buildPointContext, type PointContext } from '../scene/pointContext'
+import { resolveSnap } from '../scene/snapping'
 import { type ConnectionStatus, SceneSocket } from '../ws/client'
 
 export type ViewMode = '3d' | 'top' | 'walk'
@@ -100,6 +110,7 @@ export interface ItemDragState {
   kindId: string
   position: [number, number, number]
   rotationY: number
+  scale: number
   offset: [number, number]
   moved: boolean
   valid: boolean
@@ -123,6 +134,42 @@ export interface VertexDragState {
   issue?: PlacementIssue
 }
 
+/** Live uniform-scale drag on a selected item (corner grip). */
+export interface ScaleDragState {
+  itemId: string
+  /** Item centre on the floor plane, used as the drag pivot. */
+  center: Vec2
+  /** Half-diagonal of the unscaled footprint; distance ratio gives the scale. */
+  baseHalf: number
+  scale: number
+  valid: boolean
+  issue?: PlacementIssue
+}
+
+export interface WallEdgeRef {
+  roomId: string
+  edgeIndex: number
+  aIndex: number
+  bIndex: number
+}
+
+/**
+ * Dragging one wall translates both of its vertices along the wall normal.
+ * Edges in other rooms that are geometrically the same wall move with it, so a
+ * shared partition stays shared.
+ */
+export interface WallDragState {
+  edges: WallEdgeRef[]
+  normal: Vec2
+  start: Vec2
+  offset: number
+  moved: boolean
+  originals: Record<string, Vec2[]>
+  polygons: Record<string, Vec2[]>
+  valid: boolean
+  issue?: PlacementIssue
+}
+
 /** 手绘房间/顶点拖拽的吸附选项:free=true 时跳过直角对齐,只保留网格吸附。 */
 export interface DraftPointOptions {
   free?: boolean
@@ -131,10 +178,14 @@ export interface DraftPointOptions {
 type SceneResultWithWarnings = SceneResult & { warnings?: UiWarning[] }
 type PatchOps = SceneResult['patch']['ops']
 
-function resolveDraftPoint(draftRoom: Vec2[], point: Vec2, free: boolean): Vec2 {
+function resolveDraftPoint(
+  draftRoom: Vec2[],
+  point: Vec2,
+  free: boolean,
+  planes: AlignPlanes,
+): Vec2 {
   if (free) return snapPoint(point)
-  const anchor = draftRoom[draftRoom.length - 1]
-  return anchor ? orthoSnap(anchor, point) : snapPoint(point)
+  return snapDraftPoint(draftRoom[draftRoom.length - 1], point, planes)
 }
 
 function resolveVertexPosition(
@@ -142,8 +193,103 @@ function resolveVertexPosition(
   index: number,
   position: Vec2,
   free: boolean,
+  planes: AlignPlanes,
 ): Vec2 {
-  return free ? snapPoint(position) : vertexAlignSnap(polygon, index, position)
+  return free
+    ? snapPoint(position)
+    : vertexAlignSnap(polygon, index, position, undefined, undefined, planes)
+}
+
+function samePoint(first: Vec2, second: Vec2): boolean {
+  return Math.abs(first[0] - second[0]) <= 1e-6 && Math.abs(first[1] - second[1]) <= 1e-6
+}
+
+/**
+ * The dragged edge plus every other room edge that is geometrically the same
+ * wall, so a shared partition moves as one.
+ */
+function coincidentEdges(scene: SceneDocument, roomId: string, edgeIndex: number): WallEdgeRef[] {
+  const room = scene.rooms.find((candidate) => candidate.id === roomId)
+  if (!room) return []
+  const polygon = room.polygon as Vec2[]
+  const a = polygon[edgeIndex]
+  const b = polygon[(edgeIndex + 1) % polygon.length]
+  if (!a || !b) return []
+  const edges: WallEdgeRef[] = [
+    { roomId, edgeIndex, aIndex: edgeIndex, bIndex: (edgeIndex + 1) % polygon.length },
+  ]
+  for (const other of scene.rooms) {
+    if (other.id === roomId) continue
+    const points = other.polygon as Vec2[]
+    for (let index = 0; index < points.length; index += 1) {
+      const next = (index + 1) % points.length
+      const p = points[index]
+      const q = points[next]
+      if (!p || !q) continue
+      const forward = samePoint(p, a) && samePoint(q, b)
+      const reverse = samePoint(p, b) && samePoint(q, a)
+      if (forward || reverse) {
+        edges.push({ roomId: other.id, edgeIndex: index, aIndex: index, bIndex: next })
+      }
+    }
+  }
+  return edges
+}
+
+/** Client-side mirror of the room-change checks the commit will run. */
+function validateRoomMove(
+  scene: SceneDocument,
+  catalog: CatalogEntry[],
+  polygon: Vec2[],
+  previous: Vec2[],
+): PlacementIssue | null {
+  if (polygon.length < 3 || !isSimplePolygon(polygon)) {
+    return {
+      code: 'invalid_polygon',
+      message: '移动后房间轮廓会自相交。',
+      suggest: '往回拖一点，或先把相邻的墙调整好。',
+    }
+  }
+  if (polygonArea(polygon) < rules.MIN_ROOM_AREA) {
+    return {
+      code: 'room_too_small',
+      message: '移动后房间面积太小。',
+      suggest: `至少保留 ${rules.MIN_ROOM_AREA} ㎡。`,
+    }
+  }
+  const inset = insetPolygon(polygon, rules.ROOM_INSET)
+  if (!inset) {
+    return {
+      code: 'room_too_small',
+      message: '移动后房间放不下墙体。',
+      suggest: '往回收一点。',
+    }
+  }
+  for (const item of scene.items) {
+    const centre: Vec2 = [item.transform.position[0], item.transform.position[2]]
+    if (!pointInPolygon(centre, polygon) && !pointInPolygon(centre, previous)) continue
+    const box = obbFromBox(centre, itemFootprint(item, catalog), item.transform.rotationY)
+    if (!obbCornersInsidePolygon(box, inset)) {
+      return {
+        code: 'out_of_room',
+        message: '移动后会有家具跑到墙外。',
+        suggest: '先把那件家具挪开，或不要把墙推得这么深。',
+      }
+    }
+  }
+  return null
+}
+
+const SCALE_MIN = rules.ITEM_SCALE_MIN
+const SCALE_MAX = rules.ITEM_SCALE_MAX
+const SCALE_STEP = rules.ITEM_SCALE_STEP
+
+/** Snap to the scale step and clamp to the server-enforced envelope. */
+export function clampScale(raw: number): number {
+  if (!Number.isFinite(raw)) return 1
+  const snapped = Math.round(raw / SCALE_STEP) * SCALE_STEP
+  const clamped = Math.min(SCALE_MAX, Math.max(SCALE_MIN, snapped))
+  return Math.round(clamped * 1000) / 1000
 }
 
 interface SceneState {
@@ -165,6 +311,8 @@ interface SceneState {
   drag: ItemDragState | null
   ghost: CatalogGhostState | null
   vertexDrag: VertexDragState | null
+  scaleDrag: ScaleDragState | null
+  wallDrag: WallDragState | null
   warnings: UiWarning[]
   loading: boolean
   error: UiError | null
@@ -243,6 +391,15 @@ interface SceneState {
   updateVertexDrag: (position: Vec2, options?: DraftPointOptions) => void
   cancelVertexDrag: () => void
   endVertexDrag: () => Promise<void>
+  startScaleDrag: (itemId: string) => void
+  updateScaleDrag: (position: Vec2) => void
+  endScaleDrag: () => Promise<void>
+  cancelScaleDrag: () => void
+  startWallDrag: (roomId: string, edgeIndex: number, point: Vec2) => void
+  updateWallDrag: (point: Vec2) => void
+  endWallDrag: () => Promise<void>
+  cancelWallDrag: () => void
+  setItemScale: (itemId: string, scale: number) => Promise<void>
   addOpening: (roomId: string, edgeIndex: number, type: 'door' | 'window') => Promise<void>
   updateOpening: (openingId: string, after: OpeningUpdateFields) => Promise<void>
   deleteOpening: (openingId: string) => Promise<void>
@@ -354,6 +511,13 @@ function withSceneUpdate(mutator: () => void): void {
 function selectedItemAfter(document: SceneDocument, itemId: string | null): string | null {
   if (!itemId) return null
   return document.items.some((item) => item.id === itemId) ? itemId : null
+}
+
+/** Merge catalog entries by kindId, preferring the incoming (authoritative) copy. */
+function mergeCatalog(current: CatalogEntry[], incoming: CatalogEntry[]): CatalogEntry[] {
+  const byKind = new Map(current.map((entry) => [entry.kindId, entry]))
+  for (const entry of incoming) byKind.set(entry.kindId, entry)
+  return [...byKind.values()]
 }
 
 function syncSceneSummary(scenes: SceneSummary[], document: SceneDocument): SceneSummary[] {
@@ -489,6 +653,8 @@ export const useSceneStore = create<SceneState>()(
       drag: null,
       ghost: null,
       vertexDrag: null,
+      scaleDrag: null,
+      wallDrag: null,
       warnings: [],
       loading: false,
       error: null,
@@ -592,6 +758,8 @@ export const useSceneStore = create<SceneState>()(
           drag: null,
           ghost: null,
           vertexDrag: null,
+          scaleDrag: null,
+          wallDrag: null,
           warnings: [],
           lastStateSeq: 0,
           lastTurnSeq: 0,
@@ -680,6 +848,8 @@ export const useSceneStore = create<SceneState>()(
             drag: null,
             ghost: null,
             vertexDrag: null,
+            scaleDrag: null,
+            wallDrag: null,
             warnings: [],
             lastStateSeq: 0,
             lastTurnSeq: 0,
@@ -887,7 +1057,7 @@ export const useSceneStore = create<SceneState>()(
       placeCatalogItem: async (kindId, position, rotationY = 0) => {
         const { scene, catalog } = get()
         if (!scene) return
-        const snapped = snapPoint(position)
+        const snapped = resolveSnap({ scene, catalog, kindId, rotationY }, position)
         const check = checkPlacement(scene, catalog, { kindId, position: snapped, rotationY })
         if (!check.valid) {
           set({
@@ -930,7 +1100,7 @@ export const useSceneStore = create<SceneState>()(
       setCatalogGhost: (kindId, position, rotationY) => {
         const { scene, catalog } = get()
         if (!scene) return
-        const snapped = snapPoint(position)
+        const snapped = resolveSnap({ scene, catalog, kindId, rotationY }, position)
         const check = checkPlacement(scene, catalog, {
           kindId,
           position: snapped,
@@ -961,6 +1131,7 @@ export const useSceneStore = create<SceneState>()(
           variantId: item.variantId,
           position: [position[0], position[2]],
           rotationY,
+          scale: item.transform.scale ?? 1,
           ignoreItemId: itemId,
         })
         set({
@@ -974,6 +1145,7 @@ export const useSceneStore = create<SceneState>()(
             kindId: item.kindId,
             position,
             rotationY,
+            scale: item.transform.scale ?? 1,
             offset,
             moved: false,
             valid: check.valid,
@@ -985,11 +1157,22 @@ export const useSceneStore = create<SceneState>()(
       updateItemDrag: (position) => {
         const { scene, catalog, drag } = get()
         if (!scene || !drag) return
-        const snapped = snapPoint(position)
+        const snapped = resolveSnap(
+          {
+            scene,
+            catalog,
+            kindId: drag.kindId,
+            scale: drag.scale,
+            rotationY: drag.rotationY,
+            ignoreItemId: drag.itemId,
+          },
+          position,
+        )
         const check = checkPlacement(scene, catalog, {
           kindId: drag.kindId,
           position: snapped,
           rotationY: drag.rotationY,
+          scale: drag.scale,
           ignoreItemId: drag.itemId,
         })
         set({
@@ -1028,10 +1211,12 @@ export const useSceneStore = create<SceneState>()(
         if (!scene) return
         const item = scene.items.find((candidate) => candidate.id === itemId)
         if (!item) return
-        const snapped = snapPoint([position[0], position[2]])
+        // Callers resolve snapping (edge or grid) before committing; re-snapping
+        // here would undo an edge snap and can move a rotated item.
+        const target: Vec2 = [position[0], position[2]]
         if (
-          Math.abs(snapped[0] - item.transform.position[0]) <= 1e-9 &&
-          Math.abs(snapped[1] - item.transform.position[2]) <= 1e-9 &&
+          Math.abs(target[0] - item.transform.position[0]) <= 1e-9 &&
+          Math.abs(target[1] - item.transform.position[2]) <= 1e-9 &&
           Math.abs(rotationY - item.transform.rotationY) <= 1e-9
         ) {
           return
@@ -1039,8 +1224,9 @@ export const useSceneStore = create<SceneState>()(
         const check = checkPlacement(scene, catalog, {
           kindId: item.kindId,
           variantId: item.variantId,
-          position: snapped,
+          position: target,
           rotationY,
+          scale: item.transform.scale ?? 1,
           ignoreItemId: itemId,
         })
         if (!check.valid) {
@@ -1057,7 +1243,7 @@ export const useSceneStore = create<SceneState>()(
           transform: { position: [number, number, number]; rotationY: number }
           constraint?: NonNullable<Item['constraint']>
         } = {
-          transform: { position: [snapped[0], position[1] ?? 0, snapped[1]], rotationY },
+          transform: { position: [target[0], position[1] ?? 0, target[1]], rotationY },
         }
         if (item.constraint) {
           after.constraint = {
@@ -1107,12 +1293,17 @@ export const useSceneStore = create<SceneState>()(
       setDraftCursor: (draftCursor, options) =>
         set({
           draftCursor: draftCursor
-            ? resolveDraftPoint(get().draftRoom, draftCursor, options?.free === true)
+            ? resolveDraftPoint(
+                get().draftRoom,
+                draftCursor,
+                options?.free === true,
+                collectAlignPlanes(get().scene?.rooms ?? []),
+              )
             : null,
         }),
 
       addDraftPoint: (point, options) => {
-        const { draftRoom } = get()
+        const { draftRoom, scene } = get()
         if (draftRoom.length >= 3) {
           const first = draftRoom[0]
           // 闭合判定用原始光标:直角吸附可能把提交点拉离起点,但用户意图是回到起点。
@@ -1121,7 +1312,12 @@ export const useSceneStore = create<SceneState>()(
             return
           }
         }
-        const snapped = resolveDraftPoint(draftRoom, point, options?.free === true)
+        const snapped = resolveDraftPoint(
+          draftRoom,
+          point,
+          options?.free === true,
+          collectAlignPlanes(scene?.rooms ?? []),
+        )
         const last = draftRoom[draftRoom.length - 1]
         // 吸附可能把 0.05–0.07m 的斜向点击拉回上一点,两种情况都要拦住。
         if (last && (distance(point, last) <= 0.05 || distance(snapped, last) <= 1e-9)) return
@@ -1242,6 +1438,7 @@ export const useSceneStore = create<SceneState>()(
           selectedWall: null,
           selectedOpeningId: null,
           pointContext: null,
+          wallDrag: null,
           // 拖拽起点只做网格吸附:对齐吸附交给移动过程,避免“点一下就跳位”。
           vertexDrag: { roomId, vertexIndex, position: snapPoint(position), valid: true },
         })
@@ -1260,6 +1457,11 @@ export const useSceneStore = create<SceneState>()(
               vertexDrag.vertexIndex,
               position,
               options?.free === true,
+              // Other rooms contribute walls to align with; this room's own
+              // vertices are added inside vertexAlignSnap.
+              collectAlignPlanes(
+                (scene?.rooms ?? []).filter((candidate) => candidate.id !== vertexDrag.roomId),
+              ),
             ),
             valid: true,
           },
@@ -1286,6 +1488,218 @@ export const useSceneStore = create<SceneState>()(
           return
         }
         await get().updateRoomPolygon(room.id, polygon)
+      },
+
+      startScaleDrag: (itemId) => {
+        const { scene, catalog } = get()
+        if (!scene) return
+        const item = scene.items.find((candidate) => candidate.id === itemId)
+        if (!item) return
+        const variant = variantFor(catalog, item.kindId, item.variantId)
+        if (!variant) return
+        const baseHalf = Math.hypot(variant.sizeM[0], variant.sizeM[1]) / 2
+        if (baseHalf <= 1e-6) return
+        set({
+          scaleDrag: {
+            itemId,
+            center: [item.transform.position[0], item.transform.position[2]],
+            baseHalf,
+            scale: item.transform.scale ?? 1,
+            valid: true,
+          },
+        })
+      },
+
+      updateScaleDrag: (position) => {
+        const { scaleDrag, scene, catalog } = get()
+        if (!scaleDrag || !scene) return
+        const item = scene.items.find((candidate) => candidate.id === scaleDrag.itemId)
+        if (!item) return
+        const distance = Math.hypot(
+          position[0] - scaleDrag.center[0],
+          position[1] - scaleDrag.center[1],
+        )
+        const scale = clampScale(distance / scaleDrag.baseHalf)
+        const check = checkPlacement(scene, catalog, {
+          kindId: item.kindId,
+          variantId: item.variantId,
+          position: scaleDrag.center,
+          rotationY: item.transform.rotationY,
+          scale,
+          ignoreItemId: item.id,
+        })
+        set({ scaleDrag: { ...scaleDrag, scale, valid: check.valid, issue: check.issue } })
+      },
+
+      endScaleDrag: async () => {
+        const { scaleDrag, scene } = get()
+        if (!scaleDrag) return
+        set({ scaleDrag: null })
+        if (!scaleDrag.valid) {
+          set({
+            error: {
+              code: scaleDrag.issue?.code ?? 'collision',
+              message: scaleDrag.issue?.message ?? '无法缩放到这个尺寸。',
+              suggest: scaleDrag.issue?.suggest ?? null,
+            },
+          })
+          return
+        }
+        const item = scene?.items.find((candidate) => candidate.id === scaleDrag.itemId)
+        if (!item) return
+        if (Math.abs((item.transform.scale ?? 1) - scaleDrag.scale) <= 1e-9) return
+        await get().setItemScale(item.id, scaleDrag.scale)
+      },
+
+      cancelScaleDrag: () => set({ scaleDrag: null }),
+
+      startWallDrag: (roomId, edgeIndex, point) => {
+        const { scene } = get()
+        if (!scene) return
+        const room = scene.rooms.find((candidate) => candidate.id === roomId)
+        if (!room) return
+        const info = edgeInfo(room.polygon as Vec2[], edgeIndex)
+        if (!info) return
+        const edges = coincidentEdges(scene, roomId, edgeIndex)
+        const originals: Record<string, Vec2[]> = {}
+        for (const edge of edges) {
+          const target = scene.rooms.find((candidate) => candidate.id === edge.roomId)
+          if (target) originals[edge.roomId] = [...(target.polygon as Vec2[])]
+        }
+        set({
+          vertexDrag: null,
+          wallDrag: {
+            edges,
+            normal: info.normal,
+            start: point,
+            offset: 0,
+            moved: false,
+            originals,
+            polygons: {},
+            valid: true,
+          },
+        })
+      },
+
+      updateWallDrag: (point) => {
+        const { wallDrag, scene, catalog } = get()
+        if (!wallDrag || !scene) return
+        const primaryRef = wallDrag.edges[0]
+        const primary = primaryRef
+          ? scene.rooms.find((candidate) => candidate.id === primaryRef.roomId)
+          : undefined
+        const info =
+          primaryRef && primary ? edgeInfo(primary.polygon as Vec2[], primaryRef.edgeIndex) : null
+
+        const dx = point[0] - wallDrag.start[0]
+        const dz = point[1] - wallDrag.start[1]
+        const raw = dx * wallDrag.normal[0] + dz * wallDrag.normal[1]
+        const moved = wallDrag.moved || Math.hypot(dx, dz) > 0.02
+
+        let offset = snapValue(raw)
+        if (info) {
+          // Snap the moved wall line onto another wall's coordinate so two rooms
+          // can share a partition exactly.
+          const excluded = wallDrag.edges.flatMap((edge) => [
+            { roomId: edge.roomId, vertexIndex: edge.aIndex },
+            { roomId: edge.roomId, vertexIndex: edge.bIndex },
+          ])
+          const planes = collectAlignPlanes(scene.rooms, excluded)
+          if (Math.abs(info.a[0] - info.b[0]) <= 1e-6 && Math.abs(wallDrag.normal[0]) > 1e-9) {
+            const target = info.a[0] + wallDrag.normal[0] * raw
+            offset = (alignValue(target, planes.xs) - info.a[0]) / wallDrag.normal[0]
+          } else if (
+            Math.abs(info.a[1] - info.b[1]) <= 1e-6 &&
+            Math.abs(wallDrag.normal[1]) > 1e-9
+          ) {
+            const target = info.a[1] + wallDrag.normal[1] * raw
+            offset = (alignValue(target, planes.zs) - info.a[1]) / wallDrag.normal[1]
+          }
+        }
+
+        const delta: Vec2 = [wallDrag.normal[0] * offset, wallDrag.normal[1] * offset]
+        const polygons: Record<string, Vec2[]> = {}
+        let issue: PlacementIssue | null = null
+        for (const edge of wallDrag.edges) {
+          const original = wallDrag.originals[edge.roomId]
+          if (!original) continue
+          const next = original.map((vertex, index) =>
+            index === edge.aIndex || index === edge.bIndex
+              ? ([vertex[0] + delta[0], vertex[1] + delta[1]] as Vec2)
+              : vertex,
+          )
+          polygons[edge.roomId] = next
+          if (!issue) issue = validateRoomMove(scene, catalog, next, original)
+        }
+        set({
+          wallDrag: {
+            ...wallDrag,
+            offset,
+            moved,
+            polygons,
+            valid: issue === null,
+            issue: issue ?? undefined,
+          },
+        })
+      },
+
+      endWallDrag: async () => {
+        const { wallDrag } = get()
+        if (!wallDrag) return
+        if (!wallDrag.moved || Math.abs(wallDrag.offset) <= 1e-9) {
+          set({ wallDrag: null })
+          return
+        }
+        if (!wallDrag.valid) {
+          set({
+            wallDrag: null,
+            error: {
+              code: wallDrag.issue?.code ?? 'invalid_polygon',
+              message: wallDrag.issue?.message ?? '墙体无法移动到此处。',
+              suggest: wallDrag.issue?.suggest ?? null,
+            },
+          })
+          return
+        }
+        const ops: PatchOps = Object.entries(wallDrag.polygons).map(([roomId, polygon]) => ({
+          op: 'room.update',
+          roomId,
+          after: { polygon: rotatePointToCcw(polygon) },
+        }))
+        set({ wallDrag: null })
+        await get().commitOps(ops, '移动墙体失败。')
+      },
+
+      cancelWallDrag: () => set({ wallDrag: null }),
+
+      setItemScale: async (itemId, scale) => {
+        const { scene, catalog } = get()
+        if (!scene) return
+        const item = scene.items.find((candidate) => candidate.id === itemId)
+        if (!item) return
+        const next = clampScale(scale)
+        const check = checkPlacement(scene, catalog, {
+          kindId: item.kindId,
+          variantId: item.variantId,
+          position: [item.transform.position[0], item.transform.position[2]],
+          rotationY: item.transform.rotationY,
+          scale: next,
+          ignoreItemId: item.id,
+        })
+        if (!check.valid) {
+          set({
+            error: {
+              code: check.issue?.code ?? 'collision',
+              message: check.issue?.message ?? '无法缩放到这个尺寸。',
+              suggest: check.issue?.suggest ?? null,
+            },
+          })
+          return
+        }
+        await get().commitOps(
+          [{ op: 'item.update', itemId, after: { transform: { scale: next } } }],
+          'Failed to resize the item.',
+        )
       },
 
       addOpening: async (roomId, edgeIndex, type) => {
@@ -1441,9 +1855,11 @@ export const useSceneStore = create<SceneState>()(
         const sceneId = get().activeSceneId
         if (!sceneId) return
         try {
-          const [turns, pending] = await Promise.all([
+          const [turns, pending, catalog] = await Promise.all([
             api.listTurns(sceneId),
             api.listProposals(sceneId, 'pending'),
+            // Recover generated asset entries missed while disconnected.
+            api.listCatalog().catch(() => []),
           ])
           if (get().activeSceneId !== sceneId) return
           const latest = turns[0]
@@ -1453,6 +1869,9 @@ export const useSceneStore = create<SceneState>()(
             latest?.status === 'queued'
           set((state) => ({
             turns,
+            // Merge rather than replace: a catalog.updated event may have landed
+            // while this request was in flight.
+            catalog: catalog.length > 0 ? mergeCatalog(state.catalog, catalog) : state.catalog,
             proposals: Object.fromEntries(pending.map((proposal) => [proposal.id, proposal])),
             activeTurnId: active && latest ? (latest.id ?? null) : state.activeTurnId,
             turnStatus: latest?.status ?? state.turnStatus,
@@ -1841,6 +2260,23 @@ export const useSceneStore = create<SceneState>()(
           set((state) => ({
             lastStateSeq: envelope.seq,
             proposals: { ...state.proposals, [proposal.id]: proposal },
+          }))
+          socket?.setResumeSequence(envelope.seq)
+          return
+        }
+
+        if (envelope.type === 'catalog.updated') {
+          if (envelope.seq <= get().lastStateSeq) return
+          const entry = (envelope.payload as { entry?: CatalogEntry } | undefined)?.entry
+          if (!entry) return
+          // Generated assets arrive before the proposal that references them, so
+          // a ghost can always resolve its model URL.
+          set((state) => ({
+            lastStateSeq: envelope.seq,
+            catalog: [
+              ...state.catalog.filter((candidate) => candidate.kindId !== entry.kindId),
+              entry,
+            ],
           }))
           socket?.setResumeSequence(envelope.seq)
           return

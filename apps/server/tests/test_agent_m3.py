@@ -553,6 +553,7 @@ def test_tool_schema_has_provider_compatible_tools() -> None:
         "search_catalog",
         "add_item",
         "add_room",
+        "model_item",
         "move_item",
         "remove_item",
         "update_item",

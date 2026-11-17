@@ -1,5 +1,6 @@
 // biome-ignore-all lint/suspicious/noArrayIndexKey: wall edge index is the stable wall identity.
 // biome-ignore-all lint/a11y/useSemanticElements: compact nested cards keep div/field semantics for the editor layout.
+import rules from '@ai-layout/contracts/rules.json'
 import {
   ArrowDown,
   ArrowLeft,
@@ -8,6 +9,7 @@ import {
   Circle,
   DoorOpen,
   Loader2,
+  Minus,
   Pencil,
   Plus,
   RefreshCw,
@@ -38,7 +40,7 @@ import {
   ROOM_TYPE_LABELS,
 } from '../../scene/labels'
 import { describeConstraint } from '../../scene/pointContext'
-import { type SidebarTab, useSceneStore } from '../../store/sceneStore'
+import { clampScale, type SidebarTab, useSceneStore } from '../../store/sceneStore'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
@@ -857,6 +859,7 @@ function ItemDetails() {
   const moveSelectedItem = useSceneStore((state) => state.moveSelectedItem)
   const rotateSelectedItem = useSceneStore((state) => state.rotateSelectedItem)
   const deleteSelectedItem = useSceneStore((state) => state.deleteSelectedItem)
+  const setItemScale = useSceneStore((state) => state.setItemScale)
 
   const item = scene?.items.find((candidate) => candidate.id === selectedItemId)
   if (!item) return null
@@ -870,6 +873,13 @@ function ItemDetails() {
 
   const nudge = (dx: number, dz: number) => {
     void moveSelectedItem([x + dx, y, z + dz], item.transform.rotationY)
+  }
+
+  const currentScale = item.transform.scale ?? 1
+  const stepScale = (delta: number) => {
+    const next = clampScale(currentScale + delta)
+    if (Math.abs(next - currentScale) <= 1e-9) return
+    void setItemScale(item.id, next)
   }
 
   return (
@@ -892,9 +902,46 @@ function ItemDetails() {
       </div>
 
       <div className="mb-2 grid grid-cols-3 gap-1 text-[10px] text-muted-foreground">
-        <span className="rounded-md bg-background/40 px-1.5 py-1">宽 {size[0].toFixed(2)}m</span>
-        <span className="rounded-md bg-background/40 px-1.5 py-1">深 {size[1].toFixed(2)}m</span>
-        <span className="rounded-md bg-background/40 px-1.5 py-1">高 {size[2].toFixed(2)}m</span>
+        <span className="rounded-md bg-background/40 px-1.5 py-1">
+          宽 {(size[0] * currentScale).toFixed(2)}m
+        </span>
+        <span className="rounded-md bg-background/40 px-1.5 py-1">
+          深 {(size[1] * currentScale).toFixed(2)}m
+        </span>
+        <span className="rounded-md bg-background/40 px-1.5 py-1">
+          高 {(size[2] * currentScale).toFixed(2)}m
+        </span>
+      </div>
+
+      <div className="mb-2 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <span className="shrink-0">缩放</span>
+        <Button
+          aria-label="缩小 5%"
+          disabled={currentScale <= rules.ITEM_SCALE_MIN + 1e-9}
+          onClick={() => stepScale(-rules.ITEM_SCALE_STEP)}
+          size="icon"
+          variant="outline"
+        >
+          <Minus className="h-3.5 w-3.5" />
+        </Button>
+        <button
+          className="min-w-14 rounded-md bg-background/40 px-1.5 py-1 font-mono tabular-nums hover:bg-background/60"
+          onClick={() => stepScale(1 - currentScale)}
+          title="点击恢复原始尺寸"
+          type="button"
+        >
+          {Math.round(currentScale * 100)}%
+        </button>
+        <Button
+          aria-label="放大 5%"
+          disabled={currentScale >= rules.ITEM_SCALE_MAX - 1e-9}
+          onClick={() => stepScale(rules.ITEM_SCALE_STEP)}
+          size="icon"
+          variant="outline"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+        <span className="ml-auto truncate text-[9px]">拖拽右下角手柄也可缩放</span>
       </div>
 
       <div className="mb-2 grid grid-cols-2 gap-1 text-[10px] text-muted-foreground">

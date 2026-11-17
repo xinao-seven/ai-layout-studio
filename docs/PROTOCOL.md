@@ -9,7 +9,8 @@ host messages and `proposal.updated`. M4 adds `auto_layout`/`verify_layout`,
 `capture.request`/`capture.result` and an optional legend in the request.
 Post-M4 adds the `add_room` write tool (the only tool accepting raw polygon
 coordinates; the server grid-snaps, normalizes winding and validates before
-proposing). No existing field changes meaning.
+proposing). M6 adds the `model_item` write tool, the runtime asset library and
+the `catalog.updated` state event. No existing field changes meaning.
 
 The wire contract is generated from Pydantic models
 (`apps/server/app/contracts/`): see `packages/contracts/generated/ws.schema.json`
@@ -47,6 +48,7 @@ and `apps/web/src/contracts/generated/ws.d.ts`.
 | `scene.snapshot` | `{ "scene": SceneDocument }` | sent on connect and when replay history is unavailable |
 | `scene.patch` | `{ "patch": ScenePatch }` | one version step; clients apply ops or refetch |
 | `proposal.updated` | `{ "proposal": Proposal }` | reserved for M3 ghost rendering |
+| `catalog.updated` | `{ "entry": CatalogEntry }` | M6; a generated asset joined the catalog |
 
 A `ScenePatch` carries `fromVersion`, `toVersion`, semantic `ops`, `actor`,
 optional `turnId`/`proposalId` and `clientMutationId`. Ops:
@@ -131,6 +133,29 @@ without blocking the user.
 
 `SceneResult` (all item/commit/undo/redo responses) is
 `{ scene, patch, warnings? }`.
+
+## Uniform item scale
+
+`Transform.scale` (float, default 1.0) resizes an item uniformly around its
+bottom-centre pivot. It is a normal transform field, so `item.update` with a
+partial `{ transform: { scale } }` is enough; undo/redo, versioning and the
+client patch merge need no special cases.
+
+- **Server authority**: the effective footprint is
+  `catalogVariant.sizeM × scale`. L2 collision, door/window clearance, walkway
+  checks, `verify_layout`, the VLM re-check and the solver's existing-obstacle
+  set all use that effective size, so a resized item collides at the size the
+  user sees.
+- **Bounds**: `ITEM_SCALE_MIN` / `ITEM_SCALE_MAX` in
+  `packages/contracts/rules.json` (currently 0.4–2.0). Values outside the range
+  are refused with `unrealistic` and `details.ruleId = "item_scale_bounds"`.
+- **Ceiling**: a resized item whose effective height exceeds the room's
+  `wallHeight` (or `WALL_HEIGHT`) is refused with
+  `details.ruleId = "item_exceeds_ceiling"`. Legacy items at scale 1.0 are not
+  re-litigated.
+- **Client**: dragging the corner grip or using the sidebar stepper snaps to
+  `ITEM_SCALE_STEP` and commits exactly one `item.update`, so one resize is one
+  undo step. The client precheck mirrors the server rules for live feedback.
 
 L2 placement review is **delta-based**: `item.add` and `item.update` check the
 changed item's OBB corners against the room inset and its OBB against every
@@ -235,6 +260,17 @@ with WAL, foreign keys and a 5 s busy timeout.
   clicking the first vertex, and stored as CCW wall-centerline polygons.
   Canvas vertex handles and the numeric vertex editor commit `room.update`;
   the server rejects self-intersections.
+- Vertex dragging and room drawing snap to **every** vertex coordinate in the
+  scene (any room), not just the immediate neighbours, within
+  `ALIGN_THRESHOLD` = 0.25 m. That is how two rooms end up sharing an exact
+  wall line instead of landing one grid cell apart; holding the free-drag
+  modifier skips alignment and keeps the 0.1 m grid.
+- Dragging a wall translates **both** of its vertices along the wall normal in
+  one commit, so a rectangle stays rectangular instead of skewing. Edges in
+  other rooms that are geometrically the same segment move with it, keeping a
+  shared partition shared. The drag previews live, refuses self-intersection,
+  sub-`MIN_ROOM_AREA` rooms and items left outside the new wall, and a plain
+  click without movement still just selects the wall.
 - `/assets/models/*` and `/assets/thumbnails/*` are proxied by Vite (dev) and
   nginx (Docker) to the API server. The Vite bundle itself lives in
   `/assets/index-*.js|css`, so the proxy is deliberately limited to those two
@@ -330,16 +366,74 @@ carries a non-empty `suggest`.
   creating a proposal — MCP has no confirmation UI; the payload carries
   `needsConfirmation: false` and `appliedDirectly: true`.
 
+## M6 additions: parametric asset library
+
+- **Write tool `model_item`**: generates custom furniture from a family spec
+  (`bookshelf`, `wardrobe`, `tv_stand`, `desk_l`, `counter_run`, `scale`,
+  `primitives`) and proposes placing it through the existing L0–L3 pipeline. The
+  tool result adds an `asset` block (`kindId`, `name`, `family`, `sizeM`,
+  `reusable`).
+- **Composed primitives** (`family: "primitives"`): 1–24 axis-aligned boxes with
+  `size` and centre `position` in item-local metres (`y = 0` is the floor). The
+  spec must declare a display `name` and a `category`; at least one box must
+  touch the floor and none may go below it. The server measures the overall
+  footprint from the parts (never trusts a declared size), rejects compositions
+  over 3.5 m on any axis or under 2 cm thick, and inherits the placement
+  clearance of the declared category. This is the long-tail escape hatch for
+  simple orthogonal objects (drying rack, shoe rack, plant stand) — collision
+  still uses the solid AABB footprint, so gaps inside a composition do not let
+  other items nest into it.
+- **Asset storage**: generated GLBs are written under
+  `<dataDir>/assets/{tmp,models}/{specHash}.glb` with 256×256 PNG thumbnails.
+  `manifest.json` in that directory is the source of truth; there is no DB
+  migration. The fixture catalog stays untouched (still 30–60 entries). The
+  spec hash is 12 hex chars.
+- **Serving**: only the `models`, `thumbnails` and `tmp` subdirectories are
+  mounted (at `/assets/library/<subdir>`); `manifest.json` is not public. They
+  are proxied by the same narrow namespaces as `/assets/models`. nginx must not
+  proxy `/assets/` as a whole (it would shadow the Vite bundle).
+- **Catalog merge**: `GET /api/catalog` returns fixtures plus library entries.
+  Library entries carry `source: "library"` and kind ids `lib_<family>_<hash8>`;
+  a built-in kind id always wins a collision.
+- **`catalog.updated` ordering**: emitted on the state channel *before* the
+  `proposal.created` that references the new kind, so a host processes the
+  model URL before it has to render the ghost. The owning scene is always
+  emitted (and buffered) even with no live connection; other connected scenes
+  receive it too.
+- **Promotion**: confirming a proposal that introduces a library asset moves
+  its files from `tmp/` to `models/` and emits `catalog.updated` with the
+  permanent URLs. Promotion happens **before** `scene.patch`/`proposal.updated`
+  so hosts never render the item with a URL that has just moved; a proposal
+  introducing several generated kinds emits one event per entry.
+  Promoted assets are never garbage collected — a scene only stores `kindId`,
+  so deleting one would break that scene on load. `tmp/` assets are reclaimed
+  after `assetTmpTtlHours` (default 24 h) **unless** a persisted scene
+  references their kind.
+- **Determinism**: the spec hash is the asset identity (`kindId` suffix) and
+  the cache key; the same spec always produces the same bytes, and a cache hit
+  re-verifies the stored spec.
+- **Rescaling scope**: `scale` only accepts sources whose category is
+  `storage`, `table` or `bed`, and inherits the source's category, rules,
+  clearance and rotation set.
+- **Disabled servers**: `assetGenerationEnabled=false` makes `model_item`
+  refuse with `invalid_input`; `search_catalog` accepts
+  `source=any|builtin|library`.
+
 ## Known limitations
 
 - Opening overlap validation groups by `(roomId, edgeIndex)`. Openings placed
   from both sides of a shared wall are rendered against the merged wall line by
   the client, but cross-room overlap validation is deferred; built-in fixtures
   place shared-wall doors on one side.
-- Client precheck covers OBB SAT, the room inset and door clearance. Window
-  clearance, walkway width and L3 business rules are server-authoritative in M3
-  and run only for the changed item; legacy fixture furniture is not
-  re-litigated on every edit.
+- Client precheck mirrors the L2 result for the dragged item: OBB SAT, the room
+  inset, door clearance, window clearance and the walkway sliver rule. It is
+  feedback only — the server re-runs the same checks on commit, and L3 business
+  rules stay server-authoritative and apply to agent writes.
+- Dragging snaps to neighbouring faces as well as the 0.1 m grid: inside
+  `EDGE_SNAP_THRESHOLD` (0.25 m) an item's edge jumps flush to a wall-inset
+  plane or another item's edge. This makes the "gap is either 0 or ≥ 0.6 m"
+  walkway rule reachable by hand; snapping stays on the grid for non-orthogonal
+  rotations.
 - L3 rules cover the five P0 cases and are enforced strictly for agent writes;
   manual edits still only surface L2 refusals.
 - Undo/redo stacks live in the single server process. Versions and inverses are

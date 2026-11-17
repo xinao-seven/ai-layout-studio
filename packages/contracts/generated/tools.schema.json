@@ -173,6 +173,17 @@
               "default": null,
               "description": "Free-text match on kind id, name or tags.",
               "title": "Query"
+            },
+            "source": {
+              "default": "any",
+              "description": "Limit to shipped catalog entries or to generated library assets.",
+              "enum": [
+                "any",
+                "builtin",
+                "library"
+              ],
+              "title": "Source",
+              "type": "string"
             }
           },
           "type": "object"
@@ -827,6 +838,811 @@
           },
           "required": [
             "itemId"
+          ],
+          "type": "object"
+        }
+      },
+      {
+        "description": "Generate custom furniture with exact dimensions and propose placing it. Use this only when no catalog kind fits: search_catalog first. Families: bookshelf (shelves, glass doors), wardrobe (hinged/sliding), tv_stand (drawers, open shelf), desk_l (L-shaped with return), counter_run (kitchen run with sink/cooktop), scale (proportionally resize an existing kindId, factors 0.6-1.4), primitives (compose 1-24 axis-aligned boxes into a simple object no curated family covers, e.g. a drying rack or shoe rack). The server compiles a GLB, registers it in the scene library and shows the result as a ghost until the user confirms. Generated assets stay reusable through search_catalog afterwards.",
+        "name": "model_item",
+        "parameters": {
+          "additionalProperties": false,
+          "description": "Generate a custom parametric item and propose placing it.\n\nUnlike ``add_item`` this accepts a *spec* rather than a ``kindId``: the\nserver compiles it to a GLB, registers it in the scene library and then\nruns the usual semantic placement and validation.",
+          "properties": {
+            "clearance": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "back": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Back"
+                    },
+                    "front": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Front"
+                    },
+                    "sides": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Sides"
+                    }
+                  },
+                  "title": "Clearance",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "facing": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "north",
+                    "east",
+                    "south",
+                    "west"
+                  ],
+                  "title": "FacingDirection",
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Front (+Z) points at a door, window or item.",
+                  "properties": {
+                    "id": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Id"
+                    },
+                    "toward": {
+                      "enum": [
+                        "door",
+                        "window",
+                        "item"
+                      ],
+                      "title": "Toward",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "toward"
+                  ],
+                  "title": "FacingTowardInput",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Facing"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Optional display name; defaults to 定制<family> <w>×<d>×<h>.",
+              "title": "Name"
+            },
+            "relation": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item's back against a wall (optionally a labelled wall).",
+                  "properties": {
+                    "type": {
+                      "const": "against_wall",
+                      "default": "against_wall",
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "wallId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Derived wall id from query_scene, e.g. room_x:e0.",
+                      "title": "Wallid"
+                    },
+                    "wallLabel": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Human wall label from the scene, e.g. 电视墙.",
+                      "title": "Walllabel"
+                    }
+                  },
+                  "title": "AgainstWallRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item near a window opening.",
+                  "properties": {
+                    "openingId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Openingid"
+                    },
+                    "type": {
+                      "const": "near_window",
+                      "default": "near_window",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "NearWindowRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item beside another item (may reference a pending item).",
+                  "properties": {
+                    "distance": {
+                      "anyOf": [
+                        {
+                          "maximum": 2.0,
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Gap in meters between the two footprints; defaults to 0.45.",
+                      "title": "Distance"
+                    },
+                    "itemId": {
+                      "minLength": 1,
+                      "title": "Itemid",
+                      "type": "string"
+                    },
+                    "type": {
+                      "const": "near_item",
+                      "default": "near_item",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "itemId"
+                  ],
+                  "title": "NearItemRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item in a room corner.",
+                  "properties": {
+                    "type": {
+                      "const": "corner",
+                      "default": "corner",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "CornerRelation",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Place the item near the room centroid.",
+                  "properties": {
+                    "type": {
+                      "const": "center",
+                      "default": "center",
+                      "title": "Type",
+                      "type": "string"
+                    }
+                  },
+                  "title": "CenterRelation",
+                  "type": "object"
+                }
+              ],
+              "title": "Relation"
+            },
+            "roomId": {
+              "minLength": 1,
+              "title": "Roomid",
+              "type": "string"
+            },
+            "spec": {
+              "description": "Family-specific dimensions. Use family=bookshelf|wardrobe|tv_stand|desk_l|counter_run for parametric furniture, or family=scale to proportionally resize an existing kindId.",
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depthM": {
+                      "default": 0.32,
+                      "description": "进深, metres",
+                      "maximum": 0.6,
+                      "minimum": 0.18,
+                      "title": "Depthm",
+                      "type": "number"
+                    },
+                    "doorCount": {
+                      "default": 0,
+                      "description": "柜门扇数, 0 表示开放",
+                      "maximum": 4,
+                      "minimum": 0,
+                      "title": "Doorcount",
+                      "type": "integer"
+                    },
+                    "family": {
+                      "const": "bookshelf",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "glassDoors": {
+                      "default": false,
+                      "description": "柜门是否用玻璃",
+                      "title": "Glassdoors",
+                      "type": "boolean"
+                    },
+                    "heightM": {
+                      "default": 2.0,
+                      "description": "总高, metres",
+                      "maximum": 2.8,
+                      "minimum": 0.6,
+                      "title": "Heightm",
+                      "type": "number"
+                    },
+                    "material": {
+                      "default": "oak",
+                      "enum": [
+                        "oak",
+                        "walnut",
+                        "white",
+                        "graphite"
+                      ],
+                      "title": "Material",
+                      "type": "string"
+                    },
+                    "shelves": {
+                      "default": 4,
+                      "description": "层板数量 (不含顶底板)",
+                      "maximum": 8,
+                      "minimum": 1,
+                      "title": "Shelves",
+                      "type": "integer"
+                    },
+                    "widthM": {
+                      "default": 1.2,
+                      "description": "外宽, metres",
+                      "maximum": 3.0,
+                      "minimum": 0.4,
+                      "title": "Widthm",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "family"
+                  ],
+                  "title": "BookshelfSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depthM": {
+                      "default": 0.6,
+                      "maximum": 0.75,
+                      "minimum": 0.45,
+                      "title": "Depthm",
+                      "type": "number"
+                    },
+                    "doorCount": {
+                      "default": 2,
+                      "maximum": 4,
+                      "minimum": 1,
+                      "title": "Doorcount",
+                      "type": "integer"
+                    },
+                    "doorType": {
+                      "default": "hinged",
+                      "enum": [
+                        "hinged",
+                        "sliding"
+                      ],
+                      "title": "Doortype",
+                      "type": "string"
+                    },
+                    "family": {
+                      "const": "wardrobe",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "heightM": {
+                      "default": 2.2,
+                      "maximum": 2.8,
+                      "minimum": 1.6,
+                      "title": "Heightm",
+                      "type": "number"
+                    },
+                    "material": {
+                      "default": "white",
+                      "enum": [
+                        "oak",
+                        "walnut",
+                        "white",
+                        "graphite"
+                      ],
+                      "title": "Material",
+                      "type": "string"
+                    },
+                    "widthM": {
+                      "default": 1.8,
+                      "maximum": 3.6,
+                      "minimum": 0.6,
+                      "title": "Widthm",
+                      "type": "number"
+                    },
+                    "withRail": {
+                      "default": true,
+                      "description": "是否含挂衣杆",
+                      "title": "Withrail",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "family"
+                  ],
+                  "title": "WardrobeSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depthM": {
+                      "default": 0.42,
+                      "maximum": 0.55,
+                      "minimum": 0.3,
+                      "title": "Depthm",
+                      "type": "number"
+                    },
+                    "drawers": {
+                      "default": 2,
+                      "maximum": 3,
+                      "minimum": 0,
+                      "title": "Drawers",
+                      "type": "integer"
+                    },
+                    "family": {
+                      "const": "tv_stand",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "heightM": {
+                      "default": 0.45,
+                      "maximum": 0.75,
+                      "minimum": 0.3,
+                      "title": "Heightm",
+                      "type": "number"
+                    },
+                    "material": {
+                      "default": "walnut",
+                      "enum": [
+                        "oak",
+                        "walnut",
+                        "white",
+                        "graphite"
+                      ],
+                      "title": "Material",
+                      "type": "string"
+                    },
+                    "openShelf": {
+                      "default": true,
+                      "title": "Openshelf",
+                      "type": "boolean"
+                    },
+                    "widthM": {
+                      "default": 1.6,
+                      "maximum": 2.6,
+                      "minimum": 0.8,
+                      "title": "Widthm",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "family"
+                  ],
+                  "title": "TvStandSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depthM": {
+                      "default": 0.65,
+                      "description": "主台面进深 (Z)",
+                      "maximum": 0.8,
+                      "minimum": 0.5,
+                      "title": "Depthm",
+                      "type": "number"
+                    },
+                    "drawerCount": {
+                      "default": 1,
+                      "maximum": 3,
+                      "minimum": 0,
+                      "title": "Drawercount",
+                      "type": "integer"
+                    },
+                    "family": {
+                      "const": "desk_l",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "heightM": {
+                      "default": 0.74,
+                      "maximum": 0.78,
+                      "minimum": 0.68,
+                      "title": "Heightm",
+                      "type": "number"
+                    },
+                    "material": {
+                      "default": "oak",
+                      "enum": [
+                        "oak",
+                        "walnut",
+                        "white",
+                        "graphite"
+                      ],
+                      "title": "Material",
+                      "type": "string"
+                    },
+                    "returnLengthM": {
+                      "default": 1.2,
+                      "description": "回字长度 (Z)",
+                      "maximum": 1.6,
+                      "minimum": 0.8,
+                      "title": "Returnlengthm",
+                      "type": "number"
+                    },
+                    "returnWidthM": {
+                      "default": 0.5,
+                      "description": "回字边长, 沿 -Z 方向延伸的宽度 (X)",
+                      "maximum": 0.9,
+                      "minimum": 0.35,
+                      "title": "Returnwidthm",
+                      "type": "number"
+                    },
+                    "widthM": {
+                      "default": 1.6,
+                      "description": "主台面长度 (X)",
+                      "maximum": 2.2,
+                      "minimum": 1.0,
+                      "title": "Widthm",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "family"
+                  ],
+                  "title": "DeskLSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cooktop": {
+                      "default": false,
+                      "title": "Cooktop",
+                      "type": "boolean"
+                    },
+                    "depthM": {
+                      "default": 0.6,
+                      "maximum": 0.7,
+                      "minimum": 0.5,
+                      "title": "Depthm",
+                      "type": "number"
+                    },
+                    "family": {
+                      "const": "counter_run",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "heightM": {
+                      "default": 0.9,
+                      "maximum": 0.95,
+                      "minimum": 0.8,
+                      "title": "Heightm",
+                      "type": "number"
+                    },
+                    "lengthM": {
+                      "default": 2.4,
+                      "maximum": 4.0,
+                      "minimum": 0.9,
+                      "title": "Lengthm",
+                      "type": "number"
+                    },
+                    "material": {
+                      "default": "white",
+                      "enum": [
+                        "oak",
+                        "walnut",
+                        "white",
+                        "graphite"
+                      ],
+                      "title": "Material",
+                      "type": "string"
+                    },
+                    "segments": {
+                      "default": 3,
+                      "description": "柜体分段数",
+                      "maximum": 4,
+                      "minimum": 1,
+                      "title": "Segments",
+                      "type": "integer"
+                    },
+                    "sink": {
+                      "default": false,
+                      "title": "Sink",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "family"
+                  ],
+                  "title": "CounterRunSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Re-scale an existing catalog model (T1: variant by proportion).",
+                  "properties": {
+                    "factorX": {
+                      "default": 1.0,
+                      "description": "宽度倍数",
+                      "maximum": 1.4,
+                      "minimum": 0.6,
+                      "title": "Factorx",
+                      "type": "number"
+                    },
+                    "factorY": {
+                      "default": 1.0,
+                      "description": "高度倍数",
+                      "maximum": 1.4,
+                      "minimum": 0.6,
+                      "title": "Factory",
+                      "type": "number"
+                    },
+                    "factorZ": {
+                      "default": 1.0,
+                      "description": "进深倍数",
+                      "maximum": 1.4,
+                      "minimum": 0.6,
+                      "title": "Factorz",
+                      "type": "number"
+                    },
+                    "family": {
+                      "const": "scale",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "sourceKindId": {
+                      "description": "已存在的 kindId",
+                      "maxLength": 128,
+                      "minLength": 1,
+                      "title": "Sourcekindid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "family",
+                    "sourceKindId"
+                  ],
+                  "title": "ScaleSpec",
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "description": "Compose a simple orthogonal object from boxes.\n\nThe long-tail escape hatch: use it for shapes no curated family covers\n(a drying rack, shoe rack, plant stand, partition), not for upholstered or\ncurved furniture. The overall footprint is measured from the parts, so the\nmodel never has to declare a size it cannot guarantee.",
+                  "properties": {
+                    "category": {
+                      "default": "other",
+                      "description": "Closest catalog category. Drives placement rules: storage/table/bed count as circulation blockers, decor/other do not.",
+                      "enum": [
+                        "sofa",
+                        "bed",
+                        "table",
+                        "storage",
+                        "lighting",
+                        "decor",
+                        "other"
+                      ],
+                      "title": "CatalogCategory",
+                      "type": "string"
+                    },
+                    "family": {
+                      "const": "primitives",
+                      "title": "Family",
+                      "type": "string"
+                    },
+                    "mustAgainstWall": {
+                      "default": false,
+                      "description": "True when the object only makes sense against a wall.",
+                      "title": "Mustagainstwall",
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "description": "显示名称, 如「落地晾衣架」",
+                      "maxLength": 60,
+                      "minLength": 1,
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "parts": {
+                      "description": "1-24 boxes; at least one must touch the floor.",
+                      "items": {
+                        "additionalProperties": false,
+                        "description": "One axis-aligned box in item-local metres.\n\n``position`` is the part centre; ``y = 0`` is the floor plane, so a\n1.6 m leg standing on the floor is ``size [0.04, 1.6, 0.04]`` at\n``position [x, 0.8, z]``.",
+                        "properties": {
+                          "material": {
+                            "default": "oak",
+                            "enum": [
+                              "oak",
+                              "walnut",
+                              "white",
+                              "graphite",
+                              "glass",
+                              "metal"
+                            ],
+                            "title": "Material",
+                            "type": "string"
+                          },
+                          "position": {
+                            "additionalItems": false,
+                            "default": [
+                              0.0,
+                              0.0,
+                              0.0
+                            ],
+                            "description": "Box centre relative to the item origin; y=0 is the floor.",
+                            "items": [
+                              {
+                                "maximum": 5.0,
+                                "minimum": -5.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 5.0,
+                                "minimum": -5.0,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 5.0,
+                                "minimum": -5.0,
+                                "type": "number"
+                              }
+                            ],
+                            "maxItems": 3,
+                            "minItems": 3,
+                            "title": "Position",
+                            "type": "array"
+                          },
+                          "shape": {
+                            "const": "box",
+                            "default": "box",
+                            "title": "Shape",
+                            "type": "string"
+                          },
+                          "size": {
+                            "additionalItems": false,
+                            "description": "Box width/depth/height in metres, 0.01-3.0.",
+                            "items": [
+                              {
+                                "maximum": 3.0,
+                                "minimum": 0.01,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 3.0,
+                                "minimum": 0.01,
+                                "type": "number"
+                              },
+                              {
+                                "maximum": 3.0,
+                                "minimum": 0.01,
+                                "type": "number"
+                              }
+                            ],
+                            "maxItems": 3,
+                            "minItems": 3,
+                            "title": "Size",
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "size"
+                        ],
+                        "title": "PrimitivePart",
+                        "type": "object"
+                      },
+                      "maxItems": 24,
+                      "minItems": 1,
+                      "title": "Parts",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "family",
+                    "name",
+                    "parts"
+                  ],
+                  "title": "PrimitivesSpec",
+                  "type": "object"
+                }
+              ],
+              "title": "Spec"
+            }
+          },
+          "required": [
+            "spec",
+            "roomId",
+            "relation"
           ],
           "type": "object"
         }

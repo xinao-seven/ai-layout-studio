@@ -43,8 +43,9 @@ async def reload_catalog(
     so a reload that removes an in-use kind cannot silently break editing.
     """
     entries = catalog.preview()
+    merged = catalog.preview_merged()
     try:
-        registry.validate_catalog({entry.kind_id: entry for entry in entries})
+        registry.validate_catalog({entry.kind_id: entry for entry in merged})
     except SceneError as error:
         raise SceneError(
             "invalid_input",
@@ -55,4 +56,4 @@ async def reload_catalog(
     catalog.apply(entries)
     registry.update_catalog(catalog.by_kind)
     manager.update_catalog(catalog.by_kind)
-    return CatalogResponse(entries=entries)
+    return CatalogResponse(entries=catalog.entries)

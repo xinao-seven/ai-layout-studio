@@ -334,6 +334,265 @@
       "title": "CaptureResultPayload",
       "type": "object"
     },
+    "CatalogCategory": {
+      "enum": [
+        "sofa",
+        "bed",
+        "table",
+        "storage",
+        "lighting",
+        "decor",
+        "other"
+      ],
+      "title": "CatalogCategory",
+      "type": "string"
+    },
+    "CatalogCollision": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "obb",
+          "default": "obb",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "CatalogCollision",
+      "type": "object"
+    },
+    "CatalogEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "allowedRotations": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Allowedrotations",
+          "type": "array"
+        },
+        "category": {
+          "$ref": "#/definitions/CatalogCategory",
+          "default": "other"
+        },
+        "clearance": {
+          "$ref": "#/definitions/Clearance"
+        },
+        "collision": {
+          "$ref": "#/definitions/CatalogCollision"
+        },
+        "defaultVariantId": {
+          "title": "Defaultvariantid",
+          "type": "string"
+        },
+        "frontAxis": {
+          "const": "+Z",
+          "default": "+Z",
+          "title": "Frontaxis",
+          "type": "string"
+        },
+        "kindId": {
+          "minLength": 1,
+          "title": "Kindid",
+          "type": "string"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CatalogLicense"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "pivot": {
+          "const": "bottom-center",
+          "default": "bottom-center",
+          "title": "Pivot",
+          "type": "string"
+        },
+        "placement": {
+          "const": "floor",
+          "default": "floor",
+          "title": "Placement",
+          "type": "string"
+        },
+        "rules": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CatalogRules"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "default": "builtin",
+          "description": "Where the entry comes from: the shipped fixture catalog or the runtime generated-asset library.",
+          "enum": [
+            "builtin",
+            "library"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/definitions/CatalogVariant"
+          },
+          "minItems": 1,
+          "title": "Variants",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kindId",
+        "name",
+        "defaultVariantId",
+        "variants"
+      ],
+      "title": "CatalogEntry",
+      "type": "object"
+    },
+    "CatalogLicense": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ],
+      "title": "CatalogLicense",
+      "type": "object"
+    },
+    "CatalogRules": {
+      "additionalProperties": false,
+      "properties": {
+        "allowOverlap": {
+          "default": false,
+          "title": "Allowoverlap",
+          "type": "boolean"
+        },
+        "anchorPriority": {
+          "default": 0,
+          "title": "Anchorpriority",
+          "type": "integer"
+        },
+        "groupWith": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groupwith",
+          "type": "array"
+        },
+        "mustAgainstWall": {
+          "default": false,
+          "title": "Mustagainstwall",
+          "type": "boolean"
+        },
+        "preferredWall": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/FacingDirection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "roomTypes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Roomtypes",
+          "type": "array"
+        }
+      },
+      "title": "CatalogRules",
+      "type": "object"
+    },
+    "CatalogUpdatedPayload": {
+      "additionalProperties": false,
+      "description": "A generated asset joined the catalog; hosts must merge it to render ghosts.",
+      "properties": {
+        "entry": {
+          "$ref": "#/definitions/CatalogEntry"
+        }
+      },
+      "required": [
+        "entry"
+      ],
+      "title": "CatalogUpdatedPayload",
+      "type": "object"
+    },
+    "CatalogVariant": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "modelPath": {
+          "title": "Modelpath",
+          "type": "string"
+        },
+        "sizeM": {
+          "additionalItems": false,
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Sizem",
+          "type": "array"
+        },
+        "thumbnailPath": {
+          "title": "Thumbnailpath",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sizeM",
+        "modelPath",
+        "thumbnailPath"
+      ],
+      "title": "CatalogVariant",
+      "type": "object"
+    },
     "Clearance": {
       "additionalProperties": false,
       "properties": {
@@ -3322,6 +3581,9 @@
         },
         "CaptureResultPayload": {
           "$ref": "#/definitions/CaptureResultPayload"
+        },
+        "CatalogUpdatedPayload": {
+          "$ref": "#/definitions/CatalogUpdatedPayload"
         },
         "CommitMessage": {
           "$ref": "#/definitions/CommitMessage"

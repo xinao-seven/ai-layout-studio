@@ -146,6 +146,41 @@ export function obbCornersInsidePolygon(obb: Obb, polygon: Vec2[]): boolean {
   return obbCorners(obb).every((corner) => pointInPolygon(corner, polygon))
 }
 
+function pointSegmentDistance(point: Vec2, a: Vec2, b: Vec2): number {
+  const dx = b[0] - a[0]
+  const dz = b[1] - a[1]
+  const lengthSq = dx * dx + dz * dz
+  if (lengthSq <= EPSILON * EPSILON) return distance(point, a)
+  const t = Math.max(0, Math.min(1, ((point[0] - a[0]) * dx + (point[1] - a[1]) * dz) / lengthSq))
+  return Math.hypot(point[0] - (a[0] + dx * t), point[1] - (a[1] + dz * t))
+}
+
+/**
+ * Shortest distance between two OBB footprints on the floor plane.
+ *
+ * Returns 0 whenever the footprints intersect *or touch*. The walkway rule
+ * refuses any strictly positive gap below the passage width, so flush must read
+ * as zero — and a tiny interpenetration (which the collision test tolerates)
+ * must read as zero too, matching the server's polygon distance.
+ */
+export function obbDistance(a: Obb, b: Obb): number {
+  // tolerance 0: touching edges already count as intersecting.
+  if (obbOverlap(a, b, 0)) return 0
+  const cornersA = obbCorners(a)
+  const cornersB = obbCorners(b)
+  let best = Number.POSITIVE_INFINITY
+  for (let i = 0; i < cornersA.length; i += 1) {
+    const a0 = cornersA[i] as Vec2
+    const a1 = cornersA[(i + 1) % cornersA.length] as Vec2
+    for (let j = 0; j < cornersB.length; j += 1) {
+      const b0 = cornersB[j] as Vec2
+      const b1 = cornersB[(j + 1) % cornersB.length] as Vec2
+      best = Math.min(best, pointSegmentDistance(a0, b0, b1), pointSegmentDistance(b0, a0, a1))
+    }
+  }
+  return best
+}
+
 export const GRID_STEP = rules.GRID_SNAP
 export const MANUAL_ROTATION_RADIANS = (rules.MANUAL_ROTATION_STEP * Math.PI) / 180
 
@@ -158,8 +193,81 @@ export function snapPoint(point: Vec2, step = GRID_STEP): Vec2 {
   return [snapValue(point[0], step), snapValue(point[1], step)]
 }
 
-/** 顶点拖拽时,光标距“与相邻顶点共横/共纵”位置小于该值即自动直角对齐(米)。 */
-export const VERTEX_ALIGN_THRESHOLD = 0.15
+/**
+ * Alignment snap radius in metres. Deliberately larger than the 0.1 m grid step
+ * so that dragging a vertex near another room's wall bites reliably instead of
+ * landing one grid cell off.
+ */
+export const ALIGN_THRESHOLD = 0.25
+
+export interface AlignPlanes {
+  xs: number[]
+  zs: number[]
+}
+
+export interface VertexRef {
+  roomId: string
+  vertexIndex: number
+}
+
+/**
+ * Every vertex coordinate in the scene, split into x/z planes.
+ *
+ * Walls line up when their centerline vertices share a coordinate, so a vertex
+ * dragged near any existing corner snaps onto that exact value. The vertex being
+ * dragged is excluded so it cannot snap onto itself.
+ */
+export function collectAlignPlanes(
+  rooms: ReadonlyArray<{ id: string; polygon: Vec2[] }>,
+  exclude?: VertexRef | VertexRef[],
+): AlignPlanes {
+  const excluded = new Set(
+    (Array.isArray(exclude) ? exclude : exclude ? [exclude] : []).map(
+      (ref) => `${ref.roomId}:${ref.vertexIndex}`,
+    ),
+  )
+  const xs: number[] = []
+  const zs: number[] = []
+  for (const room of rooms) {
+    room.polygon.forEach((vertex, index) => {
+      if (excluded.has(`${room.id}:${index}`)) return
+      xs.push(vertex[0])
+      zs.push(vertex[1])
+    })
+  }
+  return { xs, zs }
+}
+
+/** Snap to the nearest candidate plane, falling back to the grid. */
+export function alignValue(
+  value: number,
+  candidates: number[],
+  step = GRID_STEP,
+  threshold = ALIGN_THRESHOLD,
+): number {
+  let best: number | null = null
+  let bestDelta = threshold
+  for (const candidate of candidates) {
+    const delta = Math.abs(value - candidate)
+    if (delta <= bestDelta) {
+      best = candidate
+      bestDelta = delta
+    }
+  }
+  return best ?? snapValue(value, step)
+}
+
+export function snapToPlanes(
+  point: Vec2,
+  planes: AlignPlanes,
+  step = GRID_STEP,
+  threshold = ALIGN_THRESHOLD,
+): Vec2 {
+  return [
+    alignValue(point[0], planes.xs, step, threshold),
+    alignValue(point[1], planes.zs, step, threshold),
+  ]
+}
 
 /** 直角吸附:把 from→point 的线段锁定到最近的水平/垂直方向,移动轴坐标做网格吸附。 */
 export function orthoSnap(from: Vec2, point: Vec2, step = GRID_STEP): Vec2 {
@@ -170,28 +278,45 @@ export function orthoSnap(from: Vec2, point: Vec2, step = GRID_STEP): Vec2 {
 }
 
 /**
- * 顶点拖拽的直角对齐:光标靠近“与相邻顶点共横/共纵”的位置时吸附过去,
- * 对齐的坐标保持精确(不被网格吸附破坏),其余坐标正常网格吸附。
+ * 顶点拖拽吸附:光标靠近任意“共横/共纵”的既有顶点时吸附过去,否则网格吸附。
+ *
+ * Candidates come from this polygon's other vertices plus any ``extra`` planes
+ * (normally the rest of the scene), which is what lets two rooms share a wall
+ * exactly instead of landing 5 cm apart on different grid cells.
  */
 export function vertexAlignSnap(
   polygon: Vec2[],
   index: number,
   point: Vec2,
   step = GRID_STEP,
-  threshold = VERTEX_ALIGN_THRESHOLD,
+  threshold = ALIGN_THRESHOLD,
+  extra?: AlignPlanes,
 ): Vec2 {
-  const count = polygon.length
-  if (count < 3) return snapPoint(point, step)
-  const prev = polygon[(index - 1 + count) % count]
-  const next = polygon[(index + 1) % count]
-  let x = snapValue(point[0], step)
-  let z = snapValue(point[1], step)
-  for (const neighbor of [prev, next]) {
-    if (!neighbor) continue
-    if (Math.abs(point[0] - neighbor[0]) <= threshold) x = neighbor[0]
-    if (Math.abs(point[1] - neighbor[1]) <= threshold) z = neighbor[1]
-  }
-  return [x, z]
+  const xs: number[] = extra ? [...extra.xs] : []
+  const zs: number[] = extra ? [...extra.zs] : []
+  polygon.forEach((vertex, vertexIndex) => {
+    if (vertexIndex === index) return
+    xs.push(vertex[0])
+    zs.push(vertex[1])
+  })
+  return [alignValue(point[0], xs, step, threshold), alignValue(point[1], zs, step, threshold)]
+}
+
+/**
+ * 画房间时的落点吸附:与上一点保持直角,非锁定轴优先吸附到既有墙线,再退回网格。
+ */
+export function snapDraftPoint(
+  anchor: Vec2 | undefined,
+  point: Vec2,
+  planes: AlignPlanes,
+  step = GRID_STEP,
+  threshold = ALIGN_THRESHOLD,
+): Vec2 {
+  if (!anchor) return snapToPlanes(point, planes, step, threshold)
+  const horizontal = Math.abs(point[0] - anchor[0]) >= Math.abs(point[1] - anchor[1])
+  return horizontal
+    ? [alignValue(point[0], planes.xs, step, threshold), anchor[1]]
+    : [anchor[0], alignValue(point[1], planes.zs, step, threshold)]
 }
 
 export function distance(a: Vec2, b: Vec2): number {

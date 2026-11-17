@@ -14,6 +14,7 @@ from pydantic import Field, model_validator
 from app.contracts.base import CamelModel
 from app.contracts.enums import CatalogCategory, FacingDirection, RoomType
 from app.contracts.scene import Clearance, ItemConstraint
+from app.modelgen.specs import FamilySpec
 
 
 class AgainstWallRelation(CamelModel):
@@ -89,6 +90,10 @@ class QuerySceneInput(CamelModel):
 class SearchCatalogInput(CamelModel):
     query: str | None = Field(default=None, description="Free-text match on kind id, name or tags.")
     category: CatalogCategory | None = None
+    source: Literal["any", "builtin", "library"] = Field(
+        default="any",
+        description="Limit to shipped catalog entries or to generated library assets.",
+    )
     min_width_m: float | None = Field(default=None, ge=0)
     max_width_m: float | None = Field(default=None, ge=0)
     min_depth_m: float | None = Field(default=None, ge=0)
@@ -244,4 +249,30 @@ class AddRoomInput(CamelModel):
             "(|x|,|z| <= 500), 3-32 points, simple (non-self-intersecting) "
             "outline; winding is normalized server-side."
         ),
+    )
+
+
+class ModelItemInput(CamelModel):
+    """Generate a custom parametric item and propose placing it.
+
+    Unlike ``add_item`` this accepts a *spec* rather than a ``kindId``: the
+    server compiles it to a GLB, registers it in the scene library and then
+    runs the usual semantic placement and validation.
+    """
+
+    spec: FamilySpec = Field(
+        description=(
+            "Family-specific dimensions. Use family=bookshelf|wardrobe|tv_stand|"
+            "desk_l|counter_run for parametric furniture, or family=scale to "
+            "proportionally resize an existing kindId."
+        ),
+    )
+    room_id: str = Field(min_length=1)
+    relation: Relation
+    facing: FacingInput | None = None
+    clearance: Clearance | None = None
+    name: str | None = Field(
+        default=None,
+        max_length=60,
+        description="Optional display name; defaults to 定制<family> <w>×<d>×<h>.",
     )

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { SceneDocument } from '../contracts/generated/client/rest'
-import { useSceneStore } from './sceneStore'
+import { clampScale, useSceneStore } from './sceneStore'
 
 beforeEach(() => {
   useSceneStore.setState({
@@ -166,5 +166,21 @@ describe('room draft snapping (review P2-1)', () => {
     // 原始距离 0.057 > 0.05,但直角吸附把点拉回 [1, 1]:不得追加重复顶点。
     useSceneStore.getState().addDraftPoint([1.04, 1.04])
     expect(useSceneStore.getState().draftRoom).toEqual([[1, 1]])
+  })
+})
+
+describe('item scaling', () => {
+  it('clamps and snaps to the shared scale envelope', () => {
+    expect(clampScale(1)).toBe(1)
+    expect(clampScale(1.03)).toBe(1.05)
+    expect(clampScale(0.01)).toBe(0.4)
+    expect(clampScale(99)).toBe(2)
+    expect(clampScale(Number.NaN)).toBe(1)
+  })
+
+  it('ignores a scale drag when the item is unknown', () => {
+    useSceneStore.setState({ scaleDrag: null })
+    useSceneStore.getState().startScaleDrag('missing')
+    expect(useSceneStore.getState().scaleDrag).toBeNull()
   })
 })

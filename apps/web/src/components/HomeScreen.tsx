@@ -83,11 +83,11 @@ export function HomeScreen() {
             <BrandMark />
             <div className="leading-tight">
               <p className="font-medium text-sm tracking-wide">AI Layout Studio</p>
-              <p className="text-[11px] text-muted-foreground">Interior Layout Workbench</p>
+              <p className="text-[11px] text-muted-foreground">对话式室内布局工作台</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge tone="accent">M5 · 完整闭环</Badge>
+            <Badge tone="accent">M6 · 参数化资产</Badge>
             <input
               accept="application/json,.json"
               className="hidden"

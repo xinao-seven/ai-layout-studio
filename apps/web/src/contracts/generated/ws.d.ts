@@ -37,6 +37,43 @@ export type Ts1 = number;
 export type Turnid3 = string | null;
 export type Type1 = "capture.result";
 export type V1 = 1;
+export type Allowedrotations = number[];
+export type CatalogCategory = "sofa" | "bed" | "table" | "storage" | "lighting" | "decor" | "other";
+export type Back = number | null;
+export type Front = number | null;
+export type Sides = number | null;
+export type Type2 = "obb";
+export type Defaultvariantid = string;
+export type Frontaxis = "+Z";
+export type Kindid = string;
+export type Name = string;
+export type Url = string;
+export type Name1 = string;
+export type Pivot = "bottom-center";
+export type Placement = "floor";
+export type Allowoverlap = boolean;
+export type Anchorpriority = number;
+export type Groupwith = string[];
+export type Mustagainstwall = boolean;
+export type FacingDirection = "north" | "east" | "south" | "west";
+export type Roomtypes = string[];
+/**
+ * Where the entry comes from: the shipped fixture catalog or the runtime generated-asset library.
+ */
+export type Source = "builtin" | "library";
+export type Tags = string[];
+/**
+ * @minItems 1
+ */
+export type Variants = [CatalogVariant, ...CatalogVariant[]];
+export type Id = string;
+export type Modelpath = string;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type Sizem = [number, number, number];
+export type Thumbnailpath = string;
 export type Ch2 = "host";
 export type Baseversion = number;
 export type Clientmutationid = string | null;
@@ -44,20 +81,16 @@ export type Openingid = string | null;
 export type AnchorType = "wall" | "corner" | "window" | "door" | "center";
 export type Wallid = string | null;
 export type Walllabel = string | null;
-export type Back = number | null;
-export type Front = number | null;
-export type Sides = number | null;
 export type Facing = FacingDirection | FacingTowardSpec | null;
-export type FacingDirection = "north" | "east" | "south" | "west";
-export type Id = string | null;
+export type Id1 = string | null;
 export type FacingToward = "door" | "window" | "item";
 export type Group = string | null;
 export type Distance = number | null;
 export type Itemid = string | null;
 export type Openingid1 = string | null;
 export type Roomid = string | null;
-export type Id1 = string;
-export type Kindid = string;
+export type Id2 = string;
+export type Kindid1 = string;
 export type Materialoverrides = {
   [k: string]: string;
 } | null;
@@ -73,7 +106,7 @@ export type Variantid = string;
 export type Op = "item.add";
 export type Itemid1 = string;
 export type Op1 = "item.remove";
-export type Kindid1 = string | null;
+export type Kindid2 = string | null;
 export type Materialoverrides1 = {
   [k: string]: string;
 } | null;
@@ -86,8 +119,8 @@ export type Itemid2 = string;
 export type Op2 = "item.update";
 export type Op3 = "room.add";
 export type Floormaterial = string;
-export type Id2 = string;
-export type Name = string;
+export type Id3 = string;
+export type Name2 = string;
 /**
  * @minItems 3
  */
@@ -101,7 +134,7 @@ export type Wallthickness = number | null;
 export type Op4 = "room.remove";
 export type Roomid1 = string;
 export type Floormaterial1 = string | null;
-export type Name1 = string | null;
+export type Name3 = string | null;
 export type Polygon1 = [[number, number], [number, number], [number, number], ...[number, number][]] | null;
 export type RoomType1 = "living" | "bedroom" | "kitchen" | "bathroom" | "study" | "balcony" | "other";
 export type Wallheight1 = number | null;
@@ -117,7 +150,7 @@ export type OpensTo = "in" | "out";
 export type DoorSwing = "single" | "double" | "sliding";
 export type Edgeindex = number;
 export type Height1 = number;
-export type Id3 = string;
+export type Id4 = string;
 export type Offset = number;
 export type Offsetfrom = "start";
 export type Roomid3 = string;
@@ -157,21 +190,21 @@ export type Requestid2 = string | null;
 export type Seq2 = number;
 export type Ts2 = number;
 export type Turnid4 = string | null;
-export type Type2 = "commit";
+export type Type3 = "commit";
 export type V2 = 1;
 export type Ch3 = "host";
 export type Requestid3 = string | null;
 export type Seq3 = number;
 export type Ts3 = number;
 export type Turnid5 = string | null;
-export type Type3 = string;
+export type Type4 = string;
 export type V3 = 1;
 export type Ch4 = "host";
 export type Requestid4 = string | null;
 export type Seq4 = number;
 export type Ts4 = number;
 export type Turnid6 = string | null;
-export type Type4 = "ping";
+export type Type5 = "ping";
 export type V4 = 1;
 export type Ch5 = "host";
 export type Proposalid = string;
@@ -179,7 +212,7 @@ export type Requestid5 = string | null;
 export type Seq5 = number;
 export type Ts5 = number;
 export type Turnid7 = string | null;
-export type Type5 = "proposal.confirm";
+export type Type6 = "proposal.confirm";
 export type V5 = 1;
 export type Ch6 = "host";
 export type Proposalid1 = string;
@@ -188,12 +221,12 @@ export type Requestid6 = string | null;
 export type Seq6 = number;
 export type Ts6 = number;
 export type Turnid8 = string | null;
-export type Type6 = "proposal.reject";
+export type Type7 = "proposal.reject";
 export type V6 = 1;
 export type Baseversion1 = number;
 export type Createdat = string;
 export type Dependson = string[];
-export type Id4 = string;
+export type Id5 = string;
 export type Ops1 = (
   | ItemAddOp
   | ItemRemoveOp
@@ -217,14 +250,14 @@ export type Requestid7 = string | null;
 export type Seq7 = number;
 export type Ts7 = number;
 export type Turnid10 = string | null;
-export type Type7 = "redo";
+export type Type8 = "redo";
 export type V7 = 1;
 export type Ch8 = "host";
 export type Requestid8 = string | null;
 export type Seq8 = number;
 export type Ts8 = number;
 export type Turnid11 = string | null;
-export type Type8 = "resume";
+export type Type9 = "resume";
 export type V8 = 1;
 export type Actor = "user" | "agent" | "system";
 export type Clientmutationid1 = string | null;
@@ -249,9 +282,9 @@ export type Createdat1 = string;
 export type Wallheight2 = number;
 export type Wallmaterial = string;
 export type Wallthickness2 = number;
-export type Id5 = string;
+export type Id6 = string;
 export type Items = Item[];
-export type Name2 = string;
+export type Name4 = string;
 /**
  * @minItems 2
  * @maxItems 2
@@ -276,7 +309,7 @@ export type Suggest = string | null;
 export type Arguments = {
   [k: string]: unknown;
 } | null;
-export type Name3 = string;
+export type Name5 = string;
 export type Toolcallid = string;
 export type Ch9 = "host";
 export type Turnid13 = string;
@@ -284,11 +317,11 @@ export type Requestid9 = string | null;
 export type Seq9 = number;
 export type Ts9 = number;
 export type Turnid14 = string | null;
-export type Type9 = "turn.cancel";
+export type Type10 = "turn.cancel";
 export type V9 = 1;
 export type Createdat2 = string;
 export type Endedat = string | null;
-export type Id6 = string;
+export type Id7 = string;
 export type Content1 = string;
 export type MessageRole = "user" | "assistant" | "tool";
 export type Screenshotafter = string | null;
@@ -319,14 +352,14 @@ export type Requestid10 = string | null;
 export type Seq10 = number;
 export type Ts10 = number;
 export type Turnid16 = string | null;
-export type Type10 = "turn.subscribe";
+export type Type11 = "turn.subscribe";
 export type V10 = 1;
 export type Ch11 = "host";
 export type Requestid11 = string | null;
 export type Seq11 = number;
 export type Ts11 = number;
 export type Turnid17 = string | null;
-export type Type11 = "undo";
+export type Type12 = "undo";
 export type V11 = 1;
 /**
  * Logical channel multiplexed over the single WebSocket.
@@ -345,7 +378,7 @@ export type Turnid18 = string | null;
 /**
  * Event type, e.g. turn.started.
  */
-export type Type12 = string;
+export type Type13 = string;
 /**
  * Protocol version.
  */
@@ -362,6 +395,7 @@ export interface WebSocketContracts {
   CaptureRequestPayload?: CaptureRequestPayload;
   CaptureResultMessage?: CaptureResultMessage;
   CaptureResultPayload?: CaptureResultPayload;
+  CatalogUpdatedPayload?: CatalogUpdatedPayload;
   CommitMessage?: CommitMessage;
   CommitPayload?: CommitPayload;
   EmptyPayload?: EmptyPayload;
@@ -442,6 +476,55 @@ export interface CaptureResultPayload {
 export interface Legend1 {
   [k: string]: unknown;
 }
+/**
+ * A generated asset joined the catalog; hosts must merge it to render ghosts.
+ */
+export interface CatalogUpdatedPayload {
+  entry: CatalogEntry;
+}
+export interface CatalogEntry {
+  allowedRotations?: Allowedrotations;
+  category?: CatalogCategory;
+  clearance?: Clearance;
+  collision?: CatalogCollision;
+  defaultVariantId: Defaultvariantid;
+  frontAxis?: Frontaxis;
+  kindId: Kindid;
+  license?: CatalogLicense | null;
+  name: Name1;
+  pivot?: Pivot;
+  placement?: Placement;
+  rules?: CatalogRules | null;
+  source?: Source;
+  tags?: Tags;
+  variants: Variants;
+}
+export interface Clearance {
+  back?: Back;
+  front?: Front;
+  sides?: Sides;
+}
+export interface CatalogCollision {
+  type?: Type2;
+}
+export interface CatalogLicense {
+  name: Name;
+  url: Url;
+}
+export interface CatalogRules {
+  allowOverlap?: Allowoverlap;
+  anchorPriority?: Anchorpriority;
+  groupWith?: Groupwith;
+  mustAgainstWall?: Mustagainstwall;
+  preferredWall?: FacingDirection | null;
+  roomTypes?: Roomtypes;
+}
+export interface CatalogVariant {
+  id: Id;
+  modelPath: Modelpath;
+  sizeM: Sizem;
+  thumbnailPath: Thumbnailpath;
+}
 export interface CommitMessage {
   ch?: Ch2;
   payload: CommitPayload;
@@ -449,7 +532,7 @@ export interface CommitMessage {
   seq?: Seq2;
   ts: Ts2;
   turnId?: Turnid4;
-  type: Type2;
+  type: Type3;
   v?: V2;
 }
 export interface CommitPayload {
@@ -463,8 +546,8 @@ export interface ItemAddOp {
 }
 export interface Item {
   constraint?: ItemConstraint | null;
-  id: Id1;
-  kindId: Kindid;
+  id: Id2;
+  kindId: Kindid1;
   materialOverrides?: Materialoverrides;
   source?: ItemSource;
   transform: Transform;
@@ -487,13 +570,8 @@ export interface Anchor {
   wallId?: Wallid;
   wallLabel?: Walllabel;
 }
-export interface Clearance {
-  back?: Back;
-  front?: Front;
-  sides?: Sides;
-}
 export interface FacingTowardSpec {
-  id?: Id;
+  id?: Id1;
   toward: FacingToward;
 }
 export interface Near {
@@ -525,7 +603,7 @@ export interface ItemUpdateOp {
  */
 export interface ItemUpdateFields {
   constraint?: ItemConstraint | null;
-  kindId?: Kindid1;
+  kindId?: Kindid2;
   materialOverrides?: Materialoverrides1;
   source?: ItemSource1 | null;
   transform?: TransformUpdate | null;
@@ -545,8 +623,8 @@ export interface RoomAddOp {
  */
 export interface Room {
   floorMaterial?: Floormaterial;
-  id: Id2;
-  name: Name;
+  id: Id3;
+  name: Name2;
   polygon: Polygon;
   type?: RoomType;
   wallHeight?: Wallheight;
@@ -569,7 +647,7 @@ export interface RoomUpdateOp {
  */
 export interface RoomUpdateFields {
   floorMaterial?: Floormaterial1;
-  name?: Name1;
+  name?: Name3;
   polygon?: Polygon1;
   type?: RoomType1 | null;
   wallHeight?: Wallheight1;
@@ -587,7 +665,7 @@ export interface Opening {
   door?: DoorSpec | null;
   edgeIndex: Edgeindex;
   height: Height1;
-  id: Id3;
+  id: Id4;
   offset: Offset;
   offsetFrom?: Offsetfrom;
   roomId: Roomid3;
@@ -663,7 +741,7 @@ export interface HostMessage {
   seq?: Seq3;
   ts: Ts3;
   turnId?: Turnid5;
-  type: Type3;
+  type: Type4;
   v?: V3;
 }
 export interface PingMessage {
@@ -673,7 +751,7 @@ export interface PingMessage {
   seq?: Seq4;
   ts: Ts4;
   turnId?: Turnid6;
-  type: Type4;
+  type: Type5;
   v?: V4;
 }
 export interface ProposalConfirmMessage {
@@ -683,7 +761,7 @@ export interface ProposalConfirmMessage {
   seq?: Seq5;
   ts: Ts5;
   turnId?: Turnid7;
-  type: Type5;
+  type: Type6;
   v?: V5;
 }
 export interface ProposalConfirmPayload {
@@ -696,7 +774,7 @@ export interface ProposalRejectMessage {
   seq?: Seq6;
   ts: Ts6;
   turnId?: Turnid8;
-  type: Type6;
+  type: Type7;
   v?: V6;
 }
 export interface ProposalRejectPayload {
@@ -710,7 +788,7 @@ export interface Proposal {
   baseVersion: Baseversion1;
   createdAt: Createdat;
   dependsOn?: Dependson;
-  id: Id4;
+  id: Id5;
   ops: Ops1;
   reason?: Reason1;
   resolvedAt?: Resolvedat;
@@ -725,7 +803,7 @@ export interface RedoMessage {
   seq?: Seq7;
   ts: Ts7;
   turnId?: Turnid10;
-  type: Type7;
+  type: Type8;
   v?: V7;
 }
 export interface UndoRedoPayload {
@@ -738,7 +816,7 @@ export interface ResumeMessage {
   seq?: Seq8;
   ts: Ts8;
   turnId?: Turnid11;
-  type: Type8;
+  type: Type9;
   v?: V8;
 }
 export interface ResumePayload {
@@ -774,9 +852,9 @@ export interface SceneDocument {
   createdAt: Createdat1;
   defaults: SceneDefaults;
   environment?: EnvironmentSettings | null;
-  id: Id5;
+  id: Id6;
   items: Items;
-  name: Name2;
+  name: Name4;
   north?: North1;
   openings: Openings;
   rooms: Rooms;
@@ -804,7 +882,7 @@ export interface ErrorBody {
 }
 export interface ToolEventPayload {
   arguments?: Arguments;
-  name: Name3;
+  name: Name5;
   result?: unknown;
   toolCallId: Toolcallid;
 }
@@ -815,7 +893,7 @@ export interface TurnCancelMessage {
   seq?: Seq9;
   ts: Ts9;
   turnId?: Turnid14;
-  type: Type9;
+  type: Type10;
   v?: V9;
 }
 export interface TurnCancelPayload {
@@ -831,7 +909,7 @@ export interface TurnStatusPayload {
 export interface Turn {
   createdAt: Createdat2;
   endedAt?: Endedat;
-  id: Id6;
+  id: Id7;
   messages?: Messages;
   sceneId: Sceneid2;
   status?: TurnStatus;
@@ -864,7 +942,7 @@ export interface TurnSubscribeMessage {
   seq?: Seq10;
   ts: Ts10;
   turnId?: Turnid16;
-  type: Type10;
+  type: Type11;
   v?: V10;
 }
 export interface TurnSubscribePayload {
@@ -878,7 +956,7 @@ export interface UndoMessage {
   seq?: Seq11;
   ts: Ts11;
   turnId?: Turnid17;
-  type: Type11;
+  type: Type12;
   v?: V11;
 }
 /**
@@ -891,7 +969,7 @@ export interface WsEnvelope {
   seq: Seq12;
   ts: Ts12;
   turnId?: Turnid18;
-  type: Type12;
+  type: Type13;
   v: V12;
 }
 /**

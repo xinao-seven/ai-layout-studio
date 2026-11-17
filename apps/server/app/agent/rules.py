@@ -41,7 +41,7 @@ def _height(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> float:
         (candidate for candidate in entry.variants if candidate.id == item.variant_id),
         entry.variants[0],
     )
-    return variant.size_m[2]
+    return variant.size_m[2] * item.transform.scale
 
 
 def _centre(item: Item) -> Vec2:

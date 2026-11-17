@@ -1,6 +1,6 @@
 # AI Layout Server
 
-FastAPI service for the AI interior layout workbench: scene truth source,
+FastAPI service for AI Layout Studio: scene truth source,
 version history, geometry validation, REST/WebSocket sync and (from M3) the
 agent loop.
 

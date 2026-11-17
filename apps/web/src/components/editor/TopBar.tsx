@@ -75,7 +75,7 @@ export function TopBar() {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="truncate font-medium text-sm">{scene?.name ?? '加载中…'}</h1>
-            <Badge tone="accent">M5</Badge>
+            <Badge tone="accent">M6</Badge>
           </div>
           <p className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <span>v{scene?.version ?? 1}</span>

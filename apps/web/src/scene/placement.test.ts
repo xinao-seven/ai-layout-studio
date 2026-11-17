@@ -179,4 +179,58 @@ describe('client placement precheck', () => {
     expect(result.valid).toBe(false)
     expect(result.issue?.code).toBe('out_of_room')
   })
+
+  it('scales the footprint of the item being placed', () => {
+    const grown = checkPlacement(scene(), catalog, {
+      kindId: 'plant',
+      position: [4, 3],
+      rotationY: 0,
+      scale: 2,
+    })
+    expect(grown.valid).toBe(true)
+
+    const nearWall = checkPlacement(scene(), catalog, {
+      kindId: 'plant',
+      position: [0.35, 3],
+      rotationY: 0,
+      scale: 2,
+    })
+    expect(nearWall.valid).toBe(false)
+    expect(nearWall.issue?.code).toBe('out_of_room')
+  })
+
+  it('rejects a scaled item that would exceed the ceiling', () => {
+    const result = checkPlacement(scene(), catalog, {
+      kindId: 'sofa',
+      position: [4, 3],
+      rotationY: 0,
+      scale: 6,
+    })
+    expect(result.valid).toBe(false)
+    expect(result.issue?.code).toBe('unrealistic')
+  })
+
+  it('measures existing items at their own scale when checking collisions', () => {
+    const document = scene()
+    const outside = checkPlacement(document, catalog, {
+      kindId: 'plant',
+      position: [3.2, 2],
+      rotationY: 0,
+    })
+    expect(outside.valid).toBe(true)
+
+    const sofa = document.items[0]
+    if (!sofa) throw new Error('fixture scene must contain the sofa')
+    document.items[0] = {
+      ...sofa,
+      transform: { ...sofa.transform, scale: 1.5 },
+    }
+    const overlap = checkPlacement(document, catalog, {
+      kindId: 'plant',
+      position: [3.2, 2],
+      rotationY: 0,
+    })
+    expect(overlap.valid).toBe(false)
+    expect(overlap.issue?.code).toBe('collision')
+  })
 })

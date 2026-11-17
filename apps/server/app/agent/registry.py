@@ -12,6 +12,7 @@ from app.agent.contracts import (
     AddRoomInput,
     AskUserInput,
     AutoLayoutInput,
+    ModelItemInput,
     MoveItemInput,
     QuerySceneInput,
     RemoveItemInput,
@@ -100,6 +101,23 @@ TOOL_SPECS: tuple[ToolSpec, ...] = (
             "Propose changing an existing item's variant or material overrides. Needs confirmation."
         ),
         input_model=UpdateItemInput,
+        kind="write",
+    ),
+    ToolSpec(
+        name="model_item",
+        description=(
+            "Generate custom furniture with exact dimensions and propose placing it. "
+            "Use this only when no catalog kind fits: search_catalog first. Families: "
+            "bookshelf (shelves, glass doors), wardrobe (hinged/sliding), tv_stand "
+            "(drawers, open shelf), desk_l (L-shaped with return), counter_run "
+            "(kitchen run with sink/cooktop), scale (proportionally resize an existing "
+            "kindId, factors 0.6-1.4), primitives (compose 1-24 axis-aligned boxes into "
+            "a simple object no curated family covers, e.g. a drying rack or shoe rack). "
+            "The server compiles a GLB, registers it in the "
+            "scene library and shows the result as a ghost until the user confirms. "
+            "Generated assets stay reusable through search_catalog afterwards."
+        ),
+        input_model=ModelItemInput,
         kind="write",
     ),
     ToolSpec(

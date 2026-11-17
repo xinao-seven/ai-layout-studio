@@ -14,7 +14,7 @@ import structlog
 from app.agent.context import ContextBuilder
 from app.agent.llm import LLMAdapter
 from app.agent.orchestrator import AgentLoop, AgentRunResult, TurnCancelled
-from app.agent.tools import AskUserHandler, ToolExecutor
+from app.agent.tools import AskUserHandler, CatalogPublisher, ToolExecutor
 from app.capture.service import CaptureService
 from app.contracts.catalog import CatalogEntry
 from app.contracts.enums import MessageRole, ProposalStatus, TurnStatus
@@ -23,6 +23,7 @@ from app.contracts.proposal import Proposal, Turn, TurnMessage, TurnUsage
 from app.contracts.rules import Rules
 from app.contracts.scene import SceneDocument
 from app.db.repository import SceneRepository
+from app.modelgen.service import ModelGenService
 from app.scene.errors import SceneError
 from app.scene.registry import OverlayView, SceneRegistry
 from app.solver.service import SolverService
@@ -82,6 +83,7 @@ class TurnManager:
         solver: SolverService | None = None,
         capture: CaptureService | None = None,
         vlm: VLMService | None = None,
+        modelgen: ModelGenService | None = None,
     ) -> None:
         self._registry = registry
         self._repository = repository
@@ -92,6 +94,8 @@ class TurnManager:
         self._solver = solver
         self._capture = capture
         self._vlm = vlm
+        self._modelgen = modelgen
+        self._publish_catalog: CatalogPublisher | None = None
         self._context = ContextBuilder(catalog)
         self._states: dict[str, _TurnState] = {}
         self._running: dict[str, str] = {}
@@ -104,6 +108,10 @@ class TurnManager:
         """Refresh the catalog snapshot used by tools and the system prompt."""
         self._catalog = catalog
         self._context = ContextBuilder(catalog)
+
+    def set_catalog_publisher(self, publisher: CatalogPublisher | None) -> None:
+        """Register the hook that broadcasts a newly generated catalog entry."""
+        self._publish_catalog = publisher
 
     # ---- queries ---------------------------------------------------------
 
@@ -405,6 +413,8 @@ class TurnManager:
             solver=self._solver,
             capture=self._capture,
             vlm=self._vlm,
+            modelgen=self._modelgen,
+            on_catalog_updated=self._publish_catalog,
         )
 
     def _ask_user_handler(self, state: _TurnState) -> AskUserHandler:

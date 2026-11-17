@@ -14,6 +14,7 @@ from pydantic import Field
 
 from app.contracts.api import ErrorBody
 from app.contracts.base import CamelModel
+from app.contracts.catalog import CatalogEntry
 from app.contracts.patch import PatchOp, ScenePatch
 from app.contracts.proposal import Proposal, Turn
 from app.contracts.scene import SceneDocument
@@ -54,6 +55,12 @@ class ScenePatchPayload(CamelModel):
 
 class ProposalUpdatedPayload(CamelModel):
     proposal: Proposal
+
+
+class CatalogUpdatedPayload(CamelModel):
+    """A generated asset joined the catalog; hosts must merge it to render ghosts."""
+
+    entry: CatalogEntry
 
 
 class TurnWaitingUserPayload(CamelModel):
@@ -255,6 +262,7 @@ WS_MODELS: tuple[type[CamelModel], ...] = (
     SceneSnapshotPayload,
     ScenePatchPayload,
     ProposalUpdatedPayload,
+    CatalogUpdatedPayload,
     TurnStatusPayload,
     AssistantDeltaPayload,
     AssistantMessagePayload,

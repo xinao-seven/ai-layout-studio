@@ -60,6 +60,21 @@ Rules:
    move, rotate or re-add the items it just placed; the user confirms or rejects
    the whole proposal. If verify_layout returns ok=true, stop editing even when
    it has warning-severity suggestions: report the warnings and finish.
+12. Prefer the built-in catalog. Call model_item only when no catalog kind fits
+   the required dimensions or form (for example "2.4 米通顶书柜"). It generates
+   custom parametric furniture from a family spec, or proportionally rescales an
+   existing kind with family=scale. Tell the user the item is custom and stays
+   available in their asset library.
+13. Every generated item is a real asset with its own kindId. Reuse the returned
+   kindId with add_item or auto_layout instead of generating the same furniture
+   twice; search_catalog can find previously generated assets.
+14. When the user describes a simple orthogonal object that no family covers
+   (a drying rack, shoe rack, plant stand, TV bracket, low partition), use
+   family=primitives: 1-24 axis-aligned boxes with size and centre position in
+   metres, where y=0 is the floor and at least one box touches it. Declare the
+   closest category so placement rules apply (decor for thin open structures,
+   storage for cabinets). Keep it to about 8 boxes and do not use primitives for
+   upholstered, curved or decorative shapes — those need a curated family.
 """
 
 
@@ -93,15 +108,28 @@ def _item_payload(item: Item, *, pending: bool) -> dict[str, Any]:
         "variantId": item.variant_id,
         "position": [round(value, 3) for value in item.transform.position],
         "rotationY": round(item.transform.rotation_y, 4),
+        "scale": round(item.transform.scale, 4),
         "constraint": constraint,
         "source": item.source.value,
         "pending": pending,
     }
 
 
+MAX_LIBRARY_SUMMARY = 12
+
+
 def _catalog_summary(catalog: Mapping[str, CatalogEntry]) -> list[dict[str, Any]]:
+    """Summarise the catalog without letting generated assets crowd it out.
+
+    Built-in entries are grouped by category as before. Library assets are
+    listed separately and capped, because a growing library would otherwise
+    consume the prompt budget and hide the shipped catalog.
+    """
+    builtin = [entry for entry in catalog.values() if entry.source == "builtin"]
+    generated = [entry for entry in catalog.values() if entry.source != "builtin"]
+
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for entry in catalog.values():
+    for entry in builtin:
         variant = entry.variants[0]
         default = next(
             (candidate for candidate in entry.variants if candidate.id == entry.default_variant_id),
@@ -115,9 +143,30 @@ def _catalog_summary(catalog: Mapping[str, CatalogEntry]) -> list[dict[str, Any]
                 "mustAgainstWall": bool(entry.rules and entry.rules.must_against_wall),
             }
         )
-    return [
-        {"category": category, "items": items[:20]} for category, items in sorted(grouped.items())
+    sections: list[dict[str, Any]] = [
+        {"category": category, "items": items[:20]}
+        for category, items in sorted(grouped.items())
     ]
+    if generated:
+        # Newest first: the manifest preserves creation order, so the tail is the
+        # most recently generated furniture and the most likely to be reused.
+        recent = list(reversed(generated))[:MAX_LIBRARY_SUMMARY]
+        sections.append(
+            {
+                "category": "generated-library",
+                "total": len(generated),
+                "items": [
+                    {
+                        "kindId": entry.kind_id,
+                        "name": entry.name,
+                        "sizeM": entry.variants[0].size_m if entry.variants else None,
+                    }
+                    for entry in recent
+                ],
+                "note": "Custom assets (newest first). Use search_catalog for the full library.",
+            }
+        )
+    return sections
 
 
 class ContextBuilder:

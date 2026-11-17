@@ -17,7 +17,10 @@ from app.api.errors import install_error_handlers
 from app.api.routes import api_router
 from app.api.routes.ws import router as ws_router
 from app.capture.service import CaptureProvider, CaptureService
+from app.catalog.library import AssetLibrary
 from app.catalog.service import CatalogService
+from app.contracts.catalog import CatalogEntry
+from app.contracts.proposal import Proposal
 from app.contracts.rules import get_rules
 from app.core.config import Settings, ensure_single_worker, get_settings
 from app.core.logging import configure_logging
@@ -26,6 +29,7 @@ from app.db import models  # noqa: F401 - register ORM tables on Base.metadata
 from app.db.base import Base
 from app.db.repository import SceneRepository
 from app.db.session import create_engine, create_session_factory
+from app.modelgen.service import ModelGenService, build_model_path_resolver
 from app.scene.fixtures import FixtureService
 from app.scene.registry import SceneRegistry
 from app.solver.service import SolverService
@@ -34,6 +38,23 @@ from app.vlm.client import VLMClient, build_vlm_client
 from app.vlm.service import VLMService
 
 logger = structlog.get_logger(__name__)
+
+
+def _assert_library_location(settings: Settings) -> None:
+    """Refuse a library root inside the shipped ``assets`` tree.
+
+    Generated files must never land in the git-tracked, image-baked assets
+    directory: a checkout or container rebuild would drop them and break scenes.
+    """
+    shipped = find_assets_root()
+    if shipped is None:
+        return
+    library = settings.library_dir.resolve()
+    if library == shipped.resolve() or shipped.resolve() in library.parents:
+        raise ValueError(
+            f"asset_library_dir {library} is inside the shipped assets tree "
+            f"{shipped}; point it at the data directory instead"
+        )
 
 
 def create_app(
@@ -51,6 +72,7 @@ def create_app(
     """
     ensure_single_worker()
     app_settings = settings or get_settings()
+    _assert_library_location(app_settings)
     configure_logging(
         app_settings.log_level,
         json_logs=app_settings.environment != "development",
@@ -67,7 +89,12 @@ def create_app(
                 await connection.run_sync(Base.metadata.create_all)
         session_factory = create_session_factory(engine)
         repository = SceneRepository(session_factory)
-        catalog = CatalogService()
+        library = AssetLibrary(app_settings.library_dir)
+        library.gc_tmp(
+            app_settings.asset_tmp_ttl_hours,
+            protected=frozenset(await repository.referenced_kind_ids()),
+        )
+        catalog = CatalogService(library=library)
         fixtures = FixtureService()
         registry = SceneRegistry(repository, catalog=catalog.by_kind)
         gateway = SyncGateway(registry)
@@ -94,6 +121,13 @@ def create_app(
         resolved_vlm = vlm_client or build_vlm_client(app_settings)
         if resolved_vlm is not None:
             vlm = VLMService(resolved_vlm, app_settings)
+        modelgen = ModelGenService(
+            library,
+            enabled=app_settings.asset_generation_enabled,
+            resolve_model_path=build_model_path_resolver(
+                catalog, library, find_assets_root()
+            ),
+        )
         manager = TurnManager(
             registry=registry,
             repository=repository,
@@ -104,13 +138,61 @@ def create_app(
             solver=solver_service,
             capture=capture,
             vlm=vlm,
+            modelgen=modelgen,
         )
         gateway.set_manager(manager)
+
+        async def publish_catalog_entry(scene_id: str, entry: CatalogEntry) -> None:
+            """Refresh every catalog consumer and push the new kind to hosts.
+
+            Runs before the proposal that references the kind is emitted, so a
+            host always has the model URL when it renders the ghost. The owning
+            scene is always emitted (and therefore buffered) even with no live
+            connection; other open scenes are updated too.
+            """
+            catalog.refresh_library()
+            registry.update_catalog(catalog.by_kind)
+            manager.update_catalog(catalog.by_kind)
+            for target in sorted({scene_id} | set(gateway.connected_scenes())):
+                await gateway.emit_catalog(target, entry)
+
+        async def promote_confirmed(proposal: Proposal) -> None:
+            entries = modelgen.on_proposal_confirmed(proposal)
+            for entry in entries:
+                await publish_catalog_entry(proposal.scene_id, entry)
+
+        async def _asset_cleanup_loop() -> None:
+            """Reclaim expired temp assets without touching referenced ones."""
+            while True:
+                await asyncio.sleep(3600)
+                try:
+                    protected = frozenset(await repository.referenced_kind_ids())
+                    removed = await asyncio.to_thread(
+                        library.gc_tmp,
+                        app_settings.asset_tmp_ttl_hours,
+                        protected=protected,
+                    )
+                except asyncio.CancelledError:
+                    raise
+                except Exception as error:  # pragma: no cover - best effort
+                    logger.warning("assets.gc_failed", error=str(error))
+                    continue
+                if removed:
+                    catalog.refresh_library()
+                    registry.update_catalog(catalog.by_kind)
+                    manager.update_catalog(catalog.by_kind)
+                    logger.info("assets.gc", removed=len(removed))
+
+        manager.set_catalog_publisher(publish_catalog_entry)
+        gateway.set_confirm_hook(promote_confirmed)
+        asset_cleanup_task = asyncio.create_task(_asset_cleanup_loop())
         await manager.restore_after_restart()
 
         application.state.engine = engine
         application.state.repository = repository
         application.state.catalog = catalog
+        application.state.library = library
+        application.state.modelgen = modelgen
         application.state.fixtures = fixtures
         application.state.registry = registry
         application.state.gateway = gateway
@@ -130,6 +212,7 @@ def create_app(
             yield
         finally:
             cleanup_task.cancel()
+            asset_cleanup_task.cancel()
             await manager.shutdown()
             await solver_service.shutdown()
             if resolved_vlm is not None and hasattr(resolved_vlm, "aclose"):
@@ -153,6 +236,20 @@ def create_app(
         allow_headers=["*"],
     )
     install_error_handlers(app)
+    # Generated assets are served from the runtime library, never from the repo
+    # ``assets/`` tree. Only the three asset namespaces are mounted (not the
+    # library root) so ``manifest.json`` stays internal. Mounted before
+    # ``/assets`` because Starlette matches mounts in registration order and the
+    # broader prefix would shadow it.
+    library_dir = app_settings.library_dir
+    for subdir in ("models", "thumbnails", "tmp"):
+        directory = library_dir / subdir
+        directory.mkdir(parents=True, exist_ok=True)
+        app.mount(
+            f"/assets/library/{subdir}",
+            StaticFiles(directory=directory, check_dir=False),
+            name=f"asset-library-{subdir}",
+        )
     assets_root = find_assets_root()
     if assets_root is not None:
         app.mount("/assets", StaticFiles(directory=assets_root, check_dir=False), name="assets")

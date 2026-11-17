@@ -137,7 +137,8 @@ def _variant(entry: CatalogEntry, variant_id: str | None) -> tuple[str, Vec2, fl
 def _item_size(item: Item, catalog: CatalogMap) -> tuple[Vec2, float]:
     entry = _catalog_entry(catalog, item.kind_id)
     _, size, height = _variant(entry, item.variant_id)
-    return size, height
+    scale = item.transform.scale
+    return (size[0] * scale, size[1] * scale), height * scale
 
 
 def _yaw_for_vector(vector: Vec2) -> float:

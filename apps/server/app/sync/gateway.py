@@ -6,6 +6,7 @@ import asyncio
 import time
 import uuid
 from collections import defaultdict, deque
+from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -13,6 +14,7 @@ from fastapi import WebSocket
 from pydantic import TypeAdapter, ValidationError
 
 from app.contracts.api import ErrorBody
+from app.contracts.catalog import CatalogEntry
 from app.contracts.enums import ProposalStatus
 from app.contracts.patch import ScenePatch
 from app.contracts.proposal import Proposal
@@ -21,6 +23,7 @@ from app.contracts.ws import (
     CaptureRequestPayload,
     CaptureResultMessage,
     CaptureResultPayload,
+    CatalogUpdatedPayload,
     CommitMessage,
     HostMessageUnion,
     PingMessage,
@@ -70,10 +73,25 @@ class SyncGateway:
         self._send_locks: dict[WebSocket, asyncio.Lock] = {}
         self._capture_futures: dict[str, tuple[asyncio.Future[CaptureResultPayload], str, str]] = {}
         self._manager: TurnManager | None = None
+        self._on_proposal_confirmed: Callable[[Proposal], Awaitable[None]] | None = None
         self.epoch = uuid.uuid4().hex
 
     def set_manager(self, manager: TurnManager) -> None:
         self._manager = manager
+
+    def set_confirm_hook(
+        self, hook: Callable[[Proposal], Awaitable[None]] | None
+    ) -> None:
+        """Register a post-confirmation hook (used to promote generated assets)."""
+        self._on_proposal_confirmed = hook
+
+    def connected_scenes(self) -> list[str]:
+        """Scene ids with at least one live host connection."""
+        return [
+            scene_id
+            for scene_id, sockets in self._connections.items()
+            if sockets
+        ]
 
     def _require_manager(self) -> TurnManager:
         if self._manager is None:
@@ -124,6 +142,23 @@ class SyncGateway:
             buffer=True,
         )
         await self._broadcast(scene_id, envelope)
+
+    async def emit_catalog(self, scene_id: str, entry: CatalogEntry) -> int:
+        """Broadcast a state ``catalog.updated`` event.
+
+        Sent *before* the ``proposal.created`` that references the new kind, so
+        a host that processes frames in sequence order always has the model URL
+        by the time it has to render the ghost.
+        """
+        envelope = self._next_envelope(
+            scene_id,
+            WsChannel.STATE,
+            "catalog.updated",
+            CatalogUpdatedPayload(entry=entry).model_dump(mode="json", by_alias=True),
+            buffer=True,
+        )
+        await self._broadcast(scene_id, envelope)
+        return envelope.seq
 
     def _next_envelope(
         self,
@@ -528,9 +563,22 @@ class SyncGateway:
                 outcome = await self.registry.confirm_proposal(
                     scene_id, message.payload.proposal_id
                 )
+                proposal = await self.registry.get_proposal(message.payload.proposal_id)
+                if (
+                    proposal is not None
+                    and not outcome.already_confirmed
+                    and self._on_proposal_confirmed is not None
+                ):
+                    # Promote generated assets BEFORE the patch is broadcast: the
+                    # confirmation moves the files out of the temp namespace, so
+                    # hosts must already hold the permanent URLs when they render
+                    # the item for the first time.
+                    try:
+                        await self._on_proposal_confirmed(proposal)
+                    except Exception as error:  # pragma: no cover - never block confirm
+                        logger.warning("catalog.promote_failed", error=str(error))
                 if not outcome.already_confirmed:
                     await self.broadcast_patch(scene_id, outcome.patch)
-                proposal = await self.registry.get_proposal(message.payload.proposal_id)
                 if proposal is not None:
                     await self.emit_proposal(scene_id, proposal)
                 await self.emit_expired(scene_id, outcome.expired_proposals)

@@ -29,7 +29,79 @@ def _item_position(item: Item) -> Vec2:
     return (item.transform.position[0], item.transform.position[2])
 
 
-def _validate_items(document: SceneDocument, catalog: CatalogMap | None) -> None:
+def _validate_scale(
+    item: Item,
+    document: SceneDocument,
+    catalog: CatalogMap | None,
+    rules: Rules,
+) -> None:
+    """Enforce the uniform-scale envelope and the ceiling height.
+
+    Scale is a user-facing editor control, so it needs the same server-side
+    refusal path as placement: the client clamp is a convenience, not the
+    authority. The ceiling check only applies to resized items so legacy
+    fixtures are never re-litigated.
+    """
+    scale = item.transform.scale
+    if scale < rules.item_scale_min - 1e-9 or scale > rules.item_scale_max + 1e-9:
+        raise SceneError(
+            "unrealistic",
+            (
+                f"Item {item.id} scale {scale:.2f} is outside "
+                f"{rules.item_scale_min:.2f}–{rules.item_scale_max:.2f}."
+            ),
+            "Resize the item within the allowed range.",
+            {
+                "itemId": item.id,
+                "ruleId": "item_scale_bounds",
+                "scale": scale,
+                "min": rules.item_scale_min,
+                "max": rules.item_scale_max,
+            },
+        )
+    if catalog is None or abs(scale - 1.0) <= 1e-9:
+        return
+    entry = catalog.get(item.kind_id)
+    if entry is None or not entry.variants:
+        return
+    variant = next(
+        (candidate for candidate in entry.variants if candidate.id == item.variant_id),
+        entry.variants[0],
+    )
+    position = _item_position(item)
+    room = next(
+        (
+            candidate
+            for candidate in document.rooms
+            if point_in_polygon(position, candidate.polygon)
+        ),
+        None,
+    )
+    ceiling = room.wall_height if room and room.wall_height else rules.wall_height
+    height = variant.size_m[2] * scale
+    if height > ceiling + 1e-6:
+        raise SceneError(
+            "unrealistic",
+            (
+                f"Item {item.id} would be {height:.2f} m tall, above the "
+                f"{ceiling:.2f} m ceiling."
+            ),
+            "Reduce the size or use a shorter variant.",
+            {
+                "itemId": item.id,
+                "ruleId": "item_exceeds_ceiling",
+                "height": round(height, 3),
+                "ceiling": round(ceiling, 3),
+            },
+        )
+
+
+def _validate_items(
+    document: SceneDocument,
+    catalog: CatalogMap | None,
+    rules: Rules | None = None,
+) -> None:
+    effective_rules = rules or get_rules()
     rooms = {room.id: room for room in document.rooms}
     item_ids = {item.id for item in document.items}
     if len(item_ids) != len(document.items):
@@ -41,6 +113,7 @@ def _validate_items(document: SceneDocument, catalog: CatalogMap | None) -> None
 
     opening_ids = {opening.id for opening in document.openings}
     for item in document.items:
+        _validate_scale(item, document, catalog, effective_rules)
         position = _item_position(item)
         if document.rooms and not any(
             point_in_polygon(position, room.polygon) for room in document.rooms
@@ -158,7 +231,7 @@ def validate_document(
     except GeometryError as error:
         _raise_scene_error(error)
 
-    _validate_items(document, catalog)
+    _validate_items(document, catalog, rules)
 
     for timestamp_name in ("created_at", "updated_at"):
         value = getattr(document, timestamp_name)

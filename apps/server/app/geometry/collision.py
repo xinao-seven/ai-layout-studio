@@ -25,7 +25,11 @@ COLLISION_TOLERANCE = -0.005
 
 
 def item_size(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> Vec2:
-    """Return (width, depth) in meters; unknown kinds use a conservative box."""
+    """Return the effective (width, depth) in metres.
+
+    ``transform.scale`` is uniform and multiplies the catalog footprint, so a
+    resized item collides at the size the user sees, not the catalog size.
+    """
     if catalog is None:
         return CATALOG_FALLBACK_SIZE
     entry = catalog.get(item.kind_id)
@@ -35,7 +39,8 @@ def item_size(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> Vec2:
         (candidate for candidate in entry.variants if candidate.id == item.variant_id),
         entry.variants[0],
     )
-    return (variant.size_m[0], variant.size_m[1])
+    scale = item.transform.scale
+    return (variant.size_m[0] * scale, variant.size_m[1] * scale)
 
 
 def item_allows_overlap(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> bool:
@@ -46,6 +51,7 @@ def item_allows_overlap(item: Item, catalog: Mapping[str, CatalogEntry] | None) 
 
 
 def item_height(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> float:
+    """Effective height in metres, including the item's uniform scale."""
     if catalog is None:
         return CATALOG_FALLBACK_HEIGHT
     entry = catalog.get(item.kind_id)
@@ -55,7 +61,7 @@ def item_height(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> float
         (candidate for candidate in entry.variants if candidate.id == item.variant_id),
         entry.variants[0],
     )
-    return variant.size_m[2]
+    return variant.size_m[2] * item.transform.scale
 
 
 def _is_circulation_blocker(item: Item, catalog: Mapping[str, CatalogEntry] | None) -> bool:

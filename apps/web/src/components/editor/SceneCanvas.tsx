@@ -246,6 +246,42 @@ function RoomFloor({ room }: { room: Room }) {
   )
 }
 
+/**
+ * Choose which collinear edge a click/drag on a merged wall refers to: prefer
+ * the room side the camera is looking from, so a shared wall picks the edge of
+ * the visible room.
+ */
+function pickWallEdge(
+  wall: { edges: Array<{ roomId: string; edgeIndex: number }> },
+  scene: SceneDocument,
+  point: { x: number; z: number },
+  camera: THREE.Camera,
+): { roomId: string; edgeIndex: number } | null {
+  let chosen: { roomId: string; edgeIndex: number } | null = wall.edges[0] ?? null
+  let best = Number.NEGATIVE_INFINITY
+  for (const edge of wall.edges) {
+    const room = scene.rooms.find((candidate) => candidate.id === edge.roomId)
+    if (!room) continue
+    const info = edgeInfo(room.polygon as Vec2[], edge.edgeIndex)
+    if (!info) continue
+    const dx = info.b[0] - info.a[0]
+    const dz = info.b[1] - info.a[1]
+    const lengthSq = dx * dx + dz * dz
+    if (lengthSq <= 1e-9) continue
+    const t = ((point.x - info.a[0]) * dx + (point.z - info.a[1]) * dz) / lengthSq
+    // Disjoint collinear edges share a line but not a span.
+    if (t < -0.02 || t > 1.02) continue
+    const score =
+      (camera.position.x - point.x) * info.normal[0] +
+      (camera.position.z - point.z) * info.normal[1]
+    if (score > best) {
+      best = score
+      chosen = edge
+    }
+  }
+  return chosen
+}
+
 function Walls({ scene, topView }: { scene: SceneDocument; topView: boolean }) {
   const geometry = useMemo(() => buildWalls(scene, { topView }), [scene, topView])
   const selectedWall = useSceneStore((state) => state.selectedWall)
@@ -269,34 +305,21 @@ function Walls({ scene, topView }: { scene: SceneDocument; topView: boolean }) {
             onClick={(event) => {
               if (useSceneStore.getState().tool !== 'select') return
               if (useSceneStore.getState().viewMode === 'walk') return
-              let chosen = wall.edges[0]
-              let best = Number.NEGATIVE_INFINITY
-              for (const edge of wall.edges) {
-                const room = scene.rooms.find((candidate) => candidate.id === edge.roomId)
-                if (!room) continue
-                const info = edgeInfo(room.polygon as Vec2[], edge.edgeIndex)
-                if (!info) continue
-                const dx = info.b[0] - info.a[0]
-                const dz = info.b[1] - info.a[1]
-                const lengthSq = dx * dx + dz * dz
-                if (lengthSq <= 1e-9) continue
-                const t =
-                  ((event.point.x - info.a[0]) * dx + (event.point.z - info.a[1]) * dz) / lengthSq
-                // Disjoint collinear edges share a line but not a span.
-                if (t < -0.02 || t > 1.02) continue
-                // Pick the room side the camera is looking from, so a shared
-                // wall selects the edge belonging to the visible room.
-                const score =
-                  (camera.position.x - event.point.x) * info.normal[0] +
-                  (camera.position.z - event.point.z) * info.normal[1]
-                if (score > best) {
-                  best = score
-                  chosen = edge
-                }
-              }
+              const chosen = pickWallEdge(wall, scene, event.point, camera)
               if (!chosen) return
               event.stopPropagation()
               selectWall({ roomId: chosen.roomId, edgeIndex: chosen.edgeIndex })
+            }}
+            onPointerDown={(event) => {
+              if (event.button !== 0) return
+              const state = useSceneStore.getState()
+              if (state.tool !== 'select') return
+              if (state.viewMode === 'walk') return
+              if (state.captureRequest) return
+              const chosen = pickWallEdge(wall, scene, event.point, camera)
+              if (!chosen) return
+              event.stopPropagation()
+              state.startWallDrag(chosen.roomId, chosen.edgeIndex, [event.point.x, event.point.z])
             }}
             position={[wall.center[0], wall.y, wall.center[1]]}
             receiveShadow
@@ -457,6 +480,134 @@ function ModelOrFallback({ variant, selected }: { variant: VariantInfo; selected
   )
 }
 
+function ScaleGrip({ itemId, width, depth }: { itemId: string; width: number; depth: number }) {
+  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
+    if (event.button !== 0) return
+    if (useSceneStore.getState().tool !== 'select') return
+    event.stopPropagation()
+    useSceneStore.getState().startScaleDrag(itemId)
+  }
+
+  return (
+    <mesh
+      onPointerDown={handlePointerDown}
+      onPointerOut={() => {
+        document.body.style.cursor = ''
+      }}
+      onPointerOver={(event) => {
+        event.stopPropagation()
+        document.body.style.cursor = 'nwse-resize'
+      }}
+      position={[width / 2 + 0.05, 0.06, depth / 2 + 0.05]}
+      userData={{ scaleGripFor: itemId }}
+    >
+      <boxGeometry args={[0.14, 0.035, 0.14]} />
+      <meshBasicMaterial color="#d7dbe6" />
+    </mesh>
+  )
+}
+
+/**
+ * Window-level pointer tracking for an in-flight wall drag.
+ *
+ * The wall itself only reports the initial pointerdown; moving and releasing
+ * are handled here so the wall keeps following the pointer across the canvas.
+ */
+function WallDragController() {
+  const { camera, gl } = useThree()
+  const active = useSceneStore((state) => state.wallDrag !== null)
+
+  useEffect(() => {
+    if (!active) return
+    const element = gl.domElement
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
+    const raycaster = new THREE.Raycaster()
+    const projected = new THREE.Vector2()
+    const hit = new THREE.Vector3()
+
+    const onMove = (event: PointerEvent) => {
+      const rect = element.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return
+      projected.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      projected.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      raycaster.setFromCamera(projected, camera)
+      if (raycaster.ray.intersectPlane(plane, hit)) {
+        useSceneStore.getState().updateWallDrag([hit.x, hit.z])
+      }
+    }
+    const onUp = () => {
+      void useSceneStore.getState().endWallDrag()
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') useSceneStore.getState().cancelWallDrag()
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [active, camera, gl])
+
+  return null
+}
+
+/**
+ * Window-level pointer tracking for an in-flight scale drag.
+ *
+ * Lives inside the Canvas so it can project screen coordinates onto the floor
+ * plane. Window listeners (rather than R3F pointer capture) keep the drag alive
+ * while the pointer travels outside the item.
+ */
+function ScaleDragController() {
+  const { camera, gl } = useThree()
+  const active = useSceneStore((state) => state.scaleDrag !== null)
+
+  useEffect(() => {
+    if (!active) return
+    const element = gl.domElement
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
+    const raycaster = new THREE.Raycaster()
+    const projected = new THREE.Vector2()
+    const hit = new THREE.Vector3()
+
+    const onMove = (event: PointerEvent) => {
+      const rect = element.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return
+      projected.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      projected.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      raycaster.setFromCamera(projected, camera)
+      if (raycaster.ray.intersectPlane(plane, hit)) {
+        useSceneStore.getState().updateScaleDrag([hit.x, hit.z])
+      }
+    }
+    const onUp = () => {
+      void useSceneStore.getState().endScaleDrag()
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') useSceneStore.getState().cancelScaleDrag()
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [active, camera, gl])
+
+  return null
+}
+
 function ItemMesh({
   item,
   catalog,
@@ -469,8 +620,13 @@ function ItemMesh({
   dragState: ItemDragState | null
 }) {
   const variant = itemVariant(item, catalog)
+  const scaleDrag = useSceneStore((state) => state.scaleDrag)
+  const scaling = scaleDrag?.itemId === item.id
+  const scale = scaling && scaleDrag ? scaleDrag.scale : (item.transform.scale ?? 1)
   const dragging = dragState?.itemId === item.id
-  const invalid = Boolean(dragging && dragState?.moved && !dragState.valid)
+  const invalid = Boolean(
+    (dragging && dragState?.moved && !dragState.valid) || (scaling && !scaleDrag?.valid),
+  )
   const [baseX, baseY, baseZ] = item.transform.position
   const position: [number, number, number] =
     dragging && dragState ? dragState.position : [baseX, baseY, baseZ]
@@ -515,9 +671,10 @@ function ItemMesh({
       }}
       position={position}
       rotation={[0, item.transform.rotationY, 0]}
+      scale={scale}
       userData={{ itemId: item.id }}
     >
-      {selected || dragging ? (
+      {selected || dragging || scaling ? (
         <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry
             args={[
@@ -529,11 +686,14 @@ function ItemMesh({
           <meshBasicMaterial color={ringColor} opacity={0.92} side={THREE.DoubleSide} transparent />
         </mesh>
       ) : null}
-      <ModelOrFallback selected={selected || dragging} variant={variant} />
+      <ModelOrFallback selected={selected || dragging || scaling} variant={variant} />
       <mesh position={[0, 0.03, variant.depth / 2 + 0.12]}>
         <boxGeometry args={[Math.min(variant.width * 0.4, 0.4), 0.02, 0.12]} />
         <meshBasicMaterial color={invalid ? INVALID_COLOR : '#9aa4b2'} />
       </mesh>
+      {selected && !dragging ? (
+        <ScaleGrip depth={variant.depth} itemId={item.id} width={variant.width} />
+      ) : null}
     </group>
   )
 }
@@ -948,7 +1108,9 @@ function ViewControls({
   bounds: Bounds
   target?: [number, number, number] | null
 }) {
-  const interacting = useSceneStore((state) => Boolean(state.drag || state.vertexDrag))
+  const interacting = useSceneStore((state) =>
+    Boolean(state.drag || state.vertexDrag || state.scaleDrag || state.wallDrag),
+  )
   return (
     <OrbitControls
       enableDamping
@@ -969,7 +1131,9 @@ function TopControls({
   bounds: Bounds
   target?: [number, number, number] | null
 }) {
-  const interacting = useSceneStore((state) => Boolean(state.drag || state.vertexDrag))
+  const interacting = useSceneStore((state) =>
+    Boolean(state.drag || state.vertexDrag || state.scaleDrag || state.wallDrag),
+  )
   return (
     <OrbitControls
       enableDamping
@@ -1008,6 +1172,16 @@ function SceneContents({
   const walkMode = viewMode === 'walk'
   const tool = useSceneStore((state) => state.tool)
   const dragState = useSceneStore((state) => state.drag)
+  const wallDrag = useSceneStore((state) => state.wallDrag)
+  // Preview the moved wall live: floors, walls and vertex handles all read this.
+  const displayScene = useMemo(() => {
+    if (!wallDrag) return scene
+    const rooms = scene.rooms.map((room) => {
+      const polygon = wallDrag.polygons[room.id]
+      return polygon ? { ...room, polygon } : room
+    })
+    return { ...scene, rooms }
+  }, [scene, wallDrag])
   const ghost = useSceneStore((state) => state.ghost)
   const proposals = useSceneStore((state) => state.proposals)
   const overlay = useMemo(() => pendingOverlay(scene, proposals), [scene, proposals])
@@ -1088,6 +1262,8 @@ function SceneContents({
       <CameraKeeper enabled={!captureRequest && !walkMode} />
       <FpsMeter onFps={onFps} />
       <SceneInteractions />
+      <ScaleDragController />
+      <WallDragController />
       {walkMode ? <WalkRig catalog={catalog} scene={scene} /> : null}
 
       <gridHelper
@@ -1095,10 +1271,10 @@ function SceneContents({
         position={[bounds.center[0], 0.002, bounds.center[1]]}
       />
 
-      {scene.rooms.map((room) => (
+      {displayScene.rooms.map((room) => (
         <RoomFloor key={room.id} room={room} />
       ))}
-      <Walls scene={scene} topView={topView} />
+      <Walls scene={displayScene} topView={topView} />
 
       {scene.items.map((item) =>
         !captureRequest &&
@@ -1128,7 +1304,7 @@ function SceneContents({
       {!captureRequest && ghost ? <GhostItem catalog={catalog} ghost={ghost} /> : null}
       {!captureRequest && !walkMode && tool === 'draw-room' ? <DrawingPlane /> : null}
       {!captureRequest && !walkMode && tool === 'draw-room' ? <DraftOverlay /> : null}
-      {!captureRequest && !walkMode ? <VertexEditor scene={scene} /> : null}
+      {!captureRequest && !walkMode ? <VertexEditor scene={displayScene} /> : null}
 
       {!captureRequest && perfMode ? <ProxyBoxes bounds={bounds} count={200} /> : null}
 

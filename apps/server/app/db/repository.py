@@ -39,6 +39,24 @@ class SceneRepository:
             result = await session.execute(select(Scene).order_by(Scene.updated_at.desc()))
             return list(result.scalars())
 
+    async def referenced_kind_ids(self) -> set[str]:
+        """Every kindId referenced by a persisted scene.
+
+        Generated assets referenced by a scene must never be reclaimed: the
+        document stores only the kind, so deleting its file would make the scene
+        fail validation on load.
+        """
+        async with self._session_factory() as session:
+            result = await session.execute(select(Scene.doc_json))
+            kinds: set[str] = set()
+            for doc in result.scalars():
+                if not isinstance(doc, dict):
+                    continue
+                for item in doc.get("items", []) or []:
+                    if isinstance(item, dict) and isinstance(item.get("kindId"), str):
+                        kinds.add(item["kindId"])
+            return kinds
+
     async def get_scene_row(self, scene_id: str) -> Scene | None:
         async with self._session_factory() as session:
             return await session.get(Scene, scene_id)

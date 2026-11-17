@@ -29,7 +29,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    app_name: str = "AI Interior Layout Workbench"
+    app_name: str = "AI Layout Studio"
     app_version: str = "0.1.0"
     environment: Literal["development", "test", "production"] = "development"
     log_level: str = "INFO"
@@ -59,6 +59,17 @@ class Settings(BaseSettings):
     solver_process_pool: bool = True
     capture_timeout_seconds: float = 5.0
     screenshot_retention_days: int = 7
+
+    # M6 parametric asset library. Generated assets live outside the repository
+    # ``assets/`` tree so container rebuilds and git checkouts cannot drop them.
+    asset_generation_enabled: bool = True
+    asset_library_dir: Path | None = None
+    asset_tmp_ttl_hours: int = Field(default=24, ge=1)
+
+    @property
+    def library_dir(self) -> Path:
+        """Runtime-writable root of the generated asset library."""
+        return self.asset_library_dir or (self.data_dir / "assets")
 
     @property
     def database_url(self) -> str:

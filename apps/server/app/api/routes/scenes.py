@@ -103,7 +103,8 @@ def _item_size(item: Item, catalog: CatalogService) -> Vec2:
         (candidate for candidate in entry.variants if candidate.id == item.variant_id),
         entry.variants[0],
     )
-    return (variant.size_m[0], variant.size_m[1])
+    scale = item.transform.scale
+    return (variant.size_m[0] * scale, variant.size_m[1] * scale)
 
 
 def _candidate_positions(room: Room) -> list[Vec2]:

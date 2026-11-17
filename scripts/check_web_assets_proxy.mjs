@@ -19,7 +19,7 @@ const failures = []
 if (/location\s+\/assets\/\s*\{/.test(nginx)) {
   failures.push('nginx.conf proxies all of /assets/, which shadows the Vite bundle')
 }
-for (const path of ['/assets/models/', '/assets/thumbnails/']) {
+for (const path of ['/assets/models/', '/assets/thumbnails/', '/assets/library/']) {
   if (!nginx.includes(`location ${path}`)) {
     failures.push(`nginx.conf is missing the ${path} proxy`)
   }

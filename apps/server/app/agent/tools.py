@@ -12,6 +12,7 @@ from app.agent.contracts import (
     AddRoomInput,
     AskUserInput,
     AutoLayoutInput,
+    ModelItemInput,
     MoveItemInput,
     QuerySceneInput,
     RemoveItemInput,
@@ -32,6 +33,7 @@ from app.contracts.rules import Rules
 from app.contracts.scene import Item, SceneDocument
 from app.geometry.errors import GeometryError
 from app.geometry.polygon import point_in_polygon, polygon_area
+from app.modelgen.service import ModelGenService
 from app.scene.errors import SceneError
 from app.scene.registry import OverlayView, ProposalBuild, SceneRegistry
 from app.solver.engine import SolveOptions, SolveSpec
@@ -40,6 +42,7 @@ from app.solver.verify import verify_layout
 from app.vlm.service import VLMService, build_legend
 
 AskUserHandler = Callable[[AskUserInput], Awaitable[dict[str, list[str]]]]
+CatalogPublisher = Callable[[str, CatalogEntry], Awaitable[None]]
 
 
 @dataclass
@@ -69,6 +72,8 @@ class ToolExecutor:
         solver: SolverService | None = None,
         capture: CaptureService | None = None,
         vlm: VLMService | None = None,
+        modelgen: ModelGenService | None = None,
+        on_catalog_updated: CatalogPublisher | None = None,
     ) -> None:
         self._registry = registry
         self._catalog = catalog
@@ -79,6 +84,8 @@ class ToolExecutor:
         self._solver = solver
         self._capture = capture
         self._vlm = vlm
+        self._modelgen = modelgen
+        self._on_catalog_updated = on_catalog_updated
 
     async def execute(self, name: str, arguments: dict[str, Any]) -> ToolExecution:
         try:
@@ -123,6 +130,8 @@ class ToolExecutor:
                     plan_add_room(document, model, rules=self._rules)
                 ),
             )
+        if isinstance(model, ModelItemInput):
+            return await self._model_item(model)
         if isinstance(model, MoveItemInput):
             return await self._write(
                 name,
@@ -179,6 +188,102 @@ class ToolExecutor:
             },
             refusals=[make_refusal("invalid_input", f"Tool {name!r} is not implemented.")],
         )
+
+    async def _model_item(self, request: ModelItemInput) -> ToolExecution:
+        """Compile a parametric spec, register it, then place it semantically.
+
+        Ordering matters: ``place_add`` resolves the kind through the catalog, so
+        the entry must be registered *and* published to the host before the
+        proposal is created. The host needs the model URL before it can render
+        the ghost referenced by ``proposal.created``.
+        """
+        if self._modelgen is None:
+            return _refused(
+                "model_item",
+                make_refusal(
+                    "internal_error",
+                    "Parametric asset generation is not available on this server.",
+                    suggest="Use a catalog kind with add_item instead.",
+                ),
+            )
+        try:
+            compiled = self._modelgen.ensure(request.spec)
+        except SceneError as error:
+            return _refused(
+                "model_item",
+                make_refusal(
+                    error.code,
+                    error.message,
+                    suggest=error.suggest,
+                    details=error.details,
+                ),
+            )
+        entry = compiled.entry
+        if request.name:
+            entry = entry.model_copy(update={"name": request.name[:60]})
+            record = self._modelgen.library.get(entry.kind_id)
+            if record is not None:
+                self._modelgen.library.register(
+                    type(record)(
+                        entry=entry,
+                        generator=record.generator,
+                        created_at=record.created_at,
+                        promoted=record.promoted,
+                    )
+                )
+        self._register_catalog_entry(entry)
+        if self._on_catalog_updated is not None:
+            await self._on_catalog_updated(self._scene_id, entry)
+
+        add_request = AddItemInput(
+            kind_id=entry.kind_id,
+            variant_id=entry.default_variant_id,
+            room_id=request.room_id,
+            relation=request.relation,
+            facing=request.facing,
+            clearance=request.clearance,
+        )
+        execution = await self._write(
+            "model_item",
+            add_request,
+            lambda document, _pending: _from_placement(
+                place_add(
+                    document,
+                    add_request,
+                    catalog=self._catalog,
+                    rules=self._rules,
+                    strict=True,
+                )
+            ),
+        )
+        if execution.payload.get("ok"):
+            execution.payload["asset"] = {
+                "kindId": entry.kind_id,
+                "name": entry.name,
+                "family": request.spec.family,
+                "sizeM": list(entry.variants[0].size_m) if entry.variants else [],
+                "reusable": True,
+            }
+        else:
+            # Nothing new references the asset: drop the unpromoted entry so a
+            # rejected placement does not linger in the catalog and prompt. A
+            # kind already used by an earlier pending proposal stays.
+            view = await self._registry.overlay_view(self._scene_id)
+            referenced = any(
+                op.op == "item.add" and op.item.kind_id == entry.kind_id
+                for proposal in view.pending
+                for op in proposal.ops
+            )
+            if not referenced:
+                self._modelgen.release(entry.kind_id)
+                if isinstance(self._catalog, dict):
+                    self._catalog.pop(entry.kind_id, None)
+        return execution
+
+    def _register_catalog_entry(self, entry: CatalogEntry) -> None:
+        """Make the new kind visible to tool validation in this turn."""
+        if isinstance(self._catalog, dict):
+            self._catalog[entry.kind_id] = entry
 
     async def _auto_layout(self, request: AutoLayoutInput) -> ToolExecution:
         if self._solver is None:
@@ -490,6 +595,7 @@ class ToolExecutor:
                     "variantId": item.variant_id,
                     "position": list(item.transform.position),
                     "rotationY": item.transform.rotation_y,
+                    "scale": item.transform.scale,
                     "roomId": _room_id_for(document, item.id),
                     "constraint": item.constraint.model_dump(mode="json", by_alias=True)
                     if item.constraint
@@ -516,6 +622,10 @@ class ToolExecutor:
         matches: list[CatalogEntry] = []
         for entry in self._catalog.values():
             if request.category is not None and entry.category != request.category:
+                continue
+            if request.source == "builtin" and entry.source != "builtin":
+                continue
+            if request.source == "library" and entry.source == "builtin":
                 continue
             if query and not (
                 query in entry.kind_id.lower()
@@ -553,6 +663,7 @@ class ToolExecutor:
                     "kindId": entry.kind_id,
                     "name": entry.name,
                     "category": entry.category.value,
+                    "source": entry.source,
                     "defaultVariantId": entry.default_variant_id,
                     "variants": [
                         {

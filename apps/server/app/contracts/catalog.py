@@ -50,6 +50,13 @@ class CatalogEntry(CamelModel):
     clearance: Clearance = Field(default_factory=Clearance)
     allowed_rotations: list[float] = Field(default_factory=lambda: [0.0, 90.0, 180.0, 270.0])
     rules: CatalogRules | None = None
+    source: Literal["builtin", "library"] = Field(
+        default="builtin",
+        description=(
+            "Where the entry comes from: the shipped fixture catalog or the "
+            "runtime generated-asset library."
+        ),
+    )
     license: CatalogLicense | None = None
 
     def variant(self, variant_id: str) -> CatalogVariant:
